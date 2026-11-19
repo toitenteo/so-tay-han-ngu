@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#121110" />
+  <meta name="theme-color" content="#141210" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Sổ Tay Hán Ngữ</title>
@@ -14,152 +14,132 @@
     @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap');
     body {
       font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, sans-serif;
-      background-color: #121110;
-      color: #f3efe9;
+      background-color: #141210;
+      color: #f2ede6;
       -webkit-tap-highlight-color: transparent;
       overscroll-behavior-y: none;
     }
     .hanzi-font {
       font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
     }
-    /* Custom scrollbar */
     ::-webkit-scrollbar { width: 4px; height: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #332f2c; border-radius: 99px; }
-    .blur-mask {
+    ::-webkit-scrollbar-thumb { background: #36302b; border-radius: 99px; }
+    .blur-item {
       filter: blur(6px);
       user-select: none;
       transition: filter 0.2s ease;
     }
-    .blur-mask.revealed {
+    .blur-item.revealed {
       filter: blur(0);
-    }
-    @keyframes pulse-soft {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-    .animate-pulse-soft {
-      animation: pulse-soft 1.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col max-w-md mx-auto bg-[#121110] relative pb-24">
+<body class="min-h-screen flex flex-col max-w-md mx-auto bg-[#141210] relative pb-24">
 
   <!-- Header -->
-  <header class="sticky top-0 z-30 bg-[#121110]/95 backdrop-blur border-b border-[#262320] px-4 py-3 flex items-center justify-between">
+  <header class="sticky top-0 z-30 bg-[#141210]/95 backdrop-blur border-b border-[#26221e] px-4 py-3 flex items-center justify-between">
     <div class="flex items-center gap-2.5">
-      <div class="w-9 h-9 rounded-xl bg-[#9a342a] flex items-center justify-center text-[#f7e7d4] font-bold text-lg hanzi-font shadow-inner">
+      <div class="w-9 h-9 rounded-xl bg-[#a8382b] flex items-center justify-center text-[#f7e7d4] font-bold text-lg hanzi-font shadow">
         汉
       </div>
       <div>
-        <h1 class="text-[15px] font-bold text-[#f3efe9] leading-tight">Sổ Tay Hán Ngữ</h1>
-        <p class="text-[11px] text-[#9b938a]">Nhớ mặt chữ &amp; Phản xạ nói</p>
+        <h1 class="text-[15px] font-bold text-[#f2ede6] leading-tight">Sổ Tay Hán Ngữ</h1>
+        <p class="text-[11px] text-[#9c9288]">Nhớ mặt chữ &amp; Phản xạ nói</p>
       </div>
     </div>
     <div class="flex items-center gap-2">
-      <button onclick="cycleSpeechRate()" id="rateBtn" class="px-2.5 py-1.5 rounded-lg bg-[#221f1d] border border-[#322e2a] text-[12px] font-semibold text-[#d6cec3] flex items-center gap-1 active:scale-95 transition">
-        <span>🔊</span> <span id="rateLabel">1x</span>
+      <button onclick="cycleSpeechRate()" class="px-2.5 py-1.5 rounded-xl bg-[#24201d] border border-[#332d28] text-[12px] font-semibold text-[#dfd7cd] flex items-center gap-1 active:scale-95 transition">
+        <span>🗣️</span> <span id="rateLabel">1x</span>
       </button>
-      <div class="px-2.5 py-1.5 rounded-lg bg-[#2a1f16] border border-[#453120] text-[12px] font-bold text-[#f59e0b] flex items-center gap-1">
+      <div class="px-2.5 py-1.5 rounded-xl bg-[#2b2116] border border-[#47341f] text-[12px] font-bold text-[#f59e0b] flex items-center gap-1">
         <span>🔥</span> <span id="streakCount">1</span>
       </div>
     </div>
   </header>
 
-  <!-- Main Content Area -->
-  <main id="appMain" class="flex-1 px-4 pt-3 space-y-4">
-    <!-- Tab content rendered dynamically -->
-  </main>
+  <!-- Main Content -->
+  <main id="appMain" class="flex-1 px-4 pt-3 space-y-4"></main>
 
-  <!-- Bottom Navigation -->
-  <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[#171513]/95 backdrop-blur border-t border-[#262320] px-2 py-2 flex justify-around items-center z-40">
-    <button onclick="switchTab('vocab')" data-tab="vocab" class="nav-btn flex flex-col items-center gap-1 px-3 py-1 rounded-xl text-[#e07a5f]">
-      <span class="text-lg">📖</span>
-      <span class="text-[11px] font-medium">Sổ học</span>
+  <!-- Bottom Navigation (5 Tabs gốc) -->
+  <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[#181512]/95 backdrop-blur border-t border-[#26221e] px-1 py-2 flex justify-around items-center z-40">
+    <button onclick="switchTab('dashboard')" data-tab="dashboard" class="nav-btn flex flex-col items-center gap-0.5 px-2.5 py-1 rounded-xl text-[#8f857b]">
+      <span class="text-base">📊</span>
+      <span class="text-[10px] font-medium">Tổng quan</span>
     </button>
-    <button onclick="switchTab('database')" data-tab="database" class="nav-btn flex flex-col items-center gap-1 px-3 py-1 rounded-xl text-[#8b837a]">
-      <span class="text-lg">🗂️</span>
-      <span class="text-[11px] font-medium">Kho từ</span>
+    <button onclick="switchTab('vocab')" data-tab="vocab" class="nav-btn flex flex-col items-center gap-0.5 px-2.5 py-1 rounded-xl text-[#e07a5f] bg-[#241e1a]">
+      <span class="text-base">📖</span>
+      <span class="text-[10px] font-medium">Sổ học</span>
     </button>
-    <button onclick="switchTab('speak')" data-tab="speak" class="nav-btn flex flex-col items-center gap-1 px-3 py-1 rounded-xl text-[#8b837a]">
-      <span class="text-lg">🗣️</span>
-      <span class="text-[11px] font-medium">Giao tiếp</span>
+    <button onclick="switchTab('database')" data-tab="database" class="nav-btn flex flex-col items-center gap-0.5 px-2.5 py-1 rounded-xl text-[#8f857b]">
+      <span class="text-base">🗂️</span>
+      <span class="text-[10px] font-medium">Kho từ</span>
     </button>
-    <button onclick="switchTab('stats')" data-tab="stats" class="nav-btn flex flex-col items-center gap-1 px-3 py-1 rounded-xl text-[#8b837a]">
-      <span class="text-lg">⚙️</span>
-      <span class="text-[11px] font-medium">Tiến độ &amp; AI</span>
+    <button onclick="switchTab('speak')" data-tab="speak" class="nav-btn flex flex-col items-center gap-0.5 px-2.5 py-1 rounded-xl text-[#8f857b]">
+      <span class="text-base">💬</span>
+      <span class="text-[10px] font-medium">Giao tiếp</span>
+    </button>
+    <button onclick="switchTab('journal')" data-tab="journal" class="nav-btn flex flex-col items-center gap-0.5 px-2.5 py-1 rounded-xl text-[#8f857b]">
+      <span class="text-base">📝</span>
+      <span class="text-[10px] font-medium">Nhật ký</span>
     </button>
   </nav>
 
-  <!-- Modal: Thêm từ vựng mới -->
+  <!-- Modal: Thêm từ vựng mới (Giữ nguyên giao diện cũ + Tự động điền Nghĩa & Chiết tự) -->
   <div id="addModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs hidden flex-col justify-end">
-    <div class="bg-[#1b1917] border-t border-[#302c28] rounded-t-3xl p-5 max-w-md w-full mx-auto space-y-3.5 max-h-[92vh] overflow-y-auto shadow-2xl">
+    <div class="bg-[#1e1b18] border-t border-[#332d28] rounded-t-3xl p-5 max-w-md w-full mx-auto space-y-3.5 max-h-[92vh] overflow-y-auto shadow-2xl">
       <div class="flex items-center justify-between">
-        <h2 class="text-base font-bold text-[#f3efe9]">Thêm từ vựng mới</h2>
-        <button onclick="closeAddModal()" class="w-8 h-8 rounded-full bg-[#2a2623] text-[#a8a096] flex items-center justify-center text-sm">✕</button>
+        <h2 class="text-base font-bold text-[#f2ede6]">Thêm từ vựng mới</h2>
+        <button onclick="closeAddModal()" class="w-8 h-8 rounded-full bg-[#2c2723] text-[#a89e94] flex items-center justify-center text-sm">✕</button>
       </div>
 
-      <!-- Chữ Hán -->
       <div>
         <div class="flex items-center justify-between mb-1">
-          <label class="text-xs font-medium text-[#b5ada3]">Chữ Hán (Hanzi) *</label>
-          <span id="autoFillStatus" class="text-[11px] text-[#e07a5f] hidden"></span>
+          <label class="text-xs font-medium text-[#b8afa6]">Chữ Hán (Hanzi) *</label>
+          <span id="autoStatus" class="text-[11px] text-[#e07a5f] hidden">Đang tra nghĩa...</span>
         </div>
         <div class="flex gap-2">
-          <input type="text" id="inputHanzi" oninput="handleHanziInput(this.value)" placeholder="Ví dụ: 休息"
-            class="flex-1 bg-[#25221f] border border-[#38332e] focus:border-[#c85a48] rounded-xl px-3.5 py-2.5 text-base hanzi-font text-[#f3efe9] outline-none" />
-          <button type="button" onclick="triggerDeepAI()" id="aiFillBtn"
-            class="px-3 py-2 rounded-xl bg-[#2f231e] border border-[#5e392e] text-[#f29b7e] text-xs font-semibold flex items-center gap-1 active:scale-95 transition whitespace-nowrap">
-            <span>✨</span> <span>AI Chiết tự</span>
+          <input type="text" id="inputHanzi" oninput="onHanziChanged(this.value)" placeholder="Ví dụ: 休息"
+            class="flex-1 bg-[#2c2621] border border-[#3d352e] focus:border-[#b83d2e] rounded-xl px-3.5 py-2.5 text-lg hanzi-font text-[#f2ede6] placeholder-[#8c8278] outline-none" />
+          <button type="button" id="aiBtn" onclick="runAiAutoFill()"
+            class="px-3 rounded-xl bg-[#2e241c] border border-[#543d2a] text-[#e8b878] text-xs font-semibold flex items-center gap-1 active:scale-95 transition whitespace-nowrap">
+            <span>✨</span> <span>AI</span>
           </button>
         </div>
       </div>
 
-      <!-- Pinyin -->
       <div>
-        <label class="block text-xs font-medium text-[#b5ada3] mb-1">Pinyin (Tự động điền)</label>
+        <label class="block text-xs font-medium text-[#b8afa6] mb-1">Pinyin (Tự động điền)</label>
         <input type="text" id="inputPinyin" placeholder="xiū xi"
-          class="w-full bg-[#25221f] border border-[#38332e] rounded-xl px-3.5 py-2 text-sm text-[#e5ded5] outline-none" />
+          class="w-full bg-[#2c2621] border border-[#3d352e] rounded-xl px-3.5 py-2.5 text-sm text-[#e6dfd5] placeholder-[#8c8278] outline-none" />
       </div>
 
-      <!-- Nghĩa tiếng Việt -->
       <div>
-        <div class="flex items-center justify-between mb-1">
-          <label class="text-xs font-medium text-[#b5ada3]">Nghĩa tiếng Việt *</label>
-          <span id="meaningTag" class="text-[10px] text-[#8b837a]">Tự động gợi ý</span>
-        </div>
+        <label class="block text-xs font-medium text-[#b8afa6] mb-1">Nghĩa tiếng Việt *</label>
         <input type="text" id="inputMeaning" placeholder="Ví dụ: Nghỉ ngơi"
-          class="w-full bg-[#25221f] border border-[#38332e] focus:border-[#c85a48] rounded-xl px-3.5 py-2 text-sm text-[#f3efe9] outline-none" />
+          class="w-full bg-[#2c2621] border border-[#3d352e] focus:border-[#b83d2e] rounded-xl px-3.5 py-2.5 text-sm text-[#f2ede6] placeholder-[#8c8278] outline-none" />
       </div>
 
-      <!-- Chiết tự / Mẹo nhớ mặt chữ -->
       <div>
-        <div class="flex items-center justify-between mb-1">
-          <label class="text-xs font-medium text-[#d4b475] flex items-center gap-1">
-            <span>💡</span> Chiết tự / Mẹo nhớ mặt chữ
-          </label>
-          <span id="mnemonicTag" class="text-[10px] text-[#8b837a]">Tự tách bộ thủ</span>
-        </div>
+        <label class="block text-xs font-medium text-[#d9b86c] mb-1">💡 Chiết tự / Mẹo nhớ mặt chữ (Rất hiệu quả)</label>
         <textarea id="inputMnemonic" rows="2" placeholder="Ví dụ: Người (人) tựa vào gốc cây (木) để nghỉ ngơi (休)"
-          class="w-full bg-[#25221f] border border-[#38332e] focus:border-[#d4b475] rounded-xl px-3.5 py-2 text-xs leading-relaxed text-[#f3efe9] outline-none resize-none"></textarea>
+          class="w-full bg-[#292418] border border-[#524626] focus:border-[#d9b86c] rounded-xl px-3.5 py-2.5 text-xs leading-relaxed text-[#f2ede6] placeholder-[#998c6c] outline-none resize-none"></textarea>
       </div>
 
-      <!-- Mức độ nhớ mặt chữ -->
       <div>
-        <label class="block text-xs font-medium text-[#b5ada3] mb-1">Mức độ nhớ mặt chữ</label>
-        <select id="inputLevel" class="w-full bg-[#25221f] border border-[#38332e] rounded-xl px-3.5 py-2.5 text-sm text-[#f3efe9] outline-none">
+        <label class="block text-xs font-medium text-[#b8afa6] mb-1">Mức độ nhớ mặt chữ</label>
+        <select id="inputLevel" class="w-full bg-[#2c2621] border border-[#3d352e] rounded-xl px-3.5 py-2.5 text-sm text-[#f2ede6] outline-none">
           <option value="new">🔴 Mới học (Cần ôn nhiều)</option>
           <option value="learning">🟡 Đang nhớ (Ôn định kỳ)</option>
           <option value="mastered">🟢 Đã thuộc mặt chữ</option>
         </select>
       </div>
 
-      <!-- Actions -->
       <div class="grid grid-cols-2 gap-3 pt-1">
-        <button type="button" onclick="closeAddModal()" class="py-3 rounded-xl bg-[#2a2623] text-[#d6cec3] font-semibold text-sm active:scale-95 transition">
+        <button type="button" onclick="closeAddModal()" class="py-3 rounded-xl bg-[#2c2723] text-[#dfd7cd] font-semibold text-sm active:scale-95 transition">
           Hủy
         </button>
-        <button type="button" onclick="saveNewWord()" class="py-3 rounded-xl bg-[#b9382c] text-white font-semibold text-sm active:scale-95 transition shadow-lg">
+        <button type="button" onclick="saveNewWord()" class="py-3 rounded-xl bg-[#b83d2e] text-white font-semibold text-sm active:scale-95 transition">
           Lưu từ vựng
         </button>
       </div>
@@ -168,53 +148,53 @@
 
   <!-- Modal: Tập viết nét chữ Hán -->
   <div id="writerModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs hidden items-center justify-center p-4">
-    <div class="bg-[#1b1917] border border-[#302c28] rounded-3xl p-5 max-w-sm w-full space-y-4">
+    <div class="bg-[#1e1b18] border border-[#332d28] rounded-3xl p-5 max-w-sm w-full space-y-4">
       <div class="flex items-center justify-between">
         <div>
-          <h3 class="text-base font-bold text-[#f3efe9]">Tập viết nét chữ Hán</h3>
-          <p id="writerWordInfo" class="text-xs text-[#9b938a]"></p>
+          <h3 class="text-base font-bold text-[#f2ede6]">Tập viết nét chữ Hán</h3>
+          <p id="writerInfo" class="text-xs text-[#9c9288]"></p>
         </div>
-        <button onclick="closeWriterModal()" class="w-8 h-8 rounded-full bg-[#2a2623] text-[#a8a096] flex items-center justify-center text-sm">✕</button>
+        <button onclick="closeWriterModal()" class="w-8 h-8 rounded-full bg-[#2c2723] text-[#a89e94] flex items-center justify-center text-sm">✕</button>
       </div>
-      <div id="charSelector" class="flex justify-center gap-2"></div>
+      <div id="writerChars" class="flex justify-center gap-2"></div>
       <div class="flex justify-center">
-        <div id="characterTarget" class="bg-[#24211e] rounded-2xl border border-[#38332e] overflow-hidden"></div>
+        <div id="writerCanvas" class="bg-[#26221e] rounded-2xl border border-[#3d352e] overflow-hidden"></div>
       </div>
       <div class="grid grid-cols-2 gap-2.5">
-        <button onclick="animateWriter()" class="py-2.5 rounded-xl bg-[#2a2623] text-[#f3efe9] text-xs font-semibold">▶️ Xem mẫu viết</button>
-        <button onclick="quizWriter()" class="py-2.5 rounded-xl bg-[#b9382c] text-white text-xs font-semibold">✍️ Tự tô nét</button>
+        <button onclick="animateWriter()" class="py-2.5 rounded-xl bg-[#2c2723] text-[#f2ede6] text-xs font-semibold">▶️ Xem mẫu viết</button>
+        <button onclick="quizWriter()" class="py-2.5 rounded-xl bg-[#b83d2e] text-white text-xs font-semibold">✍️ Tự tô nét</button>
       </div>
     </div>
   </div>
 
   <!-- Modal: Flashcard Ôn tập Ghi nhớ Nhắc lại -->
-  <div id="reviewModal" class="fixed inset-0 z-50 bg-[#121110] hidden flex-col p-4 max-w-md mx-auto">
+  <div id="reviewModal" class="fixed inset-0 z-50 bg-[#141210] hidden flex-col p-4 max-w-md mx-auto">
     <div class="flex items-center justify-between py-2">
-      <button onclick="closeReviewModal()" class="px-3 py-1.5 rounded-xl bg-[#221f1d] text-xs text-[#b5ada3]">✕ Thoát</button>
-      <span id="reviewProgress" class="text-xs font-semibold text-[#e07a5f]">1 / 5</span>
-      <button onclick="speakCurrentReview()" class="px-3 py-1.5 rounded-xl bg-[#221f1d] text-xs text-[#f3efe9]">🔊 Nghe</button>
+      <button onclick="closeReviewModal()" class="px-3 py-1.5 rounded-xl bg-[#24201d] text-xs text-[#b8afa6]">✕ Thoát</button>
+      <span id="reviewCounter" class="text-xs font-semibold text-[#e07a5f]">1 / 5</span>
+      <button onclick="speakCurrentReview()" class="px-3 py-1.5 rounded-xl bg-[#24201d] text-xs text-[#f2ede6]">🔊 Nghe</button>
     </div>
 
     <div class="flex-1 flex flex-col justify-center my-4">
-      <div onclick="flipReviewCard()" id="reviewCard" class="bg-[#1c1917] border border-[#2e2a26] rounded-3xl p-6 min-h-[300px] flex flex-col items-center justify-center text-center cursor-pointer shadow-xl relative">
-        <span class="text-[11px] text-[#7a7269] absolute top-4">Chạm vào thẻ để lật đáp án</span>
-        <div id="reviewHanzi" class="text-6xl font-bold hanzi-font text-[#f3efe9] mb-4"></div>
-        <div id="reviewBack" class="hidden space-y-3 w-full pt-3 border-t border-[#2c2824]">
+      <div onclick="flipReviewCard()" class="bg-[#1e1b18] border border-[#332d28] rounded-3xl p-6 min-h-[300px] flex flex-col items-center justify-center text-center cursor-pointer shadow-xl relative">
+        <span class="text-[11px] text-[#8c8278] absolute top-4">Chạm vào thẻ để xem đáp án</span>
+        <div id="reviewHanzi" class="text-6xl font-bold hanzi-font text-[#f2ede6] mb-4"></div>
+        <div id="reviewAnswer" class="hidden space-y-3 w-full pt-3 border-t border-[#2e2924]">
           <div id="reviewPinyin" class="text-lg font-semibold text-[#e07a5f]"></div>
-          <div id="reviewMeaning" class="text-base font-bold text-[#f3efe9]"></div>
-          <div id="reviewMnemonic" class="text-xs text-[#d4b475] bg-[#262118] p-3 rounded-xl leading-relaxed"></div>
+          <div id="reviewMeaning" class="text-base font-bold text-[#f2ede6]"></div>
+          <div id="reviewMnemonic" class="text-xs text-[#d9b86c] bg-[#292418] p-3 rounded-xl leading-relaxed whitespace-pre-line"></div>
         </div>
       </div>
     </div>
 
-    <div id="reviewActions" class="grid grid-cols-3 gap-2.5 pb-4">
-      <button onclick="answerReview('again')" class="py-3.5 rounded-2xl bg-[#381d1b] border border-[#612c28] text-[#f87171] font-bold text-xs active:scale-95">
+    <div class="grid grid-cols-3 gap-2.5 pb-4">
+      <button onclick="gradeReview('again')" class="py-3.5 rounded-2xl bg-[#381d1b] border border-[#612c28] text-[#f87171] font-bold text-xs active:scale-95">
         🔴 Quên rồi<br><span class="text-[10px] font-normal opacity-80">Nhắc lại ngay</span>
       </button>
-      <button onclick="answerReview('good')" class="py-3.5 rounded-2xl bg-[#362c18] border border-[#5e4b24] text-[#fbbf24] font-bold text-xs active:scale-95">
+      <button onclick="gradeReview('good')" class="py-3.5 rounded-2xl bg-[#362c18] border border-[#5e4b24] text-[#fbbf24] font-bold text-xs active:scale-95">
         🟡 Hơi nhớ<br><span class="text-[10px] font-normal opacity-80">Ôn định kỳ</span>
       </button>
-      <button onclick="answerReview('easy')" class="py-3.5 rounded-2xl bg-[#193324] border border-[#27543a] text-[#4ade80] font-bold text-xs active:scale-95">
+      <button onclick="gradeReview('easy')" class="py-3.5 rounded-2xl bg-[#193324] border border-[#27543a] text-[#4ade80] font-bold text-xs active:scale-95">
         🟢 Đã thuộc<br><span class="text-[10px] font-normal opacity-80">Nhớ mặt chữ</span>
       </button>
     </div>
@@ -222,521 +202,514 @@
 
   <script>
     // ==========================================
-    // 1. DỮ LIỆU TỪ ĐIỂN & BỘ THỦ CHIẾT TỰ TÍCH HỢP
+    // 1. BỘ THỦ & KHO TỪ ĐIỂN CỐT LÕI
     // ==========================================
-    const RADICAL_DB = {
-      '人': 'Người', '亻': 'Người đứng', '木': 'Cây cối', '口': 'Cái miệng', '日': 'Mặt trời / Ngày',
-      '月': 'Mặt trăng / Tháng / Thịt', '水': 'Nước', '氵': 'Ba chấm nước', '火': 'Lửa', '灬': 'Bốn chấm lửa',
-      '土': 'Đất', '金': 'Kim loại / Vàng', '钅': 'Kim loại', '心': 'Trái tim', '忄': 'Tâm đứng (cảm xúc)',
-      '手': 'Bàn tay', '扌': 'Tay gảy', '女': 'Phụ nữ', '子': 'Con cái / Đứa trẻ', '宀': 'Mái nhà',
-      '广': 'Mái hiên rộng', '门': 'Cánh cửa', '山': 'Ngọn núi', '石': 'Hòn đá', '田': 'Ruộng đồng',
-      '目': 'Con mắt', '耳': 'Cái tai', '足': 'Bàn chân', '走': 'Đi chạy', '辶': 'Quai xước (bước đi)',
-      '言': 'Lời nói', '讠': 'Ngôn ngữ / Lời nói', '食': 'Thức ăn', '饣': 'Ăn uống', '衣': 'Quần áo',
-      '衤': 'Y phục', '马': 'Con ngựa', '牛': 'Con trâu/bò', '羊': 'Con dê', '犬': 'Con chó',
-      '犭': 'Thú vật', '鸟': 'Con chim', '鱼': 'Con cá', '虫': 'Côn trùng', '草': 'Cỏ cây',
-      '艹': 'Thảo đầu (cỏ cây)', '竹': 'Cây tre', '米': 'Hạt gạo', '糸': 'Sợi tơ', '纟': 'Sợi chỉ',
-      '车': 'Xe cộ', '舟': 'Con thuyền', '雨': 'Mưa', '风': 'Gió', '云': 'Mây', '电': 'Điện / Chớp',
-      '力': 'Sức lực', '刀': 'Con dao', '刂': 'Đao đứng', '弓': 'Cái cung', '矢': 'Mũi tên',
-      '戈': 'Cây giáo', '王': 'Vua / Ngọc', '玉': 'Viên ngọc', '贝': 'Vỏ sò / Tiền bạc', '见': 'Nhìn thấy',
-      '气': 'Hơi thở / Khí', '生': 'Sinh sôi / Sống', '白': 'Màu trắng', '黑': 'Màu đen', '红': 'Màu đỏ',
-      '大': 'To lớn', '小': 'Nhỏ bé', '上': 'Bên trên', '下': 'Bên dưới', '中': 'Ở giữa',
-      '一': 'Số một / Nét ngang', '二': 'Số hai', '三': 'Số ba', '十': 'Số mười / Chữ thập',
-      '休': 'Người (亻) tựa gốc cây (木) nghỉ ngơi', '好': 'Phụ nữ (女) bên con trẻ (子) là điều tốt đẹp',
-      '明': 'Mặt trời (日) và mặt trăng (月) cùng chiếu sáng', '看': 'Đưa tay (手) che trên mắt (目) để nhìn xa',
-      '听': 'Dùng miệng (口) và tai/rìu (斤) để lắng nghe', '说': 'Dùng lời nói (讠) để bày tỏ niềm vui (兑)',
-      '话': 'Lời nói (讠) từ chiếc lưỡi (舌)', '吃': 'Miệng (口) cầu xin (乞) đồ ăn',
-      '喝': 'Miệng (口) khát nước (曷) nên uống', '想': 'Tâm trí (心) hướng về hình ảnh (相) để suy nghĩ',
-      '爱': 'Dùng tay (爫) che chở mái đầu (冖) cho người bạn (友) bằng cả tấm lòng',
-      '家': 'Dưới mái nhà (宀) có nuôi lợn (豕) là gia đình ấm no', '安': 'Người phụ nữ (女) ở dưới mái nhà (宀) là bình yên',
-      '学': 'Đứa trẻ (子) học tập dưới mái trường (冖)', '习': 'Chim non vỗ đôi cánh luyện bay',
-      '工作': 'Người thợ (工) đứng làm việc (作)', '买': 'Đầu đội hàng hóa đi mua', '卖': 'Thêm chữ thập (十) lên trên mua (买) thành bán',
-      '钱': 'Kim loại (钅) quý giá mọi người tranh nhau (戋)', '谢': 'Dùng lời nói (讠) bắn (射) đi sự cảm ơn',
-      '忙': 'Trong lòng (忄) thấy mất đi (亡) thời gian nên bận rộn', '累': 'Làm việc ngoài ruộng (田) mệt đến rã rời sợi tơ (糸)',
-      '饿': 'Đồ ăn (饣) của riêng tôi (我) chưa có nên đói', '渴': 'Nước (氵) bị mặt trời làm khô cạn (曷) nên khát'
+    const RADICALS = {
+      '人': 'Người', '亻': 'Người đứng', '木': 'Cây', '口': 'Miệng', '日': 'Mặt trời/Ngày',
+      '月': 'Mặt trăng/Tháng/Thịt', '水': 'Nước', '氵': 'Ba chấm nước', '火': 'Lửa', '灬': 'Bốn chấm lửa',
+      '土': 'Đất', '金': 'Kim loại', '钅': 'Kim loại', '心': 'Tim', '忄': 'Tâm đứng (cảm xúc)',
+      '手': 'Tay', '扌': 'Tay gảy', '女': 'Phụ nữ', '子': 'Con trẻ', '宀': 'Mái nhà',
+      '广': 'Mái hiên', '门': 'Cánh cửa', '山': 'Núi', '石': 'Đá', '田': 'Ruộng',
+      '目': 'Mắt', '耳': 'Tai', '足': 'Chân', '走': 'Đi chạy', '辶': 'Bước đi',
+      '言': 'Lời nói', '讠': 'Lời nói', '食': 'Thức ăn', '饣': 'Ăn uống', '衣': 'Áo',
+      '衤': 'Y phục', '马': 'Ngựa', '牛': 'Trâu bò', '羊': 'Dê', '犬': 'Chó',
+      '犭': 'Thú', '鸟': 'Chim', '鱼': 'Cá', '虫': 'Sâu bọ', '艹': 'Cỏ cây',
+      '竹': 'Tre', '米': 'Gạo', '纟': 'Sợi tơ', '车': 'Xe', '雨': 'Mưa',
+      '风': 'Gió', '电': 'Điện', '力': 'Sức lực', '刀': 'Dao', '刂': 'Đao đứng',
+      '王': 'Vua/Ngọc', '贝': 'Vỏ sò/Tiền', '见': 'Nhìn thấy', '气': 'Khí/Hơi thở',
+      '白': 'Trắng', '大': 'To', '小': 'Nhỏ', '上': 'Trên', '下': 'Dưới', '中': 'Giữa',
+      '休': 'Người (亻) tựa vào gốc cây (木) để nghỉ ngơi',
+      '好': 'Phụ nữ (女) bên con trẻ (子) là điều tốt đẹp',
+      '明': 'Mặt trời (日) và mặt trăng (月) cùng chiếu sáng',
+      '看': 'Đưa tay (手) che trên mắt (目) để nhìn',
+      '听': 'Dùng miệng (口) và tai lắng nghe',
+      '说': 'Dùng lời nói (讠) bày tỏ niềm vui (兑)',
+      '吃': 'Miệng (口) ăn đồ ăn (乞)',
+      '喝': 'Miệng (口) khát nước (曷) nên uống',
+      '想': 'Tâm trí (心) hướng về hình ảnh (相) để suy nghĩ',
+      '家': 'Dưới mái nhà (宀) có nuôi lợn (豕) là gia đình',
+      '安': 'Phụ nữ (女) ở dưới mái nhà (宀) là bình yên',
+      '学': 'Đứa trẻ (子) học tập dưới mái trường (冖)',
+      '忙': 'Trong lòng (忄) thấy mất đi (亡) thời gian nên bận rộn',
+      '累': 'Làm việc ngoài ruộng (田) mệt đến rã rời sợi tơ (纟)',
+      '饿': 'Đồ ăn (饣) của tôi (我) chưa có nên đói',
+      '渴': 'Nước (氵) bị mặt trời làm cạn (曷) nên khát'
     };
 
-    // Phân rã cấu tạo chữ Hán phổ biến thành các bộ thủ trực quan
-    const CHAR_DECOMP = {
+    const CHAR_COMPONENTS = {
       '休': ['亻', '木'], '息': ['自', '心'], '好': ['女', '子'], '明': ['日', '月'],
       '看': ['手', '目'], '听': ['口', '斤'], '说': ['讠', '兑'], '话': ['讠', '舌'],
       '吃': ['口', '乞'], '喝': ['口', '曷'], '想': ['相', '心'], '忘': ['亡', '心'],
       '忙': ['忄', '亡'], '快': ['忄', '夬'], '慢': ['忄', '曼'], '懂': ['忄', '董'],
       '家': ['宀', '豕'], '安': ['宀', '女'], '字': ['宀', '子'], '室': ['宀', '至'],
-      '学': ['小', '冖', '子'], '买': ['乛', '头'], '卖': ['十', '买'], '钱': ['钅', '戋'],
-      '银': ['钅', '艮'], '谢': ['讠', '射'], '请': ['讠', '青'], '认': ['讠', '人'],
-      '识': ['讠', '只'], '语': ['讠', '吾'], '课': ['讠', '果'], '谁': ['讠', '隹'],
-      '饿': ['饣', '我'], '饭': ['饣', '反'], '饮': ['饣', '欠'], '馆': ['饣', '官'],
-      '渴': ['氵', '曷'], '洗': ['氵', '先'], '海': ['氵', '每'], '河': ['氵', '可'],
-      '没': ['氵', '殳'], '活': ['氵', '舌'], '汽': ['氵', '气'], '油': ['氵', '由'],
-      '烧': ['火', '尧'], '热': ['执', '灬'], '点': ['占', '灬'], '照': ['昭', '灬'],
-      '打': ['扌', '丁'], '找': ['扌', '戈'], '拿': ['合', '手'], '推': ['扌', '隹'],
-      '拉': ['扌', '立'], '接': ['扌', '妾'], '换': ['扌', '奂'], '扫': ['扌', '彐'],
-      '做': ['亻', '故'], '作': ['亻', '乍'], '住': ['亻', '主'], '位': ['亻', '立'],
-      '他': ['亻', '也'], '你': ['亻', '尔'], '们': ['亻', '门'], '件': ['亻', '牛'],
-      '信': ['亻', '言'], '便': ['亻', '更'], '借': ['亻', '昔'], '停': ['亻', '亭'],
+      '学': ['小', '冖', '子'], '卖': ['十', '买'], '钱': ['钅', '戋'], '银': ['钅', '艮'],
+      '谢': ['讠', '射'], '请': ['讠', '青'], '认': ['讠', '人'], '识': ['讠', '只'],
+      '语': ['讠', '吾'], '课': ['讠', '果'], '谁': ['讠', '隹'], '饿': ['饣', '我'],
+      '饭': ['饣', '反'], '饮': ['饣', '欠'], '馆': ['饣', '官'], '渴': ['氵', '曷'],
+      '洗': ['氵', '先'], '海': ['氵', '每'], '河': ['氵', '可'], '没': ['氵', '殳'],
+      '活': ['氵', '舌'], '汽': ['氵', '气'], '油': ['氵', '由'], '打': ['扌', '丁'],
+      '找': ['扌', '戈'], '拿': ['合', '手'], '推': ['扌', '隹'], '拉': ['扌', '立'],
+      '接': ['扌', '妾'], '换': ['扌', '奂'], '做': ['亻', '故'], '作': ['亻', '乍'],
+      '住': ['亻', '主'], '位': ['亻', '立'], '他': ['亻', '也'], '你': ['亻', '尔'],
+      '们': ['亻', '门'], '信': ['亻', '言'], '便': ['亻', '更'], '借': ['亻', '昔'],
       '妈': ['女', '马'], '姐': ['女', '且'], '妹': ['女', '未'], '奶': ['女', '乃'],
       '她': ['女', '也'], '姓': ['女', '生'], '婚': ['女', '昏'], '始': ['女', '台'],
       '时': ['日', '寸'], '早': ['日', '十'], '晚': ['日', '免'], '晴': ['日', '青'],
-      '星': ['日', '生'], '昨': ['日', '乍'], '春': ['三', '人', '日'], '暖': ['日', '爰'],
-      '朋': ['月', '月'], '期': ['其', '月'], '服': ['月', '卩', '又'], '胖': ['月', '半'],
-      '桌': ['卜', '日', '木'], '椅': ['木', '奇'], '杯': ['木', '不'], '机': ['木', '几'],
-      '校': ['木', '交'], '楼': ['木', '娄'], '树': ['木', '对'], '样': ['木', '羊'],
-      '病': ['疒', '丙'], '疼': ['疒', '冬'], '瘦': ['疒', '叟'], '累': ['田', '糸'],
-      '男': ['田', '力'], '思': ['田', '心'], '留': ['卯', '田'], '画': ['一', '田', '凵'],
-      '路': ['足', '各'], '跑': ['足', '包'], '跳': ['足', '兆'], '踢': ['足', '易'],
-      '跟': ['足', '艮'], '远': ['元', '辶'], '近': ['斤', '辶'], '进': ['井', '辶'],
-      '送': ['关', '辶'], '还': ['不', '辶'], '这': ['文', '辶'], '道': ['首', '辶'],
-      '问': ['门', '口'], '间': ['门', '日'], '闻': ['门', '耳'], '开': ['一', '廾'],
-      '关': ['丷', '天'], '冷': ['冫', '令'], '凉': ['冫', '京'], '净': ['冫', '争'],
-      '次': ['冫', '欠'], '准': ['冫', '隹'], '决': ['冫', '夬'], '冰': ['冫', '水']
+      '星': ['日', '生'], '昨': ['日', '乍'], '朋': ['月', '月'], '期': ['其', '月'],
+      '服': ['月', '卩', '又'], '胖': ['月', '半'], '桌': ['卜', '日', '木'], '椅': ['木', '奇'],
+      '杯': ['木', '不'], '机': ['木', '几'], '校': ['木', '交'], '楼': ['木', '娄'],
+      '累': ['田', '糸'], '男': ['田', '力'], '思': ['田', '心'], '路': ['足', '各'],
+      '跑': ['足', '包'], '跟': ['足', '艮'], '远': ['元', '辶'], '近': ['斤', '辶'],
+      '进': ['井', '辶'], '送': ['关', '辶'], '还': ['不', '辶'], '这': ['文', '辶'],
+      '道': ['首', '辶'], '问': ['门', '口'], '间': ['门', '日'], '闻': ['门', '耳']
     };
 
+    // 6 Chủ đề gốc trong Kho từ
     const CORE_DATABASE = [
-      // Chào hỏi & Đại từ
-      { hanzi: '你好', pinyin: 'nǐ hǎo', meaning: 'Xin chào', category: 'Chào hỏi', mnemonic: 'Bạn (你) tốt lành (好) -> Lời chào thân thiện.' },
-      { hanzi: '谢谢', pinyin: 'xiè xie', meaning: 'Cảm ơn', category: 'Chào hỏi', mnemonic: 'Dùng lời nói (讠) bày tỏ sự trân trọng (射).' },
-      { hanzi: '不客气', pinyin: 'bú kè qi', meaning: 'Đừng khách sáo', category: 'Chào hỏi', mnemonic: 'Không (不) cần khách (客) khí (气).' },
-      { hanzi: '对不起', pinyin: 'duì bu qǐ', meaning: 'Xin lỗi', category: 'Chào hỏi', mnemonic: 'Không dám đối mặt ngẩng đầu lên vì có lỗi.' },
-      { hanzi: '没关系', pinyin: 'méi guān xi', meaning: 'Không sao đâu', category: 'Chào hỏi', mnemonic: 'Không (没) có vướng mắc liên quan (关系) gì cả.' },
-      { hanzi: '再见', pinyin: 'zài jiàn', meaning: 'Tạm biệt', category: 'Chào hỏi', mnemonic: 'Lại (再) gặp mặt (见) nhau nhé.' },
-      { hanzi: '请问', pinyin: 'qǐng wèn', meaning: 'Xin hỏi', category: 'Chào hỏi', mnemonic: 'Mời/xin phép (请) mở cửa miệng (门+口) để hỏi (问).' },
-      { hanzi: '名字', pinyin: 'míng zi', meaning: 'Tên gọi', category: 'Chào hỏi', mnemonic: 'Đêm tối (夕) dùng miệng (口) gọi tên (名), đứa trẻ (子) dưới mái nhà (宀) có tên (字).' },
-      // Động từ cốt lõi
-      { hanzi: '休息', pinyin: 'xiū xi', meaning: 'Nghỉ ngơi', category: 'Động từ', mnemonic: 'Người (亻) tựa gốc cây (木) thở nhẹ bằng mũi (自) và tim (心).' },
-      { hanzi: '工作', pinyin: 'gōng zuò', meaning: 'Làm việc / Công việc', category: 'Động từ', mnemonic: 'Người thợ (工) đứng làm việc (作).' },
-      { hanzi: '学习', pinyin: 'xué xí', meaning: 'Học tập', category: 'Động từ', mnemonic: 'Đứa trẻ (子) dưới mái trường (冖) luyện tập vỗ cánh (习).' },
-      { hanzi: '喜欢', pinyin: 'xǐ huan', meaning: 'Thích', category: 'Động từ', mnemonic: 'Miệng (口) cười vui (喜) hoan hỉ (欢).' },
-      { hanzi: '知道', pinyin: 'zhī dào', meaning: 'Biết', category: 'Động từ', mnemonic: 'Nói ra (口) nhanh như mũi tên (矢) là hiểu rõ đạo lý (道).' },
-      { hanzi: '觉得', pinyin: 'jué de', meaning: 'Cảm thấy / Cho rằng', category: 'Động từ', mnemonic: 'Nhìn thấy (见) và cảm nhận được trong lòng.' },
-      { hanzi: '明白', pinyin: 'míng bai', meaning: 'Hiểu rõ', category: 'Động từ', mnemonic: 'Sáng sủa như mặt trời mặt trăng (明) và rõ ràng như màu trắng (白).' },
-      { hanzi: '忘记', pinyin: 'wàng jì', meaning: 'Quên mất', category: 'Động từ', mnemonic: 'Trong tâm (心) bị mất đi (亡) ký ức đã ghi (记).' },
-      { hanzi: '帮助', pinyin: 'bāng zhù', meaning: 'Giúp đỡ', category: 'Động từ', mnemonic: 'Dùng sức lực (力) để hỗ trợ (助) lẫn nhau.' },
-      { hanzi: '准备', pinyin: 'zhǔn bèi', meaning: 'Chuẩn bị', category: 'Động từ', mnemonic: 'Con người (亻) sẵn sàng mọi thứ chuẩn xác (准).' },
-      // Ăn uống & Mua sắm
-      { hanzi: '吃饭', pinyin: 'chī fàn', meaning: 'Ăn cơm', category: 'Ăn uống', mnemonic: 'Miệng (口) ăn (吃) thức ăn (饣) nấu chín (反).' },
-      { hanzi: '喝水', pinyin: 'hē shuǐ', meaning: 'Uống nước', category: 'Ăn uống', mnemonic: 'Miệng (口) uống (喝) dòng nước (水) mát.' },
-      { hanzi: '多少钱', pinyin: 'duō shǎo qián', meaning: 'Bao nhiêu tiền', category: 'Mua sắm', mnemonic: 'Nhiều (多) hay ít (少) kim loại quý (钅+戋 = 钱).' },
-      { hanzi: '便宜', pinyin: 'pián yi', meaning: 'Rẻ', category: 'Mua sắm', mnemonic: 'Người (亻) cảm thấy thuận tiện, hợp túi tiền.' },
-      { hanzi: '太贵了', pinyin: 'tài guì le', meaning: 'Đắt quá rồi', category: 'Mua sắm', mnemonic: 'Vỏ sò tiền bạc (贝) chất cao quá mức (太).' },
-      { hanzi: '买东西', pinyin: 'mǎi dōng xi', meaning: 'Mua đồ', category: 'Mua sắm', mnemonic: 'Ngày xưa đi chợ chỉ đựng đồ phía Đông (东) và phía Tây (西) trong giỏ.' },
-      { hanzi: '菜单', pinyin: 'cài dān', meaning: 'Thực đơn', category: 'Ăn uống', mnemonic: 'Danh sách (单) các món rau thịt (艹+采 = 菜).' },
-      { hanzi: '好吃', pinyin: 'hǎo chī', meaning: 'Ngon miệng', category: 'Ăn uống', mnemonic: 'Tốt (好) để ăn (吃) -> Ngon.' },
-      // Thời gian & Đi lại
-      { hanzi: '现在', pinyin: 'xiàn zài', meaning: 'Bây giờ / Hiện tại', category: 'Thời gian', mnemonic: 'Viên ngọc (王) hiện ra (见) ngay tại lúc này (在).' },
-      { hanzi: '明天', pinyin: 'míng tiān', meaning: 'Ngày mai', category: 'Thời gian', mnemonic: 'Qua hết mặt trăng (月) lại tới mặt trời (日) mới là ngày mai.' },
-      { hanzi: '昨天', pinyin: 'zuó tiān', meaning: 'Hôm qua', category: 'Thời gian', mnemonic: 'Ngày (日) vừa mới trôi qua (乍).' },
-      { hanzi: '时间', pinyin: 'shí jiān', meaning: 'Thời gian', category: 'Thời gian', mnemonic: 'Mặt trời (日) lọt qua khe cửa (门+日) tạo thành khoảng thời gian.' },
-      { hanzi: '出发', pinyin: 'chū fā', meaning: 'Xuất phát', category: 'Đi lại', mnemonic: 'Bước chân ra khỏi (出) điểm khởi đầu (发).' },
-      { hanzi: '到了', pinyin: 'dào le', meaning: 'Đến nơi rồi', category: 'Đi lại', mnemonic: 'Đã chạm tới đích đến (到).' },
-      { hanzi: '小心', pinyin: 'xiǎo xīn', meaning: 'Cẩn thận', category: 'Đi lại', mnemonic: 'Thu nhỏ (小) trái tim (心) lại để tập trung chú ý.' },
-      { hanzi: '路口', pinyin: 'lù kǒu', meaning: 'Ngã tư / Giao lộ', category: 'Đi lại', mnemonic: 'Cửa miệng (口) của con đường (足+各 = 路).' },
-      // Cảm xúc & Tính từ
-      { hanzi: '开心', pinyin: 'kāi xīn', meaning: 'Vui vẻ', category: 'Cảm xúc', mnemonic: 'Mở rộng (开) trái tim (心) ra thì thấy vui.' },
-      { hanzi: '累了', pinyin: 'lèi le', meaning: 'Mệt rồi', category: 'Cảm xúc', mnemonic: 'Làm ruộng (田) vất vả đến rã rời sợi tơ (糸).' },
-      { hanzi: '很忙', pinyin: 'hěn máng', meaning: 'Rất bận', category: 'Cảm xúc', mnemonic: 'Trong lòng (忄) thấy mất (亡) hết thời gian rảnh.' },
-      { hanzi: '舒服', pinyin: 'shū fu', meaning: 'Thoải mái / Dễ chịu', category: 'Cảm xúc', mnemonic: 'Thư giãn (舒) cả cơ thể (月).' },
-      { hanzi: '没问题', pinyin: 'méi wèn tí', meaning: 'Không vấn đề gì', category: 'Giao tiếp', mnemonic: 'Không (没) có câu hỏi (问) hay khúc mắc (题) nào.' },
-      { hanzi: '加油', pinyin: 'jiā yóu', meaning: 'Cố lên!', category: 'Giao tiếp', mnemonic: 'Đổ thêm (加) dầu (油) vào động cơ để tiến lên!' }
+      // 1. Chào hỏi & Đại từ
+      { hanzi: '你好', pinyin: 'nǐ hǎo', meaning: 'Xin chào', category: 'Chào hỏi & Đại từ', mnemonic: 'Bạn (你) tốt lành (好) → Lời chào thân thiện.' },
+      { hanzi: '谢谢', pinyin: 'xiè xie', meaning: 'Cảm ơn', category: 'Chào hỏi & Đại từ', mnemonic: 'Dùng lời nói (讠) bày tỏ sự trân trọng (射).' },
+      { hanzi: '不客气', pinyin: 'bú kè qi', meaning: 'Đừng khách sáo', category: 'Chào hỏi & Đại từ', mnemonic: 'Không (不) cần khách (客) khí (气).' },
+      { hanzi: '对不起', pinyin: 'duì bu qǐ', meaning: 'Xin lỗi', category: 'Chào hỏi & Đại từ', mnemonic: 'Không dám đối mặt ngẩng đầu lên vì có lỗi.' },
+      { hanzi: '没关系', pinyin: 'méi guān xi', meaning: 'Không sao đâu', category: 'Chào hỏi & Đại từ', mnemonic: 'Không (没) có vướng mắc liên quan (关系) gì.' },
+      { hanzi: '再见', pinyin: 'zài jiàn', meaning: 'Tạm biệt', category: 'Chào hỏi & Đại từ', mnemonic: 'Lại (再) gặp mặt (见) nhau nhé.' },
+      { hanzi: '我们', pinyin: 'wǒ men', meaning: 'Chúng tôi / Chúng ta', category: 'Chào hỏi & Đại từ', mnemonic: 'Tôi (我) cùng nhiều người (亻+门 = 们).' },
+      { hanzi: '请问', pinyin: 'qǐng wèn', meaning: 'Xin hỏi', category: 'Chào hỏi & Đại từ', mnemonic: 'Xin phép (请) mở miệng (口) qua cánh cửa (门) để hỏi (问).' },
+      // 2. Thời gian & Số đếm
+      { hanzi: '现在', pinyin: 'xiàn zài', meaning: 'Bây giờ', category: 'Thời gian & Số đếm', mnemonic: 'Viên ngọc (王) hiện ra (见) ngay lúc này (在).' },
+      { hanzi: '今天', pinyin: 'jīn tiān', meaning: 'Hôm nay', category: 'Thời gian & Số đếm', mnemonic: 'Ngày (天) hiện tại ngay lúc này (今).' },
+      { hanzi: '明天', pinyin: 'míng tiān', meaning: 'Ngày mai', category: 'Thời gian & Số đếm', mnemonic: 'Qua mặt trăng (月) tới mặt trời (日) mới là ngày mai.' },
+      { hanzi: '昨天', pinyin: 'zuó tiān', meaning: 'Hôm qua', category: 'Thời gian & Số đếm', mnemonic: 'Ngày (日) vừa mới trôi qua (乍).' },
+      { hanzi: '时间', pinyin: 'shí jiān', meaning: 'Thời gian', category: 'Thời gian & Số đếm', mnemonic: 'Mặt trời (日) lọt qua khe cửa (门+日).' },
+      { hanzi: '一点点', pinyin: 'yì diǎn diǎn', meaning: 'Một chút xíu', category: 'Thời gian & Số đếm', mnemonic: 'Một (一) chấm nhỏ (点) lặp lại.' },
+      // 3. Ăn uống & Mua sắm
+      { hanzi: '吃饭', pinyin: 'chī fàn', meaning: 'Ăn cơm', category: 'Ăn uống & Mua sắm', mnemonic: 'Miệng (口) ăn (吃) thức ăn (饣+反 = 饭).' },
+      { hanzi: '喝水', pinyin: 'hē shuǐ', meaning: 'Uống nước', category: 'Ăn uống & Mua sắm', mnemonic: 'Miệng (口) uống (喝) dòng nước (水).' },
+      { hanzi: '多少钱', pinyin: 'duō shǎo qián', meaning: 'Bao nhiêu tiền', category: 'Ăn uống & Mua sắm', mnemonic: 'Nhiều (多) hay ít (少) kim loại quý (钅+戋 = 钱).' },
+      { hanzi: '便宜', pinyin: 'pián yi', meaning: 'Rẻ', category: 'Ăn uống & Mua sắm', mnemonic: 'Người (亻) cảm thấy thuận tiện, hợp túi tiền.' },
+      { hanzi: '太贵了', pinyin: 'tài guì le', meaning: 'Đắt quá rồi', category: 'Ăn uống & Mua sắm', mnemonic: 'Vỏ sò tiền bạc (贝) chất cao quá mức (太).' },
+      { hanzi: '买东西', pinyin: 'mǎi dōng xi', meaning: 'Mua đồ', category: 'Ăn uống & Mua sắm', mnemonic: 'Đi chợ gom đồ phía Đông (东) và phía Tây (西).' },
+      { hanzi: '好吃', pinyin: 'hǎo chī', meaning: 'Ngon miệng', category: 'Ăn uống & Mua sắm', mnemonic: 'Tốt (好) để ăn (吃) → Ngon.' },
+      // 4. Động từ cốt lõi
+      { hanzi: '休息', pinyin: 'xiū xi', meaning: 'Nghỉ ngơi', category: 'Động từ cốt lõi', mnemonic: 'Người (亻) tựa vào gốc cây (木) để nghỉ ngơi (休).' },
+      { hanzi: '工作', pinyin: 'gōng zuò', meaning: 'Làm việc', category: 'Động từ cốt lõi', mnemonic: 'Người thợ (工) đứng làm việc (作).' },
+      { hanzi: '学习', pinyin: 'xué xí', meaning: 'Học tập', category: 'Động từ cốt lõi', mnemonic: 'Đứa trẻ (子) dưới mái trường (冖) luyện tập (习).' },
+      { hanzi: '喜欢', pinyin: 'xǐ huan', meaning: 'Thích', category: 'Động từ cốt lõi', mnemonic: 'Miệng (口) cười vui (喜) hoan hỉ (欢).' },
+      { hanzi: '知道', pinyin: 'zhī dào', meaning: 'Biết', category: 'Động từ cốt lõi', mnemonic: 'Nói ra (口) nhanh như mũi tên (矢) là hiểu đạo lý (道).' },
+      { hanzi: '明白', pinyin: 'míng bai', meaning: 'Hiểu rõ', category: 'Động từ cốt lõi', mnemonic: 'Sáng như mặt trời mặt trăng (明) và rõ như màu trắng (白).' },
+      { hanzi: '帮忙', pinyin: 'bāng máng', meaning: 'Giúp đỡ', category: 'Động từ cốt lõi', mnemonic: 'Giúp (帮) khi người khác đang bận rộn (忙).' },
+      // 5. Tính từ & Cảm xúc
+      { hanzi: '开心', pinyin: 'kāi xīn', meaning: 'Vui vẻ', category: 'Tính từ & Cảm xúc', mnemonic: 'Mở rộng (开) trái tim (心) ra thì thấy vui.' },
+      { hanzi: '很忙', pinyin: 'hěn máng', meaning: 'Rất bận', category: 'Tính từ & Cảm xúc', mnemonic: 'Trong lòng (忄) thấy mất (亡) hết thời gian rảnh.' },
+      { hanzi: '累了', pinyin: 'lèi le', meaning: 'Mệt rồi', category: 'Tính từ & Cảm xúc', mnemonic: 'Làm ruộng (田) vất vả đến rã rời sợi tơ (纟).' },
+      { hanzi: '舒服', pinyin: 'shū fu', meaning: 'Thoải mái / Dễ chịu', category: 'Tính từ & Cảm xúc', mnemonic: 'Thư giãn (舒) cả cơ thể (月).' },
+      { hanzi: '没问题', pinyin: 'méi wèn tí', meaning: 'Không vấn đề gì', category: 'Tính từ & Cảm xúc', mnemonic: 'Không (没) có câu hỏi (问) hay khúc mắc (题) nào.' },
+      { hanzi: '加油', pinyin: 'jiā yóu', meaning: 'Cố lên!', category: 'Tính từ & Cảm xúc', mnemonic: 'Đổ thêm (加) dầu (油) vào động cơ để tiến lên!' },
+      // 6. Địa điểm & Đi lại
+      { hanzi: '出发', pinyin: 'chū fā', meaning: 'Xuất phát', category: 'Địa điểm & Đi lại', mnemonic: 'Bước chân ra khỏi (出) điểm khởi đầu (发).' },
+      { hanzi: '到了', pinyin: 'dào le', meaning: 'Đến nơi rồi', category: 'Địa điểm & Đi lại', mnemonic: 'Đã chạm tới đích đến (到).' },
+      { hanzi: '小心', pinyin: 'xiǎo xīn', meaning: 'Cẩn thận', category: 'Địa điểm & Đi lại', mnemonic: 'Thu nhỏ (小) trái tim (心) lại để tập trung chú ý.' },
+      { hanzi: '路口', pinyin: 'lù kǒu', meaning: 'Ngã tư / Giao lộ', category: 'Địa điểm & Đi lại', mnemonic: 'Cửa miệng (口) của con đường (足+各 = 路).' },
+      { hanzi: '回家', pinyin: 'huí jiā', meaning: 'Về nhà', category: 'Địa điểm & Đi lại', mnemonic: 'Quay trở lại (回) mái nhà (宀+豕 = 家).' }
     ];
 
-    const SPEAKING_SCENARIOS = [
+    const SPEAKING_DATA = [
       {
-        title: 'Chào hỏi & Làm quen',
-        items: [
+        topic: 'Chào hỏi & Làm quen',
+        sentences: [
           { hanzi: '你好，认识你很高兴！', pinyin: 'Nǐ hǎo, rèn shi nǐ hěn gāo xìng!', vi: 'Xin chào, rất vui được làm quen với bạn!' },
-          { hanzi: '你叫什么名字？', pinyin: 'Nǐ jiào shén me míng zi?', vi: 'Bạn tên là gì?' },
           { hanzi: '我是越南人，我在学中文。', pinyin: 'Wǒ shì Yuè nán rén, wǒ zài xué Zhōng wén.', vi: 'Tôi là người Việt Nam, tôi đang học tiếng Trung.' }
         ]
       },
       {
-        title: 'Ăn uống & Mua sắm',
-        items: [
+        topic: 'Ăn uống & Mua sắm',
+        sentences: [
           { hanzi: '老板，这个多少钱？', pinyin: 'Lǎo bǎn, zhè ge duō shǎo qián?', vi: 'Ông chủ ơi, cái này bao nhiêu tiền?' },
-          { hanzi: '太贵了，可以便宜一点吗？', pinyin: 'Tài guì le, kě yǐ pián yi yì diǎn ma?', vi: 'Đắt quá rồi, có thể rẻ hơn một chút được không?' },
-          { hanzi: '我要一杯冰咖啡，不要糖。', pinyin: 'Wǒ yào yì bēi bīng kā fēi, bú yào táng.', vi: 'Tôi muốn một ly cà phê đá, không đường.' }
+          { hanzi: '太贵了，可以便宜一点吗？', pinyin: 'Tài guì le, kě yǐ pián yi yì diǎn ma?', vi: 'Đắt quá rồi, có thể rẻ hơn một chút được không?' }
         ]
       },
       {
-        title: 'Giao tiếp công việc & Hằng ngày',
-        items: [
+        topic: 'Giao tiếp hằng ngày',
+        sentences: [
           { hanzi: '不好意思，让你久等了。', pinyin: 'Bù hǎo yì si, ràng nǐ jiǔ děng le.', vi: 'Ngại quá, để bạn phải đợi lâu rồi.' },
-          { hanzi: '请再说一遍，我没听清楚。', pinyin: 'Qǐng zài shuō yí biàn, wǒ méi tīng qīng chu.', vi: 'Vui lòng nói lại lần nữa, tôi nghe chưa rõ.' },
-          { hanzi: '今天有点忙，晚点联系你。', pinyin: 'Jīn tiān yǒu diǎn máng, wǎn diǎn lián xì nǐ.', vi: 'Hôm nay hơi bận chút, lát nữa liên hệ bạn nhé.' }
+          { hanzi: '请再说一遍，我没听清楚。', pinyin: 'Qǐng zài shuō yí biàn, wǒ méi tīng qīng chu.', vi: 'Vui lòng nói lại lần nữa, tôi nghe chưa rõ.' }
         ]
       }
     ];
 
     // ==========================================
-    // 2. QUẢN LÝ TRẠNG THÁI & LƯU TRỮ LOCAL
+    // 2. TRẠNG THÁI & LƯU TRỮ LOCAL
     // ==========================================
-    const STORAGE_KEY = 'sotay_hanngu_v2';
+    const STORAGE_KEY = 'sotay_hanngu_v1';
     let state = {
       vocab: [
-        { id: 1, hanzi: '休息', pinyin: 'xiū xi', meaning: 'Nghỉ ngơi', mnemonic: 'Người (亻) tựa gốc cây (木) thở nhẹ bằng mũi (自) và tim (心).', level: 'new' },
-        { id: 2, hanzi: '明白', pinyin: 'míng bai', meaning: 'Hiểu rõ', mnemonic: 'Mặt trời (日) và mặt trăng (月) cùng chiếu sáng rõ ràng (白).', level: 'new' },
-        { id: 3, hanzi: '加油', pinyin: 'jiā yóu', meaning: 'Cố lên!', mnemonic: 'Thêm (加) dầu (油) tiếp thêm năng lượng.', level: 'learning' }
+        { id: 1, hanzi: '休息', pinyin: 'xiū xi', meaning: 'Nghỉ ngơi', mnemonic: 'Người (亻) tựa vào gốc cây (木) để nghỉ ngơi (休)', level: 'new' },
+        { id: 2, hanzi: '明白', pinyin: 'míng bai', meaning: 'Hiểu rõ', mnemonic: 'Mặt trời (日) và mặt trăng (月) cùng chiếu sáng rõ ràng (白)', level: 'new' }
       ],
-      streak: 1,
-      lastStudyDate: new Date().toISOString().slice(0, 10),
+      journal: [
+        { id: 101, date: new Date().toISOString().slice(0, 10), hanzi: '今天我在学中文。', pinyin: 'Jīn tiān wǒ zài xué Zhōng wén.', vi: 'Hôm nay tôi đang học tiếng Trung.' }
+      ],
       historyDates: [new Date().toISOString().slice(0, 10)],
+      streak: 1,
       speechRate: 1.0,
-      aiConfig: {
-        provider: 'gemini', // 'gemini' hoặc 'deepseek'
-        apiKey: ''
-      }
+      aiProvider: 'gemini',
+      aiKey: ''
     };
 
-    let currentTab = 'vocab';
+    let activeTab = 'vocab';
     let vocabFilter = 'all';
-    let searchQuery = '';
-    let dbSearchQuery = '';
+    let vocabSearch = '';
     let dbCategory = 'Tất cả';
-    let selectedDbWords = new Set();
+    let dbSearch = '';
+    let dbSelected = new Set();
     let selectMode = false;
     let selectedReviewIds = new Set();
 
-    // Review state
     let reviewQueue = [];
-    let reviewIndex = 0;
-    let reviewFlipped = false;
+    let reviewIdx = 0;
+    let reviewRevealed = false;
+    let writerInstance = null;
 
-    // Writer state
-    let currentWriter = null;
-    let writerChars = [];
-
-    function loadState() {
+    function loadData() {
       try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          state = { ...state, ...parsed, aiConfig: { ...state.aiConfig, ...(parsed.aiConfig || {}) } };
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          state = { ...state, ...JSON.parse(raw) };
         }
-        updateStreak();
-      } catch (e) {
-        console.error(e);
-      }
+        const today = new Date().toISOString().slice(0, 10);
+        if (!state.historyDates.includes(today)) {
+          state.historyDates.push(today);
+        }
+        state.streak = Math.max(1, state.historyDates.length);
+        saveData();
+      } catch (e) {}
     }
 
-    function saveState() {
+    function saveData() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       document.getElementById('streakCount').textContent = state.streak;
       document.getElementById('rateLabel').textContent = state.speechRate + 'x';
     }
 
-    function updateStreak() {
-      const today = new Date().toISOString().slice(0, 10);
-      if (!state.historyDates.includes(today)) {
-        state.historyDates.push(today);
-      }
-      state.streak = Math.max(1, state.historyDates.length);
-      state.lastStudyDate = today;
-      saveState();
-    }
-
     // ==========================================
-    // 3. PHÁT ÂM THANH CHUẨN (CÓ FALLBACK MOBILE)
+    // 3. PHÁT ÂM THANH (CÓ FALLBACK CHO ĐIỆN THOẠI)
     // ==========================================
     function speakChinese(text) {
       if (!text) return;
       try {
         if ('speechSynthesis' in window) {
           window.speechSynthesis.cancel();
-          const utter = new SpeechSynthesisUtterance(text);
-          utter.lang = 'zh-CN';
-          utter.rate = state.speechRate;
+          const u = new SpeechSynthesisUtterance(text);
+          u.lang = 'zh-CN';
+          u.rate = state.speechRate;
           const voices = window.speechSynthesis.getVoices();
-          const zhVoice = voices.find(v => v.lang.includes('zh') || v.lang.includes('cmn'));
-          if (zhVoice) {
-            utter.voice = zhVoice;
-            window.speechSynthesis.speak(utter);
+          const zh = voices.find(v => v.lang.includes('zh') || v.lang.includes('cmn'));
+          if (zh) {
+            u.voice = zh;
+            window.speechSynthesis.speak(u);
             return;
           }
         }
       } catch (e) {}
-
-      // Fallback Audio TTS cho điện thoại thiếu gói giọng đọc zh-CN
-      const url = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=zh-CN&q=${encodeURIComponent(text)}`;
-      const audio = new Audio(url);
+      const audio = new Audio(`https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=zh-CN&q=${encodeURIComponent(text)}`);
       audio.playbackRate = state.speechRate;
       audio.play().catch(() => {});
     }
 
     function cycleSpeechRate() {
       const rates = [1.0, 0.8, 1.2];
-      const nextIdx = (rates.indexOf(state.speechRate) + 1) % rates.length;
-      state.speechRate = rates[nextIdx];
-      saveState();
+      state.speechRate = rates[(rates.indexOf(state.speechRate) + 1) % rates.length];
+      saveData();
     }
 
     // ==========================================
     // 4. TỰ ĐỘNG ĐIỀN PINYIN, NGHĨA & CHIẾT TỰ
     // ==========================================
-    let autoFillTimer = null;
+    let typingTimer = null;
 
-    function buildLocalMnemonic(hanzi) {
+    function generateLocalMnemonic(hanzi) {
       const clean = hanzi.replace(/[^\u4e00-\u9fa5]/g, '');
       if (!clean) return '';
 
-      // 1. Kiểm tra cụm từ có sẵn trong kho
-      const exactCore = CORE_DATABASE.find(item => item.hanzi === clean);
-      if (exactCore && exactCore.mnemonic) return exactCore.mnemonic;
+      const coreMatch = CORE_DATABASE.find(w => w.hanzi === clean);
+      if (coreMatch && coreMatch.mnemonic) return coreMatch.mnemonic;
 
-      // 2. Phân tách từng chữ Hán
-      const parts = [];
+      if (clean.length === 1 && RADICALS[clean]) {
+        return RADICALS[clean];
+      }
+
+      const lines = [];
       for (const ch of clean) {
-        if (CHAR_DECOMP[ch]) {
-          const radList = CHAR_DECOMP[ch].map(r => `${r} (${RADICAL_DB[r] || 'bộ thủ'})`).join(' + ');
-          const wholeNote = RADICAL_DB[ch] ? ` → ${RADICAL_DB[ch]}` : '';
-          parts.push(`• ${ch} = ${radList}${wholeNote}`);
-        } else if (RADICAL_DB[ch]) {
-          parts.push(`• ${ch}: ${RADICAL_DB[ch]}`);
+        if (CHAR_COMPONENTS[ch]) {
+          const radDesc = CHAR_COMPONENTS[ch].map(r => `${r} (${RADICALS[r] || 'bộ thủ'})`).join(' + ');
+          const extra = RADICALS[ch] ? ` → ${RADICALS[ch]}` : '';
+          lines.push(`${ch} = ${radDesc}${extra}`);
+        } else if (RADICALS[ch]) {
+          lines.push(`${ch}: ${RADICALS[ch]}`);
         }
       }
-      return parts.join('\n');
+      return lines.join('\n');
     }
 
-    async function fetchFreeMeaning(hanzi) {
-      // 1. Tra trong kho từ nội bộ trước cho siêu nhanh
-      const found = CORE_DATABASE.find(w => w.hanzi === hanzi.trim());
-      if (found) return { meaning: found.meaning, source: 'Kho từ điển' };
+    async function fetchVietnameseMeaning(hanzi) {
+      const clean = hanzi.trim();
+      const found = CORE_DATABASE.find(w => w.hanzi === clean);
+      if (found) return found.meaning;
 
-      // 2. Gọi API dịch miễn phí (MyMemory / Google Translate endpoint công cộng)
       try {
-        const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=zh-CN&tl=vi&dt=t&q=${encodeURIComponent(hanzi)}`);
+        const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=zh-CN&tl=vi&dt=t&q=${encodeURIComponent(clean)}`);
         if (res.ok) {
           const data = await res.json();
-          const translated = data?.[0]?.map(item => item[0]).join('').trim();
-          if (translated && translated !== hanzi) {
-            return { meaning: translated.charAt(0).toUpperCase() + translated.slice(1), source: 'Tự động dịch' };
+          const vi = data?.[0]?.map(x => x[0]).join('').trim();
+          if (vi && vi !== clean) {
+            return vi.charAt(0).toUpperCase() + vi.slice(1);
           }
         }
       } catch (e) {}
-      return null;
+      return '';
     }
 
-    function handleHanziInput(val) {
+    function onHanziChanged(val) {
       const trimmed = val.trim();
-      const pinyinEl = document.getElementById('inputPinyin');
-      const meaningEl = document.getElementById('inputMeaning');
-      const mnemonicEl = document.getElementById('inputMnemonic');
-      const statusEl = document.getElementById('autoFillStatus');
+      const pinyinInput = document.getElementById('inputPinyin');
+      const meaningInput = document.getElementById('inputMeaning');
+      const mnemonicInput = document.getElementById('inputMnemonic');
+      const statusEl = document.getElementById('autoStatus');
 
       if (!trimmed) {
-        pinyinEl.value = '';
+        pinyinInput.value = '';
         statusEl.classList.add('hidden');
         return;
       }
 
-      // 1. Tự động điền Pinyin ngay lập tức
+      // 1. Tự điền Pinyin
       if (window.pinyinPro) {
-        pinyinEl.value = window.pinyinPro.pinyin(trimmed, { toneType: 'symbol' });
+        pinyinInput.value = window.pinyinPro.pinyin(trimmed, { toneType: 'symbol' });
       }
 
-      // 2. Tự động tách bộ thủ chiết tự ngay lập tức
-      const autoMnemonic = buildLocalMnemonic(trimmed);
-      if (autoMnemonic) {
-        mnemonicEl.value = autoMnemonic;
-        document.getElementById('mnemonicTag').textContent = 'Đã tách bộ thủ';
+      // 2. Tự điền Chiết tự bộ thủ
+      const mnemonic = generateLocalMnemonic(trimmed);
+      if (mnemonic) {
+        mnemonicInput.value = mnemonic;
       }
 
-      // 3. Debounce tự động điền Nghĩa tiếng Việt sau 450ms ngừng gõ
-      clearTimeout(autoFillTimer);
-      statusEl.textContent = 'Đang tra nghĩa...';
+      // 3. Tự điền Nghĩa tiếng Việt sau 400ms ngừng gõ
+      clearTimeout(typingTimer);
       statusEl.classList.remove('hidden');
-
-      autoFillTimer = setTimeout(async () => {
-        const result = await fetchFreeMeaning(trimmed);
-        if (result && document.getElementById('inputHanzi').value.trim() === trimmed) {
-          meaningEl.value = result.meaning;
-          document.getElementById('meaningTag').textContent = result.source;
+      typingTimer = setTimeout(async () => {
+        const vi = await fetchVietnameseMeaning(trimmed);
+        if (vi && document.getElementById('inputHanzi').value.trim() === trimmed) {
+          meaningInput.value = vi;
         }
         statusEl.classList.add('hidden');
-      }, 450);
+      }, 400);
     }
 
-    // Cách 2: Gọi AI (Gemini hoặc DeepSeek) để viết câu chuyện chiết tự sâu & nghĩa chuẩn ngữ cảnh
-    async function triggerDeepAI() {
+    async function runAiAutoFill() {
       const hanzi = document.getElementById('inputHanzi').value.trim();
       if (!hanzi) {
-        alert('Bạn hãy nhập chữ Hán trước rồi bấm AI Chiết tự nhé!');
+        alert('Bạn hãy nhập chữ Hán trước rồi bấm nút AI nhé!');
         return;
       }
-
-      if (!state.aiConfig.apiKey) {
-        const goSetup = confirm('Bạn chưa nhập API Key (Gemini hoặc DeepSeek miễn phí). Bạn có muốn mở tab Tiến độ & AI để dán Key vào dùng không?');
-        if (goSetup) {
+      if (!state.aiKey) {
+        const go = confirm('Bạn chưa nhập API Key (Gemini hoặc DeepSeek). Bạn có muốn sang cuối tab Nhật ký để dán Key vào dùng không?');
+        if (go) {
           closeAddModal();
-          switchTab('stats');
+          switchTab('journal');
         }
         return;
       }
 
-      const btn = document.getElementById('aiFillBtn');
-      const origHtml = btn.innerHTML;
+      const btn = document.getElementById('aiBtn');
+      const oldText = btn.innerHTML;
       btn.disabled = true;
-      btn.innerHTML = `<span class="animate-pulse-soft">⏳ Đang tạo...</span>`;
+      btn.innerHTML = '<span>⏳...</span>';
 
-      const prompt = `Bạn là trợ lý dạy tiếng Trung giao tiếp cho người Việt. Với từ tiếng Trung "${hanzi}", hãy trả về DUY NHẤT một chuỗi JSON hợp lệ (không markdown) theo mẫu:
-{"meaning": "nghĩa tiếng Việt ngắn gọn, tự nhiên nhất trong giao tiếp", "mnemonic": "giải thích chiết tự bộ thủ và ghép thành một câu chuyện 1-2 câu thật dễ nhớ mặt chữ, ví dụ: Người (亻) tựa vào gốc cây (木) để nghỉ ngơi (休)"}`;
+      const prompt = `Với từ tiếng Trung "${hanzi}", hãy trả về DUY NHẤT JSON hợp lệ (không markdown): {"meaning": "nghĩa tiếng Việt ngắn gọn nhất", "mnemonic": "giải thích chiết tự bộ thủ thành câu chuyện 1 câu dễ nhớ mặt chữ, ví dụ: Người (人) tựa vào gốc cây (木) để nghỉ ngơi (休)"}`;
 
       try {
-        let rawText = '';
-        if (state.aiConfig.provider === 'deepseek') {
-          const res = await fetch('https://api.deepseek.com/chat/completions', {
+        let text = '';
+        if (state.aiProvider === 'deepseek') {
+          const r = await fetch('https://api.deepseek.com/chat/completions', {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${state.aiConfig.apiKey}`
-            },
-            body: JSON.stringify({
-              model: 'deepseek-chat',
-              messages: [{ role: 'user', content: prompt }],
-              temperature: 0.4
-            })
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${state.aiKey}` },
+            body: JSON.stringify({ model: 'deepseek-chat', messages: [{ role: 'user', content: prompt }], temperature: 0.4 })
           });
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.error?.message || 'Lỗi DeepSeek API');
-          rawText = data.choices?.[0]?.message?.content || '';
+          const d = await r.json();
+          if (!r.ok) throw new Error(d.error?.message || 'Lỗi DeepSeek');
+          text = d.choices?.[0]?.message?.content || '';
         } else {
-          // Mặc định Gemini Flash Free Tier
-          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${state.aiConfig.apiKey}`, {
+          const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${state.aiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: prompt }] }],
-              generationConfig: { temperature: 0.4 }
-            })
+            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.4 } })
           });
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.error?.message || 'Lỗi Gemini API');
-          rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+          const d = await r.json();
+          if (!r.ok) throw new Error(d.error?.message || 'Lỗi Gemini');
+          text = d.candidates?.[0]?.content?.parts?.[0]?.text || '';
         }
 
-        const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) throw new Error('AI trả về sai định dạng');
-        const parsed = JSON.parse(jsonMatch[0]);
-
-        if (parsed.meaning) {
-          document.getElementById('inputMeaning').value = parsed.meaning;
-          document.getElementById('meaningTag').textContent = '✨ AI điền';
-        }
-        if (parsed.mnemonic) {
-          document.getElementById('inputMnemonic').value = parsed.mnemonic;
-          document.getElementById('mnemonicTag').textContent = '✨ AI chiết tự';
+        const match = text.match(/\{[\s\S]*\}/);
+        if (match) {
+          const parsed = JSON.parse(match[0]);
+          if (parsed.meaning) document.getElementById('inputMeaning').value = parsed.meaning;
+          if (parsed.mnemonic) document.getElementById('inputMnemonic').value = parsed.mnemonic;
         }
       } catch (err) {
-        alert('Không gọi được AI: ' + err.message + '\n(Hệ thống vẫn giữ nguyên nghĩa và bộ thủ tự động bên dưới cho bạn!)');
+        alert('Lỗi AI: ' + err.message);
       } finally {
         btn.disabled = false;
-        btn.innerHTML = origHtml;
+        btn.innerHTML = oldText;
       }
     }
 
     // ==========================================
-    // 5. RENDER GIAO DIỆN CÁC TAB
+    // 5. RENDER 5 TAB GỐC
     // ==========================================
     function switchTab(tab) {
-      currentTab = tab;
-      document.querySelectorAll('.nav-btn').forEach(btn => {
-        if (btn.dataset.tab === tab) {
-          btn.classList.remove('text-[#8b837a]');
-          btn.classList.add('text-[#e07a5f]', 'bg-[#221d1a]');
-        } else {
-          btn.classList.add('text-[#8b837a]');
-          btn.classList.remove('text-[#e07a5f]', 'bg-[#221d1a]');
-        }
+      activeTab = tab;
+      document.querySelectorAll('.nav-btn').forEach(b => {
+        const active = b.dataset.tab === tab;
+        b.classList.toggle('text-[#e07a5f]', active);
+        b.classList.toggle('bg-[#241e1a]', active);
+        b.classList.toggle('text-[#8f857b]', !active);
       });
-      renderApp();
+      render();
     }
 
-    function renderApp() {
+    function render() {
       const main = document.getElementById('appMain');
-      if (currentTab === 'vocab') renderVocabTab(main);
-      else if (currentTab === 'database') renderDatabaseTab(main);
-      else if (currentTab === 'speak') renderSpeakTab(main);
-      else if (currentTab === 'stats') renderStatsTab(main);
+      if (activeTab === 'dashboard') renderDashboard(main);
+      else if (activeTab === 'vocab') renderVocab(main);
+      else if (activeTab === 'database') renderDatabase(main);
+      else if (activeTab === 'speak') renderSpeak(main);
+      else if (activeTab === 'journal') renderJournal(main);
     }
 
-    function renderVocabTab(container) {
-      const needReviewCount = state.vocab.filter(w => w.level !== 'mastered').length;
-      const filtered = state.vocab.filter(w => {
-        const matchFilter = vocabFilter === 'all' || w.level === vocabFilter;
-        const q = searchQuery.toLowerCase();
-        const matchSearch = !q || w.hanzi.includes(q) || w.pinyin.toLowerCase().includes(q) || w.meaning.toLowerCase().includes(q);
-        return matchFilter && matchSearch;
+    function renderDashboard(el) {
+      const mastered = state.vocab.filter(w => w.level === 'mastered').length;
+      const learning = state.vocab.filter(w => w.level !== 'mastered').length;
+      const days = [];
+      for (let i = 13; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const iso = d.toISOString().slice(0, 10);
+        days.push({ num: d.getDate(), active: state.historyDates.includes(iso) });
+      }
+
+      el.innerHTML = `
+        <div class="grid grid-cols-3 gap-2.5">
+          <div class="bg-[#1e1b18] border border-[#2e2924] rounded-2xl p-3 text-center">
+            <div class="text-xl font-bold text-[#f2ede6]">${state.vocab.length}</div>
+            <div class="text-[11px] text-[#9c9288]">Tổng từ vựng</div>
+          </div>
+          <div class="bg-[#1e1b18] border border-[#2e2924] rounded-2xl p-3 text-center">
+            <div class="text-xl font-bold text-[#4ade80]">${mastered}</div>
+            <div class="text-[11px] text-[#9c9288]">Đã thuộc chữ</div>
+          </div>
+          <div class="bg-[#1e1b18] border border-[#2e2924] rounded-2xl p-3 text-center">
+            <div class="text-xl font-bold text-[#fbbf24]">${learning}</div>
+            <div class="text-[11px] text-[#9c9288]">Cần ôn lại</div>
+          </div>
+        </div>
+
+        <div class="bg-[#1e1b18] border border-[#2e2924] rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-[#f2ede6]">Điểm danh 14 ngày gần nhất</span>
+            <span class="text-[11px] text-[#e07a5f]">🔥 Chuỗi ${state.streak} ngày</span>
+          </div>
+          <div class="grid grid-cols-7 gap-2">
+            ${days.map(d => `
+              <div class="aspect-square rounded-xl flex items-center justify-center text-xs font-bold ${d.active ? 'bg-[#a8382b] text-white' : 'bg-[#28231f] text-[#8c8278]'}">
+                ${d.num}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="bg-[#1e1b18] border border-[#2e2924] rounded-2xl p-4 space-y-2.5">
+          <h3 class="text-xs font-bold text-[#f2ede6]">Lộ trình ôn tập hôm nay</h3>
+          <button onclick="switchTab('vocab'); startReview()" class="w-full py-3 rounded-xl bg-[#b83d2e] text-white text-xs font-bold active:scale-95 transition">
+            🧠 Bắt đầu phiên ôn nhớ mặt chữ (${learning} từ)
+          </button>
+        </div>
+      `;
+    }
+
+    function renderVocab(el) {
+      const needReview = state.vocab.filter(w => w.level !== 'mastered').length;
+      const list = state.vocab.filter(w => {
+        const okLevel = vocabFilter === 'all' || w.level === vocabFilter;
+        const q = vocabSearch.toLowerCase();
+        const okQuery = !q || w.hanzi.includes(q) || w.pinyin.toLowerCase().includes(q) || w.meaning.toLowerCase().includes(q);
+        return okLevel && okQuery;
       });
 
-      const levelBadge = {
-        new: { label: '🔴 Mới học', cls: 'bg-[#361c1a] text-[#f87171]' },
-        learning: { label: '🟡 Đang nhớ', cls: 'bg-[#362c18] text-[#fbbf24]' },
-        mastered: { label: '🟢 Đã thuộc', cls: 'bg-[#193324] text-[#4ade80]' }
+      const badges = {
+        new: { text: '🔴 Mới học', cls: 'bg-[#361c1a] text-[#f87171]' },
+        learning: { text: '🟡 Đang nhớ', cls: 'bg-[#362c18] text-[#fbbf24]' },
+        mastered: { text: '🟢 Đã thuộc', cls: 'bg-[#193324] text-[#4ade80]' }
       };
 
-      container.innerHTML = `
-        <!-- Banner Ôn tập -->
-        <div class="bg-gradient-to-r from-[#3a1d19] to-[#291916] border border-[#542923] rounded-2xl p-3.5 flex items-center justify-between">
+      el.innerHTML = `
+        <div class="bg-gradient-to-r from-[#471c17] to-[#291614] border border-[#5e2923] rounded-2xl p-3.5 flex items-center justify-between">
           <div>
-            <div class="text-xs font-bold text-[#f3efe9] flex items-center gap-1.5">
+            <div class="text-xs font-bold text-[#f2ede6] flex items-center gap-1.5">
               <span>🧠</span> Ôn tập Ghi nhớ Nhắc lại
             </div>
             <p class="text-[11px] text-[#cbbeb5] mt-0.5">
-              ${selectMode ? `Đã chọn ${selectedReviewIds.size} từ để ôn` : `Còn ${needReviewCount} từ chưa thuộc cần ôn nhắc lại`}
+              ${selectMode ? `Đã chọn ${selectedReviewIds.size} từ để ôn` : `Còn ${needReview} từ chưa thuộc cần ôn nhắc lại`}
             </p>
           </div>
-          <button onclick="startReviewSession()" class="px-3.5 py-2 rounded-xl bg-[#b9382c] text-white text-xs font-bold active:scale-95 transition whitespace-nowrap">
+          <button onclick="startReview()" class="px-3.5 py-2 rounded-xl bg-[#b83d2e] text-white text-xs font-bold active:scale-95 transition whitespace-nowrap">
             Ôn ngay →
           </button>
         </div>
 
-        <!-- Thanh tìm kiếm & Nút + Tự thêm -->
         <div class="flex gap-2">
-          <div class="flex-1 relative">
-            <input type="text" value="${searchQuery}" oninput="searchQuery=this.value; renderApp()" placeholder="🔍 Tìm trong sổ của bạn..."
-              class="w-full bg-[#1c1917] border border-[#2d2925] rounded-xl px-3.5 py-2.5 text-xs text-[#f3efe9] outline-none" />
-          </div>
-          <button onclick="openAddModal()" class="px-3.5 py-2.5 rounded-xl bg-[#b9382c] text-white text-xs font-bold active:scale-95 transition whitespace-nowrap">
+          <input type="text" value="${vocabSearch}" oninput="vocabSearch=this.value; render()" placeholder="🔍 Tìm trong sổ của bạn..."
+            class="flex-1 bg-[#1e1b18] border border-[#2e2924] rounded-xl px-3.5 py-2.5 text-xs text-[#f2ede6] placeholder-[#8c8278] outline-none" />
+          <button onclick="openAddModal()" class="px-3.5 py-2.5 rounded-xl bg-[#b83d2e] text-white text-xs font-bold active:scale-95 transition whitespace-nowrap">
             + Tự thêm
           </button>
         </div>
 
-        <!-- Bộ lọc -->
         <div class="flex items-center justify-between gap-1.5 overflow-x-auto pb-1">
           <div class="flex gap-1.5">
-            <button onclick="vocabFilter='all'; renderApp()" class="px-2.5 py-1.5 rounded-lg text-[11px] font-medium ${vocabFilter==='all' ? 'bg-[#332d28] text-white' : 'bg-[#1c1917] text-[#9b938a]'}">Tất cả (${state.vocab.length})</button>
-            <button onclick="vocabFilter='new'; renderApp()" class="px-2.5 py-1.5 rounded-lg text-[11px] font-medium ${vocabFilter==='new' ? 'bg-[#332d28] text-white' : 'bg-[#1c1917] text-[#9b938a]'}">🔴 Mới học</button>
-            <button onclick="vocabFilter='learning'; renderApp()" class="px-2.5 py-1.5 rounded-lg text-[11px] font-medium ${vocabFilter==='learning' ? 'bg-[#332d28] text-white' : 'bg-[#1c1917] text-[#9b938a]'}">🟡 Đang nhớ</button>
+            <button onclick="vocabFilter='all'; render()" class="px-2.5 py-1.5 rounded-lg text-[11px] font-medium ${vocabFilter==='all' ? 'bg-[#36302b] text-white' : 'bg-[#1e1b18] text-[#9c9288]'}">Tất cả</button>
+            <button onclick="vocabFilter='new'; render()" class="px-2.5 py-1.5 rounded-lg text-[11px] font-medium ${vocabFilter==='new' ? 'bg-[#36302b] text-white' : 'bg-[#1e1b18] text-[#9c9288]'}">🔴 Mới học</button>
+            <button onclick="vocabFilter='learning'; render()" class="px-2.5 py-1.5 rounded-lg text-[11px] font-medium ${vocabFilter==='learning' ? 'bg-[#36302b] text-white' : 'bg-[#1e1b18] text-[#9c9288]'}">🟡 Đang nhớ</button>
           </div>
-          <button onclick="toggleSelectMode()" class="px-2.5 py-1.5 rounded-lg text-[11px] font-medium border ${selectMode ? 'bg-[#3a251d] border-[#e07a5f] text-[#e07a5f]' : 'bg-[#1c1917] border-[#2d2925] text-[#9b938a]'}">
+          <button onclick="toggleSelectMode()" class="px-2.5 py-1.5 rounded-lg text-[11px] font-medium border ${selectMode ? 'bg-[#3a251d] border-[#e07a5f] text-[#e07a5f]' : 'bg-[#1e1b18] border-[#2e2924] text-[#9c9288]'}">
             ☑️ Chọn ôn
           </button>
         </div>
 
-        <!-- Danh sách từ vựng -->
         <div class="space-y-2.5">
-          ${filtered.length === 0 ? `<div class="text-center py-10 text-xs text-[#7a7269]">Chưa có từ nào ở mục này. Bấm "+ Tự thêm" hoặc sang tab "Kho từ" để chọn nhé!</div>` : ''}
-          ${filtered.map(w => `
-            <div onclick="${selectMode ? `toggleSelectWord(${w.id})` : ''}" class="bg-[#1b1917] border ${selectMode && selectedReviewIds.has(w.id) ? 'border-[#e07a5f]' : 'border-[#292522]'} rounded-2xl p-3.5 space-y-2">
+          ${list.length === 0 ? `<div class="text-center py-10 text-xs text-[#8c8278]">Chưa có từ nào. Bấm "+ Tự thêm" hoặc chọn từ ở tab "Kho từ" nhé!</div>` : ''}
+          ${list.map(w => `
+            <div onclick="${selectMode ? `toggleSelectWord(${w.id})` : ''}" class="bg-[#1e1b18] border ${selectMode && selectedReviewIds.has(w.id) ? 'border-[#e07a5f]' : 'border-[#2e2924]'} rounded-2xl p-3.5 space-y-2">
               <div class="flex items-start justify-between">
                 <div class="flex items-center gap-3">
-                  ${selectMode ? `<input type="checkbox" ${selectedReviewIds.has(w.id) ? 'checked' : ''} class="w-4 h-4 accent-[#b9382c]" />` : ''}
+                  ${selectMode ? `<input type="checkbox" ${selectedReviewIds.has(w.id) ? 'checked' : ''} class="w-4 h-4 accent-[#b83d2e]" />` : ''}
                   <div>
                     <div class="flex items-baseline gap-2">
-                      <span onclick="event.stopPropagation(); speakChinese('${w.hanzi}')" class="text-2xl font-bold hanzi-font text-[#f3efe9] cursor-pointer active:text-[#e07a5f]">${w.hanzi}</span>
+                      <span onclick="event.stopPropagation(); speakChinese('${w.hanzi}')" class="text-2xl font-bold hanzi-font text-[#f2ede6] cursor-pointer active:text-[#e07a5f]">${w.hanzi}</span>
                       <span class="text-xs font-medium text-[#e07a5f]">${w.pinyin}</span>
                     </div>
                     <div class="text-sm font-semibold text-[#e6dfd5] mt-0.5">${w.meaning}</div>
                   </div>
                 </div>
                 <div class="flex items-center gap-1.5">
-                  <button onclick="event.stopPropagation(); speakChinese('${w.hanzi}')" class="w-8 h-8 rounded-lg bg-[#26221f] text-xs flex items-center justify-center active:scale-90">🔊</button>
-                  <button onclick="event.stopPropagation(); openWriterModal('${w.hanzi}', '${w.pinyin} - ${w.meaning}')" class="w-8 h-8 rounded-lg bg-[#26221f] text-xs flex items-center justify-center active:scale-90" title="Tập viết nét">✍️</button>
-                  <button onclick="event.stopPropagation(); deleteWord(${w.id})" class="w-8 h-8 rounded-lg bg-[#26221f] text-xs text-[#8b837a] flex items-center justify-center active:scale-90">🗑️</button>
+                  <button onclick="event.stopPropagation(); speakChinese('${w.hanzi}')" class="w-8 h-8 rounded-lg bg-[#28231f] text-xs flex items-center justify-center active:scale-90">🔊</button>
+                  <button onclick="event.stopPropagation(); openWriterModal('${w.hanzi}', '${w.pinyin} - ${w.meaning}')" class="w-8 h-8 rounded-lg bg-[#28231f] text-xs flex items-center justify-center active:scale-90">✍️</button>
+                  <button onclick="event.stopPropagation(); deleteWord(${w.id})" class="w-8 h-8 rounded-lg bg-[#28231f] text-xs text-[#8c8278] flex items-center justify-center active:scale-90">🗑️</button>
                 </div>
               </div>
-              ${w.mnemonic ? `<div class="text-[11px] text-[#d4b475] bg-[#241f17] px-3 py-2 rounded-xl whitespace-pre-line leading-relaxed">💡 ${w.mnemonic}</div>` : ''}
-              <div class="flex items-center justify-between pt-1">
-                <span class="text-[10px] px-2 py-0.5 rounded-md font-medium ${levelBadge[w.level].cls}">${levelBadge[w.level].label}</span>
-                <button onclick="event.stopPropagation(); cycleWordLevel(${w.id})" class="text-[11px] text-[#9b938a] underline">Đổi mức độ</button>
+              ${w.mnemonic ? `<div class="text-[11px] text-[#d9b86c] bg-[#292418] border border-[#3d3520] px-3 py-2 rounded-xl whitespace-pre-line leading-relaxed">💡 ${w.mnemonic}</div>` : ''}
+              <div class="flex items-center justify-between pt-0.5">
+                <span class="text-[10px] px-2 py-0.5 rounded-md font-medium ${badges[w.level].cls}">${badges[w.level].text}</span>
+                <button onclick="event.stopPropagation(); cycleWordLevel(${w.id})" class="text-[11px] text-[#9c9288] underline">Đổi mức độ</button>
               </div>
             </div>
           `).join('')}
@@ -744,57 +717,56 @@
       `;
     }
 
-    function renderDatabaseTab(container) {
-      const categories = ['Tất cả', ...new Set(CORE_DATABASE.map(i => i.category))];
-      const existingSet = new Set(state.vocab.map(w => w.hanzi));
-      const filtered = CORE_DATABASE.filter(item => {
-        const matchCat = dbCategory === 'Tất cả' || item.category === dbCategory;
-        const q = dbSearchQuery.toLowerCase();
-        const matchQ = !q || item.hanzi.includes(q) || item.pinyin.toLowerCase().includes(q) || item.meaning.toLowerCase().includes(q);
-        return matchCat && matchQ;
+    function renderDatabase(el) {
+      const cats = ['Tất cả', ...new Set(CORE_DATABASE.map(i => i.category))];
+      const existing = new Set(state.vocab.map(w => w.hanzi));
+      const items = CORE_DATABASE.filter(i => {
+        const okCat = dbCategory === 'Tất cả' || i.category === dbCategory;
+        const q = dbSearch.toLowerCase();
+        const okQ = !q || i.hanzi.includes(q) || i.pinyin.toLowerCase().includes(q) || i.meaning.toLowerCase().includes(q);
+        return okCat && okQ;
       });
 
-      container.innerHTML = `
+      el.innerHTML = `
         <div class="flex items-center justify-between">
           <div>
-            <h2 class="text-sm font-bold text-[#f3efe9]">Kho từ giao tiếp cốt lõi</h2>
-            <p class="text-[11px] text-[#9b938a]">Tích chọn các từ bạn đang học để đưa vào Sổ ôn tập</p>
+            <h2 class="text-sm font-bold text-[#f2ede6]">Kho từ giao tiếp cốt lõi</h2>
+            <p class="text-[11px] text-[#9c9288]">Tích chọn các từ đang học để thêm vào Sổ học</p>
           </div>
-          ${selectedDbWords.size > 0 ? `
-            <button onclick="importSelectedDbWords()" class="px-3 py-2 rounded-xl bg-[#b9382c] text-white text-xs font-bold shadow-lg active:scale-95">
-              + Thêm ${selectedDbWords.size} từ
+          ${dbSelected.size > 0 ? `
+            <button onclick="importSelectedDb()" class="px-3 py-2 rounded-xl bg-[#b83d2e] text-white text-xs font-bold active:scale-95">
+              + Thêm ${dbSelected.size} từ
             </button>
           ` : ''}
         </div>
 
-        <input type="text" value="${dbSearchQuery}" oninput="dbSearchQuery=this.value; renderApp()" placeholder="🔍 Tìm chữ Hán, Pinyin hoặc nghĩa Việt..."
-          class="w-full bg-[#1c1917] border border-[#2d2925] rounded-xl px-3.5 py-2.5 text-xs text-[#f3efe9] outline-none" />
+        <input type="text" value="${dbSearch}" oninput="dbSearch=this.value; render()" placeholder="🔍 Tìm chữ Hán, Pinyin hoặc nghĩa Việt..."
+          class="w-full bg-[#1e1b18] border border-[#2e2924] rounded-xl px-3.5 py-2.5 text-xs text-[#f2ede6] placeholder-[#8c8278] outline-none" />
 
         <div class="flex gap-1.5 overflow-x-auto pb-1">
-          ${categories.map(cat => `
-            <button onclick="dbCategory='${cat}'; renderApp()" class="px-2.5 py-1.5 rounded-lg text-[11px] font-medium whitespace-nowrap ${dbCategory===cat ? 'bg-[#b9382c] text-white' : 'bg-[#1c1917] text-[#9b938a]'}">${cat}</button>
+          ${cats.map(c => `
+            <button onclick="dbCategory='${c}'; render()" class="px-2.5 py-1.5 rounded-lg text-[11px] font-medium whitespace-nowrap ${dbCategory===c ? 'bg-[#b83d2e] text-white' : 'bg-[#1e1b18] text-[#9c9288]'}">${c}</button>
           `).join('')}
         </div>
 
         <div class="space-y-2">
-          ${filtered.map(item => {
-            const alreadyAdded = existingSet.has(item.hanzi);
-            const isChecked = selectedDbWords.has(item.hanzi);
+          ${items.map(i => {
+            const added = existing.has(i.hanzi);
+            const checked = dbSelected.has(i.hanzi);
             return `
-              <div onclick="${alreadyAdded ? '' : `toggleDbSelect('${item.hanzi}')`}" class="bg-[#1b1917] border ${isChecked ? 'border-[#e07a5f]' : 'border-[#292522]'} rounded-2xl p-3 flex items-center justify-between ${alreadyAdded ? 'opacity-60' : 'cursor-pointer'}">
+              <div onclick="${added ? '' : `toggleDb('${i.hanzi}')`}" class="bg-[#1e1b18] border ${checked ? 'border-[#e07a5f]' : 'border-[#2e2924]'} rounded-2xl p-3 flex items-center justify-between ${added ? 'opacity-55' : 'cursor-pointer'}">
                 <div class="flex items-center gap-3">
-                  <input type="checkbox" ${alreadyAdded || isChecked ? 'checked' : ''} ${alreadyAdded ? 'disabled' : ''} class="w-4 h-4 accent-[#b9382c]" />
+                  <input type="checkbox" ${added || checked ? 'checked' : ''} ${added ? 'disabled' : ''} class="w-4 h-4 accent-[#b83d2e]" />
                   <div>
                     <div class="flex items-baseline gap-2">
-                      <span onclick="event.stopPropagation(); speakChinese('${item.hanzi}')" class="text-xl font-bold hanzi-font text-[#f3efe9]">${item.hanzi}</span>
-                      <span class="text-xs text-[#e07a5f]">${item.pinyin}</span>
-                      <span class="text-[10px] px-1.5 py-0.5 rounded bg-[#26221f] text-[#9b938a]">${item.category}</span>
+                      <span onclick="event.stopPropagation(); speakChinese('${i.hanzi}')" class="text-xl font-bold hanzi-font text-[#f2ede6]">${i.hanzi}</span>
+                      <span class="text-xs text-[#e07a5f]">${i.pinyin}</span>
                     </div>
-                    <div class="text-xs font-semibold text-[#e6dfd5]">${item.meaning}</div>
-                    <div class="text-[11px] text-[#d4b475] mt-0.5">💡 ${item.mnemonic}</div>
+                    <div class="text-xs font-semibold text-[#e6dfd5]">${i.meaning}</div>
+                    <div class="text-[11px] text-[#d9b86c] mt-0.5">💡 ${i.mnemonic}</div>
                   </div>
                 </div>
-                <button onclick="event.stopPropagation(); speakChinese('${item.hanzi}')" class="w-8 h-8 rounded-lg bg-[#26221f] text-xs flex items-center justify-center shrink-0">🔊</button>
+                <button onclick="event.stopPropagation(); speakChinese('${i.hanzi}')" class="w-8 h-8 rounded-lg bg-[#28231f] text-xs flex items-center justify-center shrink-0">🔊</button>
               </div>
             `;
           }).join('')}
@@ -802,25 +774,24 @@
       `;
     }
 
-    function renderSpeakTab(container) {
-      container.innerHTML = `
-        <div class="bg-[#1b1917] border border-[#292522] rounded-2xl p-3.5">
-          <h2 class="text-sm font-bold text-[#f3efe9]">Luyện phản xạ giao tiếp</h2>
-          <p class="text-[11px] text-[#9b938a] mt-0.5">Chạm vào phần chữ bị làm mờ để tự kiểm tra trí nhớ mặt chữ và cách đọc</p>
+    function renderSpeak(el) {
+      el.innerHTML = `
+        <div class="bg-[#1e1b18] border border-[#2e2924] rounded-2xl p-3.5">
+          <h2 class="text-sm font-bold text-[#f2ede6]">Che mờ luyện phản xạ nói</h2>
+          <p class="text-[11px] text-[#9c9288] mt-0.5">Nhìn tiếng Việt tập nói trước, sau đó chạm vào khung mờ để kiểm tra</p>
         </div>
-
-        ${SPEAKING_SCENARIOS.map((group, gIdx) => `
+        ${SPEAKING_DATA.map(g => `
           <div class="space-y-2">
-            <h3 class="text-xs font-bold text-[#e07a5f] px-1">${group.title}</h3>
-            ${group.items.map((item, iIdx) => `
-              <div class="bg-[#1b1917] border border-[#292522] rounded-2xl p-3.5 space-y-2">
+            <h3 class="text-xs font-bold text-[#e07a5f] px-1">${g.topic}</h3>
+            ${g.sentences.map(s => `
+              <div class="bg-[#1e1b18] border border-[#2e2924] rounded-2xl p-3.5 space-y-2">
                 <div class="flex items-center justify-between">
-                  <span class="text-xs font-semibold text-[#e6dfd5]">🇻🇳 ${item.vi}</span>
-                  <button onclick="speakChinese('${item.hanzi}')" class="px-2.5 py-1 rounded-lg bg-[#26221f] text-xs text-[#f3efe9] active:scale-95">🔊 Nghe</button>
+                  <span class="text-xs font-semibold text-[#e6dfd5]">🇻🇳 ${s.vi}</span>
+                  <button onclick="speakChinese('${s.hanzi}')" class="px-2.5 py-1 rounded-lg bg-[#28231f] text-xs text-[#f2ede6]">🔊 Nghe</button>
                 </div>
-                <div onclick="this.classList.toggle('revealed')" class="blur-mask bg-[#24201d] rounded-xl p-2.5 cursor-pointer">
-                  <div class="text-lg font-bold hanzi-font text-[#f3efe9]">${item.hanzi}</div>
-                  <div class="text-xs text-[#e07a5f] mt-0.5">${item.pinyin}</div>
+                <div onclick="this.classList.toggle('revealed')" class="blur-item bg-[#26221e] rounded-xl p-2.5 cursor-pointer">
+                  <div onclick="event.stopPropagation(); speakChinese('${s.hanzi}')" class="text-lg font-bold hanzi-font text-[#f2ede6]">${s.hanzi}</div>
+                  <div class="text-xs text-[#e07a5f] mt-0.5">${s.pinyin}</div>
                 </div>
               </div>
             `).join('')}
@@ -829,101 +800,79 @@
       `;
     }
 
-    function renderStatsTab(container) {
-      const mastered = state.vocab.filter(w => w.level === 'mastered').length;
-      const total = state.vocab.length;
-
-      // 14 ngày gần nhất (2 hàng x 7 cột)
-      const days = [];
-      for (let i = 13; i >= 0; i--) {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        const iso = d.toISOString().slice(0, 10);
-        days.push({ day: d.getDate(), active: state.historyDates.includes(iso) });
-      }
-
-      container.innerHTML = `
-        <!-- Thống kê nhanh -->
-        <div class="grid grid-cols-3 gap-2.5">
-          <div class="bg-[#1b1917] border border-[#292522] rounded-2xl p-3 text-center">
-            <div class="text-xl font-bold text-[#f3efe9]">${total}</div>
-            <div class="text-[11px] text-[#9b938a]">Tổng từ vựng</div>
-          </div>
-          <div class="bg-[#1b1917] border border-[#292522] rounded-2xl p-3 text-center">
-            <div class="text-xl font-bold text-[#4ade80]">${mastered}</div>
-            <div class="text-[11px] text-[#9b938a]">Đã thuộc mặt chữ</div>
-          </div>
-          <div class="bg-[#1b1917] border border-[#292522] rounded-2xl p-3 text-center">
-            <div class="text-xl font-bold text-[#f59e0b]">${state.streak}</div>
-            <div class="text-[11px] text-[#9b938a]">Ngày điểm danh</div>
+    function renderJournal(el) {
+      el.innerHTML = `
+        <div class="bg-[#1e1b18] border border-[#2e2924] rounded-2xl p-3.5 space-y-2.5">
+          <h2 class="text-sm font-bold text-[#f2ede6]">Nhật ký đặt câu tiếng Trung</h2>
+          <input type="text" id="journalHanzi" placeholder="Gõ câu tiếng Trung bạn tự đặt..."
+            class="w-full bg-[#2c2621] border border-[#3d352e] rounded-xl px-3 py-2 text-sm hanzi-font text-[#f2ede6] outline-none" />
+          <div class="flex gap-2">
+            <input type="text" id="journalVi" placeholder="Nghĩa tiếng Việt..."
+              class="flex-1 bg-[#2c2621] border border-[#3d352e] rounded-xl px-3 py-2 text-xs text-[#f2ede6] outline-none" />
+            <button onclick="addJournalEntry()" class="px-4 py-2 rounded-xl bg-[#b83d2e] text-white text-xs font-bold">Lưu câu</button>
           </div>
         </div>
 
-        <!-- Lịch 14 ngày (2 hàng x 7 cột gọn gàng) -->
-        <div class="bg-[#1b1917] border border-[#292522] rounded-2xl p-4 space-y-2.5">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-[#f3efe9]">Chuỗi học 14 ngày gần nhất</span>
-            <span class="text-[11px] text-[#9b938a]">Tự động điểm danh</span>
-          </div>
-          <div class="grid grid-cols-7 gap-2">
-            ${days.map(d => `
-              <div class="aspect-square rounded-xl flex items-center justify-center text-xs font-bold ${d.active ? 'bg-[#b9382c] text-white' : 'bg-[#25221f] text-[#7a7269]'}">
-                ${d.day}
+        <div class="space-y-2">
+          ${state.journal.map(j => `
+            <div class="bg-[#1e1b18] border border-[#2e2924] rounded-2xl p-3.5 flex items-start justify-between">
+              <div>
+                <div class="text-[10px] text-[#8c8278]">${j.date}</div>
+                <div onclick="speakChinese('${j.hanzi}')" class="text-lg font-bold hanzi-font text-[#f2ede6] mt-0.5 cursor-pointer">${j.hanzi}</div>
+                <div class="text-xs text-[#e07a5f]">${j.pinyin}</div>
+                <div class="text-xs text-[#dfd7cd] mt-1">${j.vi}</div>
               </div>
-            `).join('')}
-          </div>
-        </div>
-
-        <!-- Cấu hình AI Chiết tự sâu (Lưu cục bộ trên điện thoại) -->
-        <div class="bg-[#1b1917] border border-[#292522] rounded-2xl p-4 space-y-3">
-          <div>
-            <h3 class="text-xs font-bold text-[#f3efe9] flex items-center gap-1.5">
-              <span>✨</span> Cấu hình AI Chiết tự sâu (Tùy chọn)
-            </h3>
-            <p class="text-[11px] text-[#9b938a] mt-1 leading-relaxed">
-              Mặc định web đã tự động điền nghĩa và tách bộ thủ miễn phí không cần Key. Nếu muốn AI viết câu chuyện chiết tự sinh động hơn, hãy dán API Key cá nhân của bạn vào đây (chỉ lưu trong bộ nhớ máy bạn, không lộ lên GitHub).
-            </p>
-          </div>
-          <div class="space-y-2">
-            <select id="aiProviderSelect" onchange="updateAiConfig()" class="w-full bg-[#25221f] border border-[#38332e] rounded-xl px-3 py-2 text-xs text-[#f3efe9] outline-none">
-              <option value="gemini" ${state.aiConfig.provider === 'gemini' ? 'selected' : ''}>Google Gemini API (Gói Free Tier)</option>
-              <option value="deepseek" ${state.aiConfig.provider === 'deepseek' ? 'selected' : ''}>DeepSeek API</option>
-            </select>
-            <input type="password" id="aiApiKeyInput" value="${state.aiConfig.apiKey}" onchange="updateAiConfig()" placeholder="Dán API Key của bạn vào đây..."
-              class="w-full bg-[#25221f] border border-[#38332e] rounded-xl px-3 py-2 text-xs text-[#f3efe9] outline-none" />
-            <div class="flex justify-between items-center">
-              <span class="text-[11px] ${state.aiConfig.apiKey ? 'text-[#4ade80]' : 'text-[#8b837a]'}">
-                ${state.aiConfig.apiKey ? '✅ Đã lưu Key trên máy' : 'Chưa nhập Key (Đang dùng bộ tách bộ thủ nội bộ)'}
-              </span>
-              <button onclick="updateAiConfig(true)" class="px-3 py-1.5 rounded-lg bg-[#2f231e] text-[#f29b7e] text-xs font-semibold">Lưu Key</button>
+              <button onclick="speakChinese('${j.hanzi}')" class="w-8 h-8 rounded-lg bg-[#28231f] text-xs flex items-center justify-center">🔊</button>
             </div>
+          `).join('')}
+        </div>
+
+        <!-- Cấu hình AI Chiết tự (Tùy chọn) -->
+        <div class="bg-[#1e1b18] border border-[#2e2924] rounded-2xl p-3.5 space-y-2.5">
+          <div class="text-xs font-bold text-[#d9b86c]">✨ Cài đặt nút AI Chiết tự (Tùy chọn)</div>
+          <p class="text-[11px] text-[#9c9288]">Mặc định web đã tự điền nghĩa &amp; tách bộ thủ miễn phí. Nếu muốn nút ✨ AI viết thành câu chuyện, dán API Key vào đây (lưu riêng trên máy bạn):</p>
+          <div class="flex gap-2">
+            <select id="cfgProvider" onchange="saveAiSettings()" class="bg-[#2c2621] border border-[#3d352e] rounded-xl px-2.5 py-2 text-xs text-[#f2ede6] outline-none">
+              <option value="gemini" ${state.aiProvider==='gemini' ? 'selected' : ''}>Gemini</option>
+              <option value="deepseek" ${state.aiProvider==='deepseek' ? 'selected' : ''}>DeepSeek</option>
+            </select>
+            <input type="password" id="cfgKey" value="${state.aiKey}" onchange="saveAiSettings()" placeholder="Dán API Key..."
+              class="flex-1 bg-[#2c2621] border border-[#3d352e] rounded-xl px-3 py-2 text-xs text-[#f2ede6] outline-none" />
           </div>
         </div>
 
-        <!-- Sao lưu & Khôi phục dữ liệu -->
-        <div class="bg-[#1b1917] border border-[#292522] rounded-2xl p-4 space-y-3">
-          <h3 class="text-xs font-bold text-[#f3efe9]">Sao lưu &amp; Khôi phục dữ liệu trên máy</h3>
-          <div class="grid grid-cols-2 gap-2.5">
-            <button onclick="exportBackup()" class="py-2.5 rounded-xl bg-[#26221f] text-[#f3efe9] text-xs font-semibold">⬇️ Xuất file sao lưu</button>
-            <label class="py-2.5 rounded-xl bg-[#26221f] text-[#f3efe9] text-xs font-semibold text-center cursor-pointer">
+        <!-- Sao lưu dữ liệu -->
+        <div class="bg-[#1e1b18] border border-[#2e2924] rounded-2xl p-3.5 space-y-2.5">
+          <div class="text-xs font-bold text-[#f2ede6]">Sao lưu &amp; Khôi phục dữ liệu</div>
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="exportJson()" class="py-2.5 rounded-xl bg-[#28231f] text-xs font-semibold text-[#f2ede6]">⬇️ Xuất file sao lưu</button>
+            <label class="py-2.5 rounded-xl bg-[#28231f] text-xs font-semibold text-[#f2ede6] text-center cursor-pointer">
               ⬆️ Khôi phục file
-              <input type="file" accept=".json" onchange="importBackup(event)" class="hidden" />
+              <input type="file" accept=".json" onchange="importJson(event)" class="hidden" />
             </label>
           </div>
         </div>
       `;
     }
 
-    function updateAiConfig(showToast = false) {
-      state.aiConfig.provider = document.getElementById('aiProviderSelect').value;
-      state.aiConfig.apiKey = document.getElementById('aiApiKeyInput').value.trim();
-      saveState();
-      renderApp();
-      if (showToast) alert('Đã lưu cấu hình AI trực tiếp trên điện thoại của bạn!');
+    function saveAiSettings() {
+      state.aiProvider = document.getElementById('cfgProvider').value;
+      state.aiKey = document.getElementById('cfgKey').value.trim();
+      saveData();
+    }
+
+    function addJournalEntry() {
+      const hanzi = document.getElementById('journalHanzi').value.trim();
+      const vi = document.getElementById('journalVi').value.trim();
+      if (!hanzi) return;
+      const pinyin = window.pinyinPro ? window.pinyinPro.pinyin(hanzi, { toneType: 'symbol' }) : '';
+      state.journal.unshift({ id: Date.now(), date: new Date().toISOString().slice(0, 10), hanzi, pinyin, vi });
+      saveData();
+      render();
     }
 
     // ==========================================
-    // 6. THAO TÁC MODAL THÊM TỪ, FLASHCARD & VIẾT CHỮ
+    // 6. MODAL THÊM TỪ, FLASHCARD & VIẾT NÉT
     // ==========================================
     function openAddModal() {
       document.getElementById('inputHanzi').value = '';
@@ -931,19 +880,17 @@
       document.getElementById('inputMeaning').value = '';
       document.getElementById('inputMnemonic').value = '';
       document.getElementById('inputLevel').value = 'new';
-      document.getElementById('meaningTag').textContent = 'Tự động gợi ý';
-      document.getElementById('mnemonicTag').textContent = 'Tự tách bộ thủ';
-      document.getElementById('autoFillStatus').classList.add('hidden');
-      const modal = document.getElementById('addModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
+      document.getElementById('autoStatus').classList.add('hidden');
+      const m = document.getElementById('addModal');
+      m.classList.remove('hidden');
+      m.classList.add('flex');
       setTimeout(() => document.getElementById('inputHanzi').focus(), 100);
     }
 
     function closeAddModal() {
-      const modal = document.getElementById('addModal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
+      const m = document.getElementById('addModal');
+      m.classList.add('hidden');
+      m.classList.remove('flex');
     }
 
     function saveNewWord() {
@@ -952,223 +899,188 @@
       const meaning = document.getElementById('inputMeaning').value.trim();
       const mnemonic = document.getElementById('inputMnemonic').value.trim();
       const level = document.getElementById('inputLevel').value;
-
       if (!hanzi || !meaning) {
-        alert('Bạn cần nhập đầy đủ Chữ Hán và Nghĩa tiếng Việt nhé!');
+        alert('Vui lòng nhập Chữ Hán và Nghĩa tiếng Việt!');
         return;
       }
-
-      state.vocab.unshift({
-        id: Date.now(),
-        hanzi,
-        pinyin,
-        meaning,
-        mnemonic,
-        level
-      });
-      saveState();
+      state.vocab.unshift({ id: Date.now(), hanzi, pinyin, meaning, mnemonic, level });
+      saveData();
       closeAddModal();
-      renderApp();
+      render();
     }
 
     function deleteWord(id) {
-      if (!confirm('Xóa từ vựng này khỏi sổ của bạn?')) return;
+      if (!confirm('Xóa từ này khỏi sổ?')) return;
       state.vocab = state.vocab.filter(w => w.id !== id);
       selectedReviewIds.delete(id);
-      saveState();
-      renderApp();
+      saveData();
+      render();
     }
 
     function cycleWordLevel(id) {
-      const order = ['new', 'learning', 'mastered'];
-      const w = state.vocab.find(item => item.id === id);
+      const seq = ['new', 'learning', 'mastered'];
+      const w = state.vocab.find(x => x.id === id);
       if (w) {
-        w.level = order[(order.indexOf(w.level) + 1) % order.length];
-        saveState();
-        renderApp();
+        w.level = seq[(seq.indexOf(w.level) + 1) % seq.length];
+        saveData();
+        render();
       }
     }
 
     function toggleSelectMode() {
       selectMode = !selectMode;
       selectedReviewIds.clear();
-      renderApp();
+      render();
     }
 
     function toggleSelectWord(id) {
       if (selectedReviewIds.has(id)) selectedReviewIds.delete(id);
       else selectedReviewIds.add(id);
-      renderApp();
+      render();
     }
 
-    function toggleDbSelect(hanzi) {
-      if (selectedDbWords.has(hanzi)) selectedDbWords.delete(hanzi);
-      else selectedDbWords.add(hanzi);
-      renderApp();
+    function toggleDb(hanzi) {
+      if (dbSelected.has(hanzi)) dbSelected.delete(hanzi);
+      else dbSelected.add(hanzi);
+      render();
     }
 
-    function importSelectedDbWords() {
-      const toAdd = CORE_DATABASE.filter(item => selectedDbWords.has(item.hanzi));
-      toAdd.forEach((item, idx) => {
-        state.vocab.unshift({
-          id: Date.now() + idx,
-          hanzi: item.hanzi,
-          pinyin: item.pinyin,
-          meaning: item.meaning,
-          mnemonic: item.mnemonic,
-          level: 'new'
-        });
+    function importSelectedDb() {
+      const picked = CORE_DATABASE.filter(i => dbSelected.has(i.hanzi));
+      picked.forEach((i, idx) => {
+        state.vocab.unshift({ id: Date.now() + idx, hanzi: i.hanzi, pinyin: i.pinyin, meaning: i.meaning, mnemonic: i.mnemonic, level: 'new' });
       });
-      selectedDbWords.clear();
-      saveState();
+      dbSelected.clear();
+      saveData();
       switchTab('vocab');
     }
 
-    // Spaced Repetition Flashcard
-    function startReviewSession() {
-      let pool = [];
-      if (selectMode && selectedReviewIds.size > 0) {
-        pool = state.vocab.filter(w => selectedReviewIds.has(w.id));
-      } else {
-        pool = state.vocab.filter(w => w.level !== 'mastered');
-      }
+    function startReview() {
+      let pool = (selectMode && selectedReviewIds.size > 0)
+        ? state.vocab.filter(w => selectedReviewIds.has(w.id))
+        : state.vocab.filter(w => w.level !== 'mastered');
       if (pool.length === 0) pool = [...state.vocab];
       if (pool.length === 0) {
-        alert('Sổ của bạn chưa có từ nào để ôn!');
+        alert('Sổ chưa có từ nào để ôn!');
         return;
       }
-
       reviewQueue = [...pool];
-      reviewIndex = 0;
-      const modal = document.getElementById('reviewModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-      showCurrentReviewCard();
+      reviewIdx = 0;
+      const m = document.getElementById('reviewModal');
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+      showReviewCard();
     }
 
     function closeReviewModal() {
-      const modal = document.getElementById('reviewModal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-      renderApp();
+      const m = document.getElementById('reviewModal');
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+      render();
     }
 
-    function showCurrentReviewCard() {
-      if (reviewIndex >= reviewQueue.length) {
-        alert('🎉 Tuyệt vời! Bạn đã hoàn thành phiên ôn tập ghi nhớ nhắc lại!');
+    function showReviewCard() {
+      if (reviewIdx >= reviewQueue.length) {
+        alert('🎉 Hoàn thành phiên ôn tập!');
         closeReviewModal();
         return;
       }
-      const w = reviewQueue[reviewIndex];
-      reviewFlipped = false;
-      document.getElementById('reviewProgress').textContent = `${reviewIndex + 1} / ${reviewQueue.length}`;
+      const w = reviewQueue[reviewIdx];
+      reviewRevealed = false;
+      document.getElementById('reviewCounter').textContent = `${reviewIdx + 1} / ${reviewQueue.length}`;
       document.getElementById('reviewHanzi').textContent = w.hanzi;
       document.getElementById('reviewPinyin').textContent = w.pinyin;
       document.getElementById('reviewMeaning').textContent = w.meaning;
       document.getElementById('reviewMnemonic').textContent = w.mnemonic ? `💡 ${w.mnemonic}` : 'Chưa có ghi chú chiết tự';
-      document.getElementById('reviewBack').classList.add('hidden');
+      document.getElementById('reviewAnswer').classList.add('hidden');
       speakChinese(w.hanzi);
     }
 
     function flipReviewCard() {
-      reviewFlipped = !reviewFlipped;
-      document.getElementById('reviewBack').classList.toggle('hidden', !reviewFlipped);
+      reviewRevealed = !reviewRevealed;
+      document.getElementById('reviewAnswer').classList.toggle('hidden', !reviewRevealed);
     }
 
     function speakCurrentReview() {
-      const w = reviewQueue[reviewIndex];
+      const w = reviewQueue[reviewIdx];
       if (w) speakChinese(w.hanzi);
     }
 
-    function answerReview(rating) {
-      const w = reviewQueue[reviewIndex];
-      const orig = state.vocab.find(item => item.id === w.id);
-      if (rating === 'again') {
+    function gradeReview(res) {
+      const w = reviewQueue[reviewIdx];
+      const orig = state.vocab.find(x => x.id === w.id);
+      if (res === 'again') {
         if (orig) orig.level = 'new';
-        // Đẩy thẻ quay lại hàng đợi sau 2 thẻ nữa để nhắc lại
-        const insertPos = Math.min(reviewQueue.length, reviewIndex + 3);
-        reviewQueue.splice(insertPos, 0, w);
-      } else if (rating === 'good') {
+        reviewQueue.splice(Math.min(reviewQueue.length, reviewIdx + 3), 0, w);
+      } else if (res === 'good') {
         if (orig) orig.level = 'learning';
-      } else if (rating === 'easy') {
+      } else if (res === 'easy') {
         if (orig) orig.level = 'mastered';
       }
-      saveState();
-      reviewIndex++;
-      showCurrentReviewCard();
+      saveData();
+      reviewIdx++;
+      showReviewCard();
     }
 
-    // Hanzi Writer (Tập viết nét)
     function openWriterModal(hanzi, info) {
-      writerChars = hanzi.replace(/[^\u4e00-\u9fa5]/g, '').split('');
-      if (writerChars.length === 0) return;
-      document.getElementById('writerWordInfo').textContent = info;
-      const selector = document.getElementById('charSelector');
-      selector.innerHTML = writerChars.map((ch, idx) => `
-        <button onclick="loadWriterChar('${ch}')" class="w-10 h-10 rounded-xl bg-[#26221f] text-lg hanzi-font font-bold text-[#f3efe9] border border-[#38332e]">${ch}</button>
-      `).join('');
-      const modal = document.getElementById('writerModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-      loadWriterChar(writerChars[0]);
+      const chars = hanzi.replace(/[^\u4e00-\u9fa5]/g, '').split('');
+      if (!chars.length) return;
+      document.getElementById('writerInfo').textContent = info;
+      document.getElementById('writerChars').innerHTML = chars.map(c =>
+        `<button onclick="loadWriterChar('${c}')" class="w-10 h-10 rounded-xl bg-[#28231f] text-lg hanzi-font font-bold text-[#f2ede6] border border-[#3d352e]">${c}</button>`
+      ).join('');
+      const m = document.getElementById('writerModal');
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+      loadWriterChar(chars[0]);
     }
 
-    function loadWriterChar(ch) {
-      const target = document.getElementById('characterTarget');
-      target.innerHTML = '';
-      currentWriter = HanziWriter.create('characterTarget', ch, {
-        width: 220,
-        height: 220,
-        padding: 15,
-        strokeColor: '#f3efe9',
-        radicalColor: '#e07a5f',
-        outlineColor: '#38332e',
-        showOutline: true
+    function loadWriterChar(c) {
+      const box = document.getElementById('writerCanvas');
+      box.innerHTML = '';
+      writerInstance = HanziWriter.create('writerCanvas', c, {
+        width: 220, height: 220, padding: 15,
+        strokeColor: '#f2ede6', radicalColor: '#e07a5f', outlineColor: '#3d352e', showOutline: true
       });
-      currentWriter.animateCharacter();
+      writerInstance.animateCharacter();
     }
 
-    function animateWriter() { if (currentWriter) currentWriter.animateCharacter(); }
-    function quizWriter() { if (currentWriter) currentWriter.quiz(); }
+    function animateWriter() { if (writerInstance) writerInstance.animateCharacter(); }
+    function quizWriter() { if (writerInstance) writerInstance.quiz(); }
     function closeWriterModal() {
-      const modal = document.getElementById('writerModal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
+      const m = document.getElementById('writerModal');
+      m.classList.add('hidden');
+      m.classList.remove('flex');
     }
 
-    // Backup & Restore
-    function exportBackup() {
+    function exportJson() {
       const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url;
-      a.download = `sotay-hanngu-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      a.href = URL.createObjectURL(blob);
+      a.download = `sotay-hanngu-${new Date().toISOString().slice(0, 10)}.json`;
       a.click();
     }
 
-    function importBackup(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = e => {
+    function importJson(ev) {
+      const f = ev.target.files[0];
+      if (!f) return;
+      const r = new FileReader();
+      r.onload = e => {
         try {
-          const parsed = JSON.parse(e.target.result);
-          if (Array.isArray(parsed.vocab)) {
-            state = { ...state, ...parsed };
-            saveState();
-            renderApp();
-            alert('✅ Khôi phục dữ liệu thành công!');
+          const data = JSON.parse(e.target.result);
+          if (Array.isArray(data.vocab)) {
+            state = { ...state, ...data };
+            saveData();
+            render();
+            alert('✅ Khôi phục thành công!');
           }
-        } catch (err) {
-          alert('File sao lưu không hợp lệ!');
-        }
+        } catch (err) { alert('File không hợp lệ!'); }
       };
-      reader.readAsText(file);
+      r.readAsText(f);
     }
 
-    // Khởi chạy ứng dụng
-    loadState();
-    renderApp();
+    loadData();
+    render();
   </script>
 </body>
 </html>
