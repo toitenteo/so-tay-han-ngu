@@ -1,2229 +1,1174 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" class="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#121110" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="Hán Ngữ" />
-  <meta name="theme-color" content="#FAF8F5" />
-  <title>Sổ Tay Học Tiếng Trung Cá Nhân</title>
-
-  <!-- Tailwind CSS -->
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Sổ Tay Hán Ngữ</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            paper: '#FAF8F5',
-            ink: '#1E242B',
-            cinnabar: '#C83E37',
-            cinnabarDark: '#A62F29',
-            jade: '#2A7B6F',
-            ochre: '#D97706',
-          },
-          fontFamily: {
-            sans: ['Inter', 'system-ui', 'sans-serif'],
-            hanzi: ['"Noto Sans SC"', '"PingFang SC"', '"Microsoft YaHei"', 'sans-serif'],
-          }
-        }
-      }
-    }
-  </script>
-
-  <!-- Google Fonts: Inter & Noto Sans SC -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet" />
-
-  <!-- Thư viện tự động tạo Pinyin chuẩn thanh điệu -->
-  <script src="https://unpkg.com/pinyin-pro@3.19.6/dist/index.js"></script>
-
-  <!-- Thư viện mô phỏng & kiểm tra nét viết chữ Hán -->
+  <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.19.6/dist/index.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
-
   <style>
-    /* Tối ưu trải nghiệm chạm trên điện thoại */
-    * {
-      -webkit-tap-highlight-color: transparent;
-      box-sizing: border-box;
-    }
-
+    @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap');
     body {
-      background-color: #FAF8F5;
-      color: #1E242B;
-      font-family: 'Inter', system-ui, sans-serif;
+      font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #121110;
+      color: #f3efe9;
+      -webkit-tap-highlight-color: transparent;
       overscroll-behavior-y: none;
     }
-
-    /* Ô vuông tập viết chữ Hán kiểu Mễ Tự Cách (米字格) */
-    .mi-zi-ge {
-      background-color: #FFFFFF;
-      background-image:
-        linear-gradient(to right, transparent 49.5%, #F3D6D4 49.5%, #F3D6D4 50.5%, transparent 50.5%),
-        linear-gradient(to bottom, transparent 49.5%, #F3D6D4 49.5%, #F3D6D4 50.5%, transparent 50.5%),
-        linear-gradient(45deg, transparent 49.6%, #F9E8E7 49.6%, #F9E8E7 50.4%, transparent 50.4%),
-        linear-gradient(-45deg, transparent 49.6%, #F9E8E7 49.6%, #F9E8E7 50.4%, transparent 50.4%);
-      border: 2px solid #C83E37;
-      border-radius: 16px;
-      touch-action: none; /* Khóa cuộn trang khi ngón tay đang vẽ nét chữ */
+    .hanzi-font {
+      font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
     }
-
-    /* Ẩn thanh cuộn ngang nhưng vẫn vuốt được */
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-
-    /* Hiệu ứng che mờ để luyện phản xạ (Active Recall) */
-    .blur-recall {
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #332f2c; border-radius: 99px; }
+    .blur-mask {
       filter: blur(6px);
       user-select: none;
       transition: filter 0.2s ease;
     }
-    .blur-recall:active,
-    .blur-recall.revealed {
+    .blur-mask.revealed {
       filter: blur(0);
     }
-
-    /* Vùng an toàn cho tai thỏ / thanh home iPhone */
-    .pb-safe {
-      padding-bottom: calc(env(safe-area-inset-bottom, 12px) + 72px);
+    @keyframes pulse-soft {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
     }
-    .nav-safe {
-      padding-bottom: env(safe-area-inset-bottom, 8px);
+    .animate-pulse-soft {
+      animation: pulse-soft 1.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col overflow-x-hidden">
+<body class="min-h-screen flex flex-col max-w-md mx-auto bg-[#121110] relative pb-24">
 
-  <!-- HEADER CỐ ĐỊNH TRÊN CÙNG -->
-  <header class="sticky top-0 z-30 bg-paper/90 backdrop-blur-md border-b border-stone-200/80 px-4 py-3">
-    <div class="max-w-lg mx-auto flex items-center justify-between">
-      <div class="flex items-center gap-2.5">
-        <div class="w-9 h-9 rounded-xl bg-cinnabar text-white flex items-center justify-center font-hanzi font-bold text-lg shadow-sm">
-          汉
-        </div>
-        <div>
-          <h1 class="text-base font-bold leading-tight text-ink">Sổ Tay Hán Ngữ</h1>
-          <p class="text-[11px] text-stone-500">Nhớ mặt chữ &amp; Phản xạ nói</p>
-        </div>
+  <!-- Header -->
+  <header class="sticky top-0 z-30 bg-[#121110]/95 backdrop-blur border-b border-[#262320] px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-2.5">
+      <div class="w-9 h-9 rounded-xl bg-[#9a342a] flex items-center justify-center text-[#f7e7d4] font-bold text-lg hanzi-font shadow-inner">
+        汉
       </div>
-
-      <div class="flex items-center gap-2">
-        <!-- Nút chỉnh tốc độ đọc mẫu -->
-        <button id="btn-speed" onclick="toggleSpeechRate()" class="px-2.5 py-1.5 rounded-xl bg-white border border-stone-200 text-xs font-semibold text-stone-700 active:scale-95 transition flex items-center gap-1 shadow-2xs" title="Tốc độ phát âm">
-          <span>🔊</span>
-          <span id="speed-label">1.0x</span>
-        </button>
-
-        <!-- Huy hiệu chuỗi ngày học (Streak) -->
-        <div class="px-2.5 py-1.5 rounded-xl bg-amber-50 border border-amber-200/80 text-xs font-bold text-amber-700 flex items-center gap-1">
-          <span>🔥</span>
-          <span id="header-streak">1</span>
-        </div>
+      <div>
+        <h1 class="text-[15px] font-bold text-[#f3efe9] leading-tight">Sổ Tay Hán Ngữ</h1>
+        <p class="text-[11px] text-[#9b938a]">Nhớ mặt chữ &amp; Phản xạ nói</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button onclick="cycleSpeechRate()" id="rateBtn" class="px-2.5 py-1.5 rounded-lg bg-[#221f1d] border border-[#322e2a] text-[12px] font-semibold text-[#d6cec3] flex items-center gap-1 active:scale-95 transition">
+        <span>🔊</span> <span id="rateLabel">1x</span>
+      </button>
+      <div class="px-2.5 py-1.5 rounded-lg bg-[#2a1f16] border border-[#453120] text-[12px] font-bold text-[#f59e0b] flex items-center gap-1">
+        <span>🔥</span> <span id="streakCount">1</span>
       </div>
     </div>
   </header>
 
-  <!-- NỘI DUNG CHÍNH -->
-  <main class="flex-1 max-w-lg w-full mx-auto px-4 pt-4 pb-safe">
-
-    <!-- ==================== TAB 1: HÔM NAY (DASHBOARD & NHẬT KÝ) ==================== -->
-    <section id="tab-today" class="space-y-4">
-      <!-- Thẻ tổng quan tiến độ -->
-      <div class="bg-white rounded-2xl p-4 border border-stone-200/80 shadow-xs">
-        <div class="flex items-center justify-between mb-3">
-          <div>
-            <p class="text-xs font-medium text-stone-500" id="today-date-label">Hôm nay</p>
-            <h2 class="text-lg font-bold text-ink">Tiến độ của bạn</h2>
-          </div>
-          <button id="btn-checkin" onclick="checkInToday()" class="px-3.5 py-2 rounded-xl bg-cinnabar text-white text-xs font-semibold shadow-xs active:scale-95 transition">
-            ✓ Điểm danh hôm nay
-          </button>
-        </div>
-
-        <!-- 3 chỉ số chính -->
-        <div class="grid grid-cols-3 gap-2.5 text-center">
-          <div class="bg-paper rounded-xl p-2.5 border border-stone-100">
-            <div class="text-xl font-bold text-cinnabar" id="stat-total-words">0</div>
-            <div class="text-[11px] text-stone-500 mt-0.5">Từ vựng</div>
-          </div>
-          <div class="bg-paper rounded-xl p-2.5 border border-stone-100">
-            <div class="text-xl font-bold text-jade" id="stat-mastered-words">0</div>
-            <div class="text-[11px] text-stone-500 mt-0.5">Đã thuộc chữ</div>
-          </div>
-          <div class="bg-paper rounded-xl p-2.5 border border-stone-100">
-            <div class="text-xl font-bold text-amber-600" id="stat-total-phrases">0</div>
-            <div class="text-[11px] text-stone-500 mt-0.5">Mẫu giao tiếp</div>
-          </div>
-        </div>
-
-        <!-- Biểu đồ nhiệt 14 ngày gần nhất -->
-        <div class="mt-4 pt-3 border-t border-stone-100">
-          <div class="flex items-center justify-between text-xs text-stone-500 mb-2">
-            <span>Hoạt động 14 ngày qua</span>
-            <span id="streak-text" class="font-medium text-ink">Chuỗi 1 ngày</span>
-          </div>
-          <div id="heatmap-grid" class="grid grid-cols-7 gap-2">
-            <!-- Render bằng JS -->
-          </div>
-        </div>
-      </div>
-
-      <!-- Thẻ Ôn tập nhanh (Chữ chưa thuộc) -->
-      <div class="bg-white rounded-2xl p-4 border border-stone-200/80 shadow-xs">
-        <div class="flex items-center justify-between mb-2.5">
-          <h3 class="text-sm font-bold text-ink flex items-center gap-1.5">
-            <span>🎯</span> Cần ôn mặt chữ hôm nay
-          </h3>
-          <button onclick="switchTab('hanzi')" class="text-xs font-semibold text-cinnabar">Xem tất cả →</button>
-        </div>
-        <div id="due-words-list" class="space-y-2">
-          <!-- Render bằng JS -->
-        </div>
-      </div>
-
-      <!-- Nhật ký 3 câu tiếng Trung mỗi ngày (Micro-Journaling) -->
-      <div class="bg-white rounded-2xl p-4 border border-stone-200/80 shadow-xs">
-        <div class="flex items-center justify-between mb-1">
-          <h3 class="text-sm font-bold text-ink flex items-center gap-1.5">
-            <span>✍️</span> Nhật ký đặt câu (Biến từ thành phản xạ)
-          </h3>
-        </div>
-        <p class="text-xs text-stone-500 mb-3">Tập đặt 1–2 câu tiếng Trung ngắn về ngày hôm nay và bấm nghe thử.</p>
-
-        <div class="space-y-2.5">
-          <textarea id="journal-input" rows="2" oninput="previewJournalPinyin()" placeholder="Ví dụ: 今天我去喝咖啡，很好喝。" class="w-full rounded-xl bg-paper border border-stone-200 px-3 py-2.5 text-base font-hanzi focus:outline-none focus:border-cinnabar"></textarea>
-
-          <!-- Pinyin tự động hiện khi gõ -->
-          <div id="journal-pinyin-preview" class="text-xs text-cinnabar font-medium min-h-[18px] px-1"></div>
-
-          <input id="journal-meaning" type="text" placeholder="Nghĩa tiếng Việt (tuỳ chọn)..." class="w-full rounded-xl bg-paper border border-stone-200 px-3 py-2 text-xs focus:outline-none focus:border-cinnabar" />
-
-          <div class="flex items-center gap-2">
-            <button onclick="speakInputJournal()" class="px-3 py-2 rounded-xl bg-stone-100 text-stone-700 text-xs font-semibold active:scale-95 transition">
-              🔊 Nghe thử
-            </button>
-            <button onclick="saveJournalEntry()" class="flex-1 py-2 rounded-xl bg-ink text-white text-xs font-semibold active:scale-95 transition">
-              Lưu câu vào nhật ký
-            </button>
-          </div>
-        </div>
-
-        <!-- Danh sách câu đã viết gần đây -->
-        <div id="journal-history" class="mt-4 pt-3 border-t border-stone-100 space-y-2.5">
-          <!-- Render bằng JS -->
-        </div>
-      </div>
-    </section>
-
-    <!-- ==================== TAB 2: MẶT CHỮ (HANZI & TỪ VỰNG) ==================== -->
-    <section id="tab-hanzi" class="hidden space-y-3">
-      <!-- Thẻ khởi động Ôn tập Ghi nhớ Nhắc lại (Spaced Repetition) -->
-      <div class="bg-gradient-to-r from-cinnabar to-cinnabarDark text-white rounded-2xl p-4 shadow-xs flex items-center justify-between gap-3">
-        <div>
-          <h3 class="text-sm font-bold flex items-center gap-1.5">
-            <span>🧠</span> Ôn tập Ghi nhớ Nhắc lại
-          </h3>
-          <p id="srs-due-summary" class="text-[11px] text-white/90 mt-0.5">
-            Lật thẻ &amp; tự đánh giá mức độ nhớ mặt chữ
-          </p>
-        </div>
-        <button onclick="startSrsSession('due')" class="px-3.5 py-2.5 rounded-xl bg-white text-cinnabar text-xs font-bold shadow-xs active:scale-95 transition shrink-0">
-          Ôn ngay →
-        </button>
-      </div>
-
-      <!-- Thanh tìm kiếm & Nút thêm từ -->
-      <div class="flex items-center gap-2">
-        <div class="relative flex-1">
-          <input id="search-vocab" type="text" oninput="renderVocabList()" placeholder="Tìm trong sổ của bạn..." class="w-full rounded-xl bg-white border border-stone-200 pl-9 pr-3 py-2.5 text-sm focus:outline-none focus:border-cinnabar" />
-          <span class="absolute left-3 top-2.5 text-stone-400 text-sm">🔍</span>
-        </div>
-        <button onclick="openVocabModal()" class="px-3.5 py-2.5 rounded-xl bg-ink text-white text-xs font-semibold shadow-xs active:scale-95 transition shrink-0">
-          + Tự thêm
-        </button>
-      </div>
-
-      <!-- Bộ lọc trạng thái nhớ mặt chữ & Chế độ chọn nhiều từ để ôn -->
-      <div class="flex items-center justify-between gap-2">
-        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
-          <button onclick="setVocabFilter('all')" data-filter="all" class="vocab-filter-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-ink text-white shrink-0">
-            Tất cả
-          </button>
-          <button onclick="setVocabFilter('new')" data-filter="new" class="vocab-filter-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-white border border-stone-200 text-stone-600 shrink-0">
-            🔴 Mới học
-          </button>
-          <button onclick="setVocabFilter('learning')" data-filter="learning" class="vocab-filter-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-white border border-stone-200 text-stone-600 shrink-0">
-            🟡 Đang nhớ
-          </button>
-          <button onclick="setVocabFilter('mastered')" data-filter="mastered" class="vocab-filter-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-white border border-stone-200 text-stone-600 shrink-0">
-            🟢 Đã thuộc
-          </button>
-        </div>
-
-        <button id="btn-toggle-vocab-select" onclick="toggleVocabSelectMode()" class="px-2.5 py-1.5 rounded-full text-xs font-semibold bg-white border border-stone-200 text-stone-700 shrink-0 active:scale-95">
-          ☑️ Chọn ôn
-        </button>
-      </div>
-
-      <!-- Thanh hành động khi đang chọn nhiều từ để ôn tập -->
-      <div id="vocab-batch-bar" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-3 flex items-center justify-between gap-2">
-        <span id="vocab-selected-count" class="text-xs font-bold text-amber-900">Đã chọn 0 từ</span>
-        <div class="flex items-center gap-2">
-          <button onclick="selectAllVisibleVocab()" class="px-2.5 py-1.5 rounded-lg bg-white border border-amber-300 text-amber-800 text-xs font-semibold">
-            Chọn hết
-          </button>
-          <button onclick="startSrsSession('selected')" class="px-3 py-1.5 rounded-lg bg-cinnabar text-white text-xs font-semibold shadow-2xs active:scale-95">
-            🧠 Ôn nhóm này
-          </button>
-        </div>
-      </div>
-
-      <!-- Danh sách thẻ chữ Hán -->
-      <div id="vocab-list" class="space-y-3">
-        <!-- Render bằng JS -->
-      </div>
-    </section>
-
-    <!-- ==================== TAB 3: DATABASE KHO TỪ VỰNG CÓ SẴN ==================== -->
-    <section id="tab-database" class="hidden space-y-3">
-      <div class="bg-white rounded-2xl p-3.5 border border-stone-200/80 shadow-xs space-y-2.5">
-        <div class="flex items-center justify-between">
-          <div>
-            <h2 class="text-sm font-bold text-ink">📚 Kho từ vựng giao tiếp cốt lõi</h2>
-            <p class="text-[11px] text-stone-500">Tìm kiếm và tích chọn các từ bạn đang học để đưa vào Sổ ôn tập</p>
-          </div>
-          <span id="db-total-badge" class="px-2.5 py-1 rounded-full bg-paper border border-stone-200 text-[11px] font-bold text-stone-600">
-            0 từ
-          </span>
-        </div>
-
-        <!-- Thanh tìm kiếm trong Database -->
-        <div class="relative">
-          <input id="search-db" type="text" oninput="renderDatabaseList()" placeholder="Tìm chữ Hán, Pinyin (vd: chi, he) hoặc nghĩa Việt..." class="w-full rounded-xl bg-paper border border-stone-200 pl-9 pr-3 py-2.5 text-sm focus:outline-none focus:border-cinnabar" />
-          <span class="absolute left-3 top-2.5 text-stone-400 text-sm">🔍</span>
-        </div>
-
-        <!-- Bộ lọc chủ đề Database -->
-        <div id="db-topics" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
-          <!-- Render bằng JS -->
-        </div>
-      </div>
-
-      <!-- Thanh nổi xác nhận thêm các từ đã tích chọn từ Database -->
-      <div id="db-batch-bar" class="hidden sticky top-16 z-20 bg-ink text-white rounded-2xl p-3 shadow-lg flex items-center justify-between gap-2">
-        <span id="db-selected-count" class="text-xs font-semibold">Đã tích chọn 0 từ</span>
-        <div class="flex items-center gap-2">
-          <button onclick="clearDbSelection()" class="px-2.5 py-1.5 rounded-xl bg-white/10 text-white text-xs">
-            Bỏ chọn
-          </button>
-          <button onclick="importSelectedFromDb()" class="px-3.5 py-1.5 rounded-xl bg-cinnabar text-white text-xs font-bold active:scale-95 transition">
-            + Thêm vào Sổ học
-          </button>
-        </div>
-      </div>
-
-      <!-- Danh sách từ trong Database -->
-      <div id="database-list" class="space-y-2.5">
-        <!-- Render bằng JS -->
-      </div>
-    </section>
-
-    <!-- ==================== TAB 4: GIAO TIẾP (PHẢN XẠ & LUYỆN NÓI) ==================== -->
-    <section id="tab-speaking" class="hidden space-y-3">
-      <!-- Bảng điều khiển Chế độ Che mờ (Active Recall) -->
-      <div class="bg-white rounded-2xl p-3.5 border border-stone-200/80 shadow-xs space-y-2.5">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-bold text-ink">👁️ Chế độ Luyện phản xạ mặt chữ</span>
-          <button onclick="openPhraseModal()" class="px-3 py-1.5 rounded-xl bg-cinnabar text-white text-xs font-semibold active:scale-95 transition">
-            + Thêm câu
-          </button>
-        </div>
-        <div class="grid grid-cols-2 gap-2">
-          <button id="toggle-hide-pinyin" onclick="toggleRecallOption('pinyin')" class="py-2 px-3 rounded-xl border border-stone-200 bg-paper text-xs font-semibold text-stone-700 flex items-center justify-center gap-1.5 active:scale-95 transition">
-            <span>🙈</span> Che Pinyin
-          </button>
-          <button id="toggle-hide-meaning" onclick="toggleRecallOption('meaning')" class="py-2 px-3 rounded-xl border border-stone-200 bg-paper text-xs font-semibold text-stone-700 flex items-center justify-center gap-1.5 active:scale-95 transition">
-            <span>🙈</span> Che Nghĩa Việt
-          </button>
-        </div>
-        <p class="text-[11px] text-stone-400 text-center">Mẹo: Bật "Che Pinyin" để tự nhìn mặt chữ và đọc to thành tiếng, chạm vào phần mờ để kiểm tra.</p>
-      </div>
-
-      <!-- Bộ lọc chủ đề giao tiếp -->
-      <div id="phrase-topics" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
-        <!-- Render bằng JS -->
-      </div>
-
-      <!-- Danh sách mẫu câu giao tiếp -->
-      <div id="phrase-list" class="space-y-3">
-        <!-- Render bằng JS -->
-      </div>
-    </section>
-
-    <!-- ==================== TAB 5: SAO LƯU & CÀI ĐẶT ĐIỆN THOẠI ==================== -->
-    <section id="tab-backup" class="hidden space-y-4">
-      <div class="bg-white rounded-2xl p-4 border border-stone-200/80 shadow-xs space-y-3">
-        <div class="flex items-center gap-2.5">
-          <div class="w-10 h-10 rounded-xl bg-jade/10 text-jade flex items-center justify-center text-xl">📱</div>
-          <div>
-            <h2 class="text-base font-bold text-ink">Dữ liệu riêng tư trên máy</h2>
-            <p class="text-xs text-stone-500">100% lưu nội bộ trên trình duyệt điện thoại của bạn</p>
-          </div>
-        </div>
-
-        <p class="text-xs text-stone-600 leading-relaxed bg-paper p-3 rounded-xl border border-stone-100">
-          Vì bạn chọn lưu trực tiếp trên điện thoại để miễn phí và riêng tư tuyệt đối, hãy thỉnh thoảng bấm <strong>Xuất file sao lưu</strong> (lưu vào iCloud / Google Drive) để không bao giờ bị mất từ vựng khi đổi điện thoại hoặc xóa lịch sử web.
-        </p>
-
-        <div class="grid grid-cols-1 gap-2.5 pt-1">
-          <button onclick="exportDataJSON()" class="w-full py-3 px-4 rounded-xl bg-jade text-white text-sm font-semibold flex items-center justify-center gap-2 shadow-xs active:scale-95 transition">
-            <span>⬇️</span> Tải file sao lưu (.JSON)
-          </button>
-
-          <button onclick="copyDataJSON()" class="w-full py-2.5 px-4 rounded-xl bg-white border border-stone-200 text-stone-700 text-xs font-semibold flex items-center justify-center gap-2 active:scale-95 transition">
-            <span>📋</span> Copy mã sao lưu vào bộ nhớ tạm
-          </button>
-
-          <label class="w-full py-3 px-4 rounded-xl bg-paper border border-dashed border-stone-300 text-ink text-sm font-semibold flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition">
-            <span>⬆️</span> Khôi phục từ file sao lưu (.JSON)
-            <input type="file" accept=".json,application/json" onchange="importDataJSON(event)" class="hidden" />
-          </label>
-        </div>
-      </div>
-
-      <!-- Hướng dẫn cài ra màn hình chính điện thoại -->
-      <div class="bg-white rounded-2xl p-4 border border-stone-200/80 shadow-xs space-y-2.5">
-        <h3 class="text-sm font-bold text-ink">📲 Cách biến web thành App trên điện thoại</h3>
-        <div class="text-xs text-stone-600 space-y-2 leading-relaxed">
-          <p><strong>• Trên iPhone (Safari):</strong> Bấm biểu tượng <strong>Chia sẻ (Share)</strong> ở thanh dưới cùng → kéo xuống chọn <strong>"Thêm vào MH chính" (Add to Home Screen)</strong>.</p>
-          <p><strong>• Trên Android (Chrome):</strong> Bấm dấu <strong>3 chấm</strong> góc trên bên phải → chọn <strong>"Thêm vào màn hình chính" (Add to Home screen)</strong>.</p>
-        </div>
-      </div>
-
-      <!-- Nút khôi phục dữ liệu mẫu -->
-      <div class="text-center pt-2">
-        <button onclick="confirmResetSample()" class="text-xs text-stone-400 underline py-2">
-          Nạp lại bộ từ vựng &amp; mẫu câu khởi đầu
-        </button>
-      </div>
-    </section>
-
+  <!-- Main Content Area -->
+  <main id="appMain" class="flex-1 px-4 pt-3 space-y-4">
+    <!-- Tab content rendered dynamically -->
   </main>
 
-  <!-- THANH ĐIỀU HƯỚNG DƯỚI ĐÁY (BOTTOM NAVIGATION BAR) -->
-  <nav class="fixed bottom-0 inset-x-0 z-30 bg-white/95 backdrop-blur-md border-t border-stone-200 nav-safe">
-    <div class="max-w-lg mx-auto grid grid-cols-5 h-16">
-      <button onclick="switchTab('today')" data-tab="today" class="nav-btn flex flex-col items-center justify-center gap-1 text-cinnabar font-semibold">
-        <span class="text-lg leading-none">📅</span>
-        <span class="text-[10px]">Hôm nay</span>
-      </button>
-      <button onclick="switchTab('hanzi')" data-tab="hanzi" class="nav-btn flex flex-col items-center justify-center gap-1 text-stone-400 font-medium">
-        <span class="text-lg leading-none">🀄</span>
-        <span class="text-[10px]">Sổ học</span>
-      </button>
-      <button onclick="switchTab('database')" data-tab="database" class="nav-btn flex flex-col items-center justify-center gap-1 text-stone-400 font-medium">
-        <span class="text-lg leading-none">📚</span>
-        <span class="text-[10px]">Kho từ</span>
-      </button>
-      <button onclick="switchTab('speaking')" data-tab="speaking" class="nav-btn flex flex-col items-center justify-center gap-1 text-stone-400 font-medium">
-        <span class="text-lg leading-none">🗣️</span>
-        <span class="text-[10px]">Giao tiếp</span>
-      </button>
-      <button onclick="switchTab('backup')" data-tab="backup" class="nav-btn flex flex-col items-center justify-center gap-1 text-stone-400 font-medium">
-        <span class="text-lg leading-none">💾</span>
-        <span class="text-[10px]">Sao lưu</span>
-      </button>
-    </div>
+  <!-- Bottom Navigation -->
+  <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[#171513]/95 backdrop-blur border-t border-[#262320] px-2 py-2 flex justify-around items-center z-40">
+    <button onclick="switchTab('vocab')" data-tab="vocab" class="nav-btn flex flex-col items-center gap-1 px-3 py-1 rounded-xl text-[#e07a5f]">
+      <span class="text-lg">📖</span>
+      <span class="text-[11px] font-medium">Sổ học</span>
+    </button>
+    <button onclick="switchTab('database')" data-tab="database" class="nav-btn flex flex-col items-center gap-1 px-3 py-1 rounded-xl text-[#8b837a]">
+      <span class="text-lg">🗂️</span>
+      <span class="text-[11px] font-medium">Kho từ</span>
+    </button>
+    <button onclick="switchTab('speak')" data-tab="speak" class="nav-btn flex flex-col items-center gap-1 px-3 py-1 rounded-xl text-[#8b837a]">
+      <span class="text-lg">🗣️</span>
+      <span class="text-[11px] font-medium">Giao tiếp</span>
+    </button>
+    <button onclick="switchTab('stats')" data-tab="stats" class="nav-btn flex flex-col items-center gap-1 px-3 py-1 rounded-xl text-[#8b837a]">
+      <span class="text-lg">⚙️</span>
+      <span class="text-[11px] font-medium">Tiến độ &amp; AI</span>
+    </button>
   </nav>
 
-  <!-- ==================== MODAL 1: THÊM / SỬA TỪ VỰNG CHỮ HÁN ==================== -->
-  <div id="modal-vocab" class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl p-5 space-y-4 max-h-[90vh] overflow-y-auto">
+  <!-- Modal: Thêm từ vựng mới -->
+  <div id="addModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs hidden flex-col justify-end">
+    <div class="bg-[#1b1917] border-t border-[#302c28] rounded-t-3xl p-5 max-w-md w-full mx-auto space-y-3.5 max-h-[92vh] overflow-y-auto shadow-2xl">
       <div class="flex items-center justify-between">
-        <h3 id="vocab-modal-title" class="text-base font-bold text-ink">Thêm từ vựng mới</h3>
-        <button onclick="closeVocabModal()" class="w-8 h-8 rounded-full bg-stone-100 text-stone-600 flex items-center justify-center font-bold">✕</button>
+        <h2 class="text-base font-bold text-[#f3efe9]">Thêm từ vựng mới</h2>
+        <button onclick="closeAddModal()" class="w-8 h-8 rounded-full bg-[#2a2623] text-[#a8a096] flex items-center justify-center text-sm">✕</button>
       </div>
 
-      <input type="hidden" id="vocab-edit-id" />
-
-      <div class="space-y-3">
-        <div>
-          <label class="block text-xs font-semibold text-stone-600 mb-1">Chữ Hán (Hanzi) *</label>
-          <div class="flex gap-2">
-            <input id="vocab-hanzi" type="text" oninput="autoFillVocabPinyin()" placeholder="Ví dụ: 休息" class="flex-1 rounded-xl bg-paper border border-stone-200 px-3.5 py-2.5 text-xl font-hanzi font-bold focus:outline-none focus:border-cinnabar" />
-            <button type="button" onclick="speakText(document.getElementById('vocab-hanzi').value)" class="px-3.5 rounded-xl bg-stone-100 text-stone-700 text-sm font-semibold active:scale-95">
-              🔊
-            </button>
-          </div>
+      <!-- Chữ Hán -->
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <label class="text-xs font-medium text-[#b5ada3]">Chữ Hán (Hanzi) *</label>
+          <span id="autoFillStatus" class="text-[11px] text-[#e07a5f] hidden"></span>
         </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-stone-600 mb-1">Pinyin (Tự động điền)</label>
-          <input id="vocab-pinyin" type="text" placeholder="xiū xi" class="w-full rounded-xl bg-paper border border-stone-200 px-3.5 py-2 text-sm text-cinnabar font-medium focus:outline-none focus:border-cinnabar" />
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-stone-600 mb-1">Nghĩa tiếng Việt *</label>
-          <input id="vocab-meaning" type="text" placeholder="Ví dụ: Nghỉ ngơi" class="w-full rounded-xl bg-paper border border-stone-200 px-3.5 py-2.5 text-sm focus:outline-none focus:border-cinnabar" />
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-stone-600 mb-1">💡 Chiết tự / Mẹo nhớ mặt chữ (Rất hiệu quả)</label>
-          <textarea id="vocab-mnemonic" rows="2" placeholder="Ví dụ: Người (人) tựa vào gốc cây (木) để nghỉ ngơi (休)" class="w-full rounded-xl bg-amber-50/60 border border-amber-200/80 px-3.5 py-2 text-xs focus:outline-none focus:border-amber-400"></textarea>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-stone-600 mb-1">Mức độ nhớ mặt chữ</label>
-          <select id="vocab-status" class="w-full rounded-xl bg-paper border border-stone-200 px-3.5 py-2.5 text-sm focus:outline-none focus:border-cinnabar">
-            <option value="new">🔴 Mới học (Cần ôn nhiều)</option>
-            <option value="learning">🟡 Đang nhớ (Nhận ra mặt chữ)</option>
-            <option value="mastered">🟢 Đã thuộc (Nhìn là đọc &amp; viết được)</option>
-          </select>
+        <div class="flex gap-2">
+          <input type="text" id="inputHanzi" oninput="handleHanziInput(this.value)" placeholder="Ví dụ: 休息"
+            class="flex-1 bg-[#25221f] border border-[#38332e] focus:border-[#c85a48] rounded-xl px-3.5 py-2.5 text-base hanzi-font text-[#f3efe9] outline-none" />
+          <button type="button" onclick="triggerDeepAI()" id="aiFillBtn"
+            class="px-3 py-2 rounded-xl bg-[#2f231e] border border-[#5e392e] text-[#f29b7e] text-xs font-semibold flex items-center gap-1 active:scale-95 transition whitespace-nowrap">
+            <span>✨</span> <span>AI Chiết tự</span>
+          </button>
         </div>
       </div>
 
-      <div class="flex gap-2 pt-2">
-        <button onclick="closeVocabModal()" class="flex-1 py-3 rounded-xl bg-stone-100 text-stone-700 text-sm font-semibold">Hủy</button>
-        <button onclick="saveVocab()" class="flex-1 py-3 rounded-xl bg-cinnabar text-white text-sm font-semibold shadow-xs">Lưu từ vựng</button>
+      <!-- Pinyin -->
+      <div>
+        <label class="block text-xs font-medium text-[#b5ada3] mb-1">Pinyin (Tự động điền)</label>
+        <input type="text" id="inputPinyin" placeholder="xiū xi"
+          class="w-full bg-[#25221f] border border-[#38332e] rounded-xl px-3.5 py-2 text-sm text-[#e5ded5] outline-none" />
+      </div>
+
+      <!-- Nghĩa tiếng Việt -->
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <label class="text-xs font-medium text-[#b5ada3]">Nghĩa tiếng Việt *</label>
+          <span id="meaningTag" class="text-[10px] text-[#8b837a]">Tự động gợi ý</span>
+        </div>
+        <input type="text" id="inputMeaning" placeholder="Ví dụ: Nghỉ ngơi"
+          class="w-full bg-[#25221f] border border-[#38332e] focus:border-[#c85a48] rounded-xl px-3.5 py-2 text-sm text-[#f3efe9] outline-none" />
+      </div>
+
+      <!-- Chiết tự / Mẹo nhớ mặt chữ -->
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <label class="text-xs font-medium text-[#d4b475] flex items-center gap-1">
+            <span>💡</span> Chiết tự / Mẹo nhớ mặt chữ
+          </label>
+          <span id="mnemonicTag" class="text-[10px] text-[#8b837a]">Tự tách bộ thủ</span>
+        </div>
+        <textarea id="inputMnemonic" rows="2" placeholder="Ví dụ: Người (人) tựa vào gốc cây (木) để nghỉ ngơi (休)"
+          class="w-full bg-[#25221f] border border-[#38332e] focus:border-[#d4b475] rounded-xl px-3.5 py-2 text-xs leading-relaxed text-[#f3efe9] outline-none resize-none"></textarea>
+      </div>
+
+      <!-- Mức độ nhớ mặt chữ -->
+      <div>
+        <label class="block text-xs font-medium text-[#b5ada3] mb-1">Mức độ nhớ mặt chữ</label>
+        <select id="inputLevel" class="w-full bg-[#25221f] border border-[#38332e] rounded-xl px-3.5 py-2.5 text-sm text-[#f3efe9] outline-none">
+          <option value="new">🔴 Mới học (Cần ôn nhiều)</option>
+          <option value="learning">🟡 Đang nhớ (Ôn định kỳ)</option>
+          <option value="mastered">🟢 Đã thuộc mặt chữ</option>
+        </select>
+      </div>
+
+      <!-- Actions -->
+      <div class="grid grid-cols-2 gap-3 pt-1">
+        <button type="button" onclick="closeAddModal()" class="py-3 rounded-xl bg-[#2a2623] text-[#d6cec3] font-semibold text-sm active:scale-95 transition">
+          Hủy
+        </button>
+        <button type="button" onclick="saveNewWord()" class="py-3 rounded-xl bg-[#b9382c] text-white font-semibold text-sm active:scale-95 transition shadow-lg">
+          Lưu từ vựng
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- ==================== MODAL 2: TẬP VIẾT NÉT CHỮ HÁN (HANZI WRITER) ==================== -->
-  <div id="modal-writer" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-sm rounded-3xl p-5 space-y-4 text-center">
+  <!-- Modal: Tập viết nét chữ Hán -->
+  <div id="writerModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs hidden items-center justify-center p-4">
+    <div class="bg-[#1b1917] border border-[#302c28] rounded-3xl p-5 max-w-sm w-full space-y-4">
       <div class="flex items-center justify-between">
-        <div class="text-left">
-          <h3 class="text-base font-bold text-ink">Luyện viết nét chữ Hán</h3>
-          <p id="writer-pinyin-meaning" class="text-xs text-stone-500">nǐ hǎo • Xin chào</p>
+        <div>
+          <h3 class="text-base font-bold text-[#f3efe9]">Tập viết nét chữ Hán</h3>
+          <p id="writerWordInfo" class="text-xs text-[#9b938a]"></p>
         </div>
-        <button onclick="closeWriterModal()" class="w-8 h-8 rounded-full bg-stone-100 text-stone-600 flex items-center justify-center font-bold">✕</button>
+        <button onclick="closeWriterModal()" class="w-8 h-8 rounded-full bg-[#2a2623] text-[#a8a096] flex items-center justify-center text-sm">✕</button>
       </div>
-
-      <!-- Chọn từng chữ nếu là từ ghép 2-3 chữ -->
-      <div id="writer-char-tabs" class="flex items-center justify-center gap-2">
-        <!-- Render bằng JS -->
-      </div>
-
-      <!-- Khung ô vuông tập viết -->
+      <div id="charSelector" class="flex justify-center gap-2"></div>
       <div class="flex justify-center">
-        <div id="hanzi-writer-target" class="mi-zi-ge w-[240px] h-[240px] flex items-center justify-center overflow-hidden shadow-inner"></div>
+        <div id="characterTarget" class="bg-[#24211e] rounded-2xl border border-[#38332e] overflow-hidden"></div>
       </div>
-
-      <p id="writer-feedback" class="text-xs font-medium text-jade min-h-[18px]">
-        Dùng ngón tay tô theo thứ tự nét hoặc bấm "Xem nét mẫu"
-      </p>
-
       <div class="grid grid-cols-2 gap-2.5">
-        <button onclick="animateCurrentChar()" class="py-2.5 px-3 rounded-xl bg-stone-100 text-ink text-xs font-semibold active:scale-95 transition">
-          👁️ Xem nét mẫu
-        </button>
-        <button onclick="quizCurrentChar()" class="py-2.5 px-3 rounded-xl bg-cinnabar text-white text-xs font-semibold active:scale-95 transition">
-          ✍️ Tự viết thử
-        </button>
+        <button onclick="animateWriter()" class="py-2.5 rounded-xl bg-[#2a2623] text-[#f3efe9] text-xs font-semibold">▶️ Xem mẫu viết</button>
+        <button onclick="quizWriter()" class="py-2.5 rounded-xl bg-[#b9382c] text-white text-xs font-semibold">✍️ Tự tô nét</button>
       </div>
     </div>
   </div>
 
-  <!-- ==================== MODAL 3: THÊM MẪU CÂU GIAO TIẾP ==================== -->
-  <div id="modal-phrase" class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl p-5 space-y-4">
-      <div class="flex items-center justify-between">
-        <h3 class="text-base font-bold text-ink">Thêm mẫu câu giao tiếp</h3>
-        <button onclick="closePhraseModal()" class="w-8 h-8 rounded-full bg-stone-100 text-stone-600 flex items-center justify-center font-bold">✕</button>
-      </div>
-
-      <div class="space-y-3">
-        <div>
-          <label class="block text-xs font-semibold text-stone-600 mb-1">Câu tiếng Trung *</label>
-          <input id="phrase-hanzi" type="text" oninput="autoFillPhrasePinyin()" placeholder="Ví dụ: 这个多少钱？" class="w-full rounded-xl bg-paper border border-stone-200 px-3.5 py-2.5 text-lg font-hanzi font-bold focus:outline-none focus:border-cinnabar" />
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-stone-600 mb-1">Pinyin (Tự động điền)</label>
-          <input id="phrase-pinyin" type="text" placeholder="zhè ge duō shao qián?" class="w-full rounded-xl bg-paper border border-stone-200 px-3.5 py-2 text-sm text-cinnabar font-medium focus:outline-none focus:border-cinnabar" />
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-stone-600 mb-1">Nghĩa tiếng Việt *</label>
-          <input id="phrase-meaning" type="text" placeholder="Ví dụ: Cái này bao nhiêu tiền?" class="w-full rounded-xl bg-paper border border-stone-200 px-3.5 py-2.5 text-sm focus:outline-none focus:border-cinnabar" />
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-stone-600 mb-1">Chủ đề tình huống</label>
-          <input id="phrase-topic" type="text" list="topic-suggestions" placeholder="Chào hỏi, Ăn uống, Mua sắm, Công việc..." class="w-full rounded-xl bg-paper border border-stone-200 px-3.5 py-2 text-sm focus:outline-none focus:border-cinnabar" />
-          <datalist id="topic-suggestions">
-            <option value="Chào hỏi"></option>
-            <option value="Ăn uống"></option>
-            <option value="Mua sắm"></option>
-            <option value="Đi lại"></option>
-            <option value="Công việc"></option>
-          </datalist>
-        </div>
-      </div>
-
-      <div class="flex gap-2 pt-2">
-        <button onclick="closePhraseModal()" class="flex-1 py-3 rounded-xl bg-stone-100 text-stone-700 text-sm font-semibold">Hủy</button>
-        <button onclick="savePhrase()" class="flex-1 py-3 rounded-xl bg-cinnabar text-white text-sm font-semibold shadow-xs">Lưu mẫu câu</button>
-      </div>
+  <!-- Modal: Flashcard Ôn tập Ghi nhớ Nhắc lại -->
+  <div id="reviewModal" class="fixed inset-0 z-50 bg-[#121110] hidden flex-col p-4 max-w-md mx-auto">
+    <div class="flex items-center justify-between py-2">
+      <button onclick="closeReviewModal()" class="px-3 py-1.5 rounded-xl bg-[#221f1d] text-xs text-[#b5ada3]">✕ Thoát</button>
+      <span id="reviewProgress" class="text-xs font-semibold text-[#e07a5f]">1 / 5</span>
+      <button onclick="speakCurrentReview()" class="px-3 py-1.5 rounded-xl bg-[#221f1d] text-xs text-[#f3efe9]">🔊 Nghe</button>
     </div>
-  </div>
 
-  <!-- ==================== MODAL 4: PHIÊN ÔN TẬP GHI NHỚ NHẮC LẠI (SRS FLASHCARD) ==================== -->
-  <div id="modal-srs" class="fixed inset-0 z-50 hidden bg-black/65 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-paper w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-2xl border border-stone-200">
-      <!-- Header tiến độ phiên ôn -->
-      <div class="flex items-center justify-between">
-        <span id="srs-progress-text" class="text-xs font-bold text-stone-500">Thẻ 1 / 5</span>
-        <button onclick="closeSrsModal()" class="w-8 h-8 rounded-full bg-white border border-stone-200 text-stone-600 flex items-center justify-center font-bold">✕</button>
-      </div>
-
-      <!-- Thanh tiến độ -->
-      <div class="w-full h-1.5 bg-stone-200 rounded-full overflow-hidden">
-        <div id="srs-progress-bar" class="h-full bg-cinnabar transition-all duration-300" style="width: 20%"></div>
-      </div>
-
-      <!-- Thẻ học tương tác -->
-      <div id="srs-card-box" class="bg-white rounded-2xl p-6 border border-stone-200/90 shadow-xs min-h-[250px] flex flex-col items-center justify-center text-center space-y-3">
-        <span id="srs-status-pill" class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-stone-100 text-stone-600">
-          Mới học
-        </span>
-
-        <!-- Mặt trước: Chữ Hán to rõ (chạm thẳng vào chữ để nghe) -->
-        <div id="srs-hanzi" onclick="speakCurrentSrsWord()" class="font-hanzi text-5xl font-bold text-ink active:text-cinnabar tracking-wider py-2 cursor-pointer select-none transition">
-          你好
-        </div>
-
-        <div class="flex items-center gap-2">
-          <button onclick="speakCurrentSrsWord()" class="px-3 py-1.5 rounded-xl bg-stone-100 text-stone-700 text-xs font-semibold active:scale-95">
-            🔊 Nghe phát âm
-          </button>
-          <button onclick="openWriterFromSrs()" class="px-3 py-1.5 rounded-xl bg-cinnabar/10 text-cinnabar text-xs font-semibold active:scale-95">
-            ✍️ Viết nét
-          </button>
-        </div>
-
-        <!-- Mặt sau: Pinyin + Nghĩa + Mẹo nhớ (ẩn trước khi lật) -->
-        <div id="srs-answer-area" class="hidden w-full pt-3 mt-2 border-t border-stone-100 space-y-1.5">
-          <div id="srs-pinyin" class="text-base font-bold text-cinnabar">nǐ hǎo</div>
-          <div id="srs-meaning" class="text-sm font-semibold text-ink">Xin chào</div>
-          <div id="srs-mnemonic" class="text-xs text-stone-600 bg-amber-50/80 border border-amber-200/60 rounded-xl p-2.5 mt-2 text-left leading-relaxed"></div>
-        </div>
-      </div>
-
-      <!-- Nút Lật thẻ hoặc Nút tự đánh giá mức độ nhớ -->
-      <div id="srs-reveal-controls">
-        <button onclick="revealSrsAnswer()" class="w-full py-3.5 rounded-2xl bg-ink text-white text-sm font-bold shadow-xs active:scale-95 transition">
-          👁️ Lật xem Pinyin &amp; Nghĩa
-        </button>
-      </div>
-
-      <div id="srs-rating-controls" class="hidden space-y-2">
-        <p class="text-[11px] text-center text-stone-500 font-medium">Bạn có nhớ mặt chữ &amp; cách đọc từ này không?</p>
-        <div class="grid grid-cols-3 gap-2">
-          <button onclick="rateSrsCard('again')" class="py-2.5 px-2 rounded-xl bg-red-50 border border-red-200 text-cinnabar text-xs font-bold active:scale-95">
-            🔴 Quên rồi<br /><span class="text-[10px] font-normal">Nhắc lại ngay</span>
-          </button>
-          <button onclick="rateSrsCard('hard')" class="py-2.5 px-2 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold active:scale-95">
-            🟡 Hơi nhớ<br /><span class="text-[10px] font-normal">Ôn lại sớm</span>
-          </button>
-          <button onclick="rateSrsCard('good')" class="py-2.5 px-2 rounded-xl bg-emerald-50 border border-emerald-200 text-jade text-xs font-bold active:scale-95">
-            🟢 Đã thuộc<br /><span class="text-[10px] font-normal">Giãn cách ôn</span>
-          </button>
+    <div class="flex-1 flex flex-col justify-center my-4">
+      <div onclick="flipReviewCard()" id="reviewCard" class="bg-[#1c1917] border border-[#2e2a26] rounded-3xl p-6 min-h-[300px] flex flex-col items-center justify-center text-center cursor-pointer shadow-xl relative">
+        <span class="text-[11px] text-[#7a7269] absolute top-4">Chạm vào thẻ để lật đáp án</span>
+        <div id="reviewHanzi" class="text-6xl font-bold hanzi-font text-[#f3efe9] mb-4"></div>
+        <div id="reviewBack" class="hidden space-y-3 w-full pt-3 border-t border-[#2c2824]">
+          <div id="reviewPinyin" class="text-lg font-semibold text-[#e07a5f]"></div>
+          <div id="reviewMeaning" class="text-base font-bold text-[#f3efe9]"></div>
+          <div id="reviewMnemonic" class="text-xs text-[#d4b475] bg-[#262118] p-3 rounded-xl leading-relaxed"></div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- MODAL XÁC NHẬN TÙY CHỈNH (THAY THẾ CONFIRM) -->
-  <div id="modal-confirm" class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-xs rounded-2xl p-5 space-y-4 text-center shadow-xl">
-      <p id="confirm-message" class="text-sm font-medium text-ink leading-relaxed"></p>
-      <div class="flex gap-2">
-        <button onclick="closeConfirmModal()" class="flex-1 py-2.5 rounded-xl bg-stone-100 text-stone-700 text-xs font-semibold">Hủy</button>
-        <button id="confirm-yes-btn" class="flex-1 py-2.5 rounded-xl bg-cinnabar text-white text-xs font-semibold">Đồng ý</button>
-      </div>
+    <div id="reviewActions" class="grid grid-cols-3 gap-2.5 pb-4">
+      <button onclick="answerReview('again')" class="py-3.5 rounded-2xl bg-[#381d1b] border border-[#612c28] text-[#f87171] font-bold text-xs active:scale-95">
+        🔴 Quên rồi<br><span class="text-[10px] font-normal opacity-80">Nhắc lại ngay</span>
+      </button>
+      <button onclick="answerReview('good')" class="py-3.5 rounded-2xl bg-[#362c18] border border-[#5e4b24] text-[#fbbf24] font-bold text-xs active:scale-95">
+        🟡 Hơi nhớ<br><span class="text-[10px] font-normal opacity-80">Ôn định kỳ</span>
+      </button>
+      <button onclick="answerReview('easy')" class="py-3.5 rounded-2xl bg-[#193324] border border-[#27543a] text-[#4ade80] font-bold text-xs active:scale-95">
+        🟢 Đã thuộc<br><span class="text-[10px] font-normal opacity-80">Nhớ mặt chữ</span>
+      </button>
     </div>
   </div>
 
-  <!-- THÔNG BÁO NỔI (TOAST NOTIFICATION) -->
-  <div id="toast" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 hidden bg-ink text-white text-xs font-medium px-4 py-2.5 rounded-full shadow-lg transition-opacity duration-200">
-  </div>
-
-  <!-- ==================== JAVASCRIPT LOGIC ==================== -->
   <script>
-    const STORAGE_KEY = 'cn_personal_tracker_v1';
-
-    // Kho cơ sở dữ liệu từ vựng tiếng Trung giao tiếp cốt lõi (kèm chiết tự dễ nhớ mặt chữ)
-    const VOCAB_DATABASE = [
-      // 1. Chào hỏi & Đại từ
-      { hanzi: '我', pinyin: 'wǒ', meaning: 'Tôi, tớ, mình', topic: 'Chào hỏi & Đại từ', mnemonic: 'Hình dáng giống bàn tay cầm vũ khí bảo vệ bản thân (Tôi)' },
-      { hanzi: '你', pinyin: 'nǐ', meaning: 'Bạn, anh, chị', topic: 'Chào hỏi & Đại từ', mnemonic: 'Bộ Nhân đứng (亻) ở bên trái chỉ người đối diện (Bạn)' },
-      { hanzi: '他', pinyin: 'tā', meaning: 'Anh ấy, ông ấy', topic: 'Chào hỏi & Đại từ', mnemonic: 'Bộ Nhân đứng (亻) chỉ người nam giới ngôi thứ ba' },
-      { hanzi: '她', pinyin: 'tā', meaning: 'Cô ấy, chị ấy', topic: 'Chào hỏi & Đại từ', mnemonic: 'Thay bộ Nhân bằng bộ Nữ (女) ở bên trái để chỉ phụ nữ' },
-      { hanzi: '我们', pinyin: 'wǒ men', meaning: 'Chúng tôi, chúng ta', topic: 'Chào hỏi & Đại từ', mnemonic: 'Chữ 们 có bộ Nhân (亻) + cửa (门): nhiều người cùng một cửa là số nhiều' },
-      { hanzi: '您好', pinyin: 'nín hǎo', meaning: 'Chào ngài / Chào anh chị (lịch sự)', topic: 'Chào hỏi & Đại từ', mnemonic: 'Chữ 您 là chữ 你 đặt trên chữ Tâm (心): đặt bạn ở trong tim là sự kính trọng' },
-      { hanzi: '再见', pinyin: 'zài jiàn', meaning: 'Tạm biệt, hẹn gặp lại', topic: 'Chào hỏi & Đại từ', mnemonic: '再 (lần nữa) + 见 (gặp mặt) = Hẹn gặp lại lần nữa' },
-      { hanzi: '对不起', pinyin: 'duì bu qǐ', meaning: 'Xin lỗi', topic: 'Chào hỏi & Đại từ', mnemonic: 'Không dám ngẩng mặt đối diện (对) đứng dậy (起) vì có lỗi' },
-      { hanzi: '没关系', pinyin: 'méi guān xi', meaning: 'Không sao đâu, không có gì', topic: 'Chào hỏi & Đại từ', mnemonic: 'Không (没) có liên quan hệ trọng (关系) gì đâu' },
-      { hanzi: '请问', pinyin: 'qǐng wèn', meaning: 'Xin hỏi...', topic: 'Chào hỏi & Đại từ', mnemonic: '请 (mời/xin) + 问 (cái miệng 口 ở trong cánh cửa 门 để hỏi thăm)' },
-      { hanzi: '名字', pinyin: 'míng zi', meaning: 'Tên gọi', topic: 'Chào hỏi & Đại từ', mnemonic: 'Chữ 名 gồm buổi tối (夕) và cái miệng (口): trời tối không thấy mặt nên phải gọi tên' },
-      { hanzi: '朋友', pinyin: 'péng you', meaning: 'Bạn bè', topic: 'Chào hỏi & Đại từ', mnemonic: 'Chữ 朋 gồm 2 vầng trăng (月) sóng đôi bên nhau như đôi bạn thân' },
-
-      // 2. Thời gian & Số đếm
-      { hanzi: '今天', pinyin: 'jīn tiān', meaning: 'Hôm nay', topic: 'Thời gian & Số đếm', mnemonic: '今 (hiện tại) + 天 (bầu trời/ngày) = Ngày hiện tại' },
-      { hanzi: '明天', pinyin: 'míng tiān', meaning: 'Ngày mai', topic: 'Thời gian & Số đếm', mnemonic: 'Mặt trời (日) và mặt trăng (月) qua đi là sang ngày mới (明)' },
-      { hanzi: '昨天', pinyin: 'zuó tiān', meaning: 'Hôm qua', topic: 'Thời gian & Số đếm', mnemonic: 'Có bộ Nhật (日 - mặt trời/ngày) ở bên trái chỉ thời gian' },
-      { hanzi: '现在', pinyin: 'xiàn zài', meaning: 'Bây giờ, hiện tại', topic: 'Thời gian & Số đếm', mnemonic: '现 (hiện ra) + 在 (đang ở tại) = Ngay lúc này' },
-      { hanzi: '时候', pinyin: 'shí hou', meaning: 'Lúc, khi, thời gian', topic: 'Thời gian & Số đếm', mnemonic: 'Chữ 时 gồm mặt trời (日) và tấc (寸): đo bóng mặt trời để biết giờ' },
-      { hanzi: '一点', pinyin: 'yī diǎn', meaning: '1 giờ / Một chút', topic: 'Thời gian & Số đếm', mnemonic: 'Chữ 点 có 4 chấm lửa ở dưới như chấm trên mặt đồng hồ' },
-      { hanzi: '星期', pinyin: 'xīng qī', meaning: 'Tuần, thứ (trong tuần)', topic: 'Thời gian & Số đếm', mnemonic: 'Chữ 星 có mặt trời (日) và sinh ra (生) các vì sao' },
-      { hanzi: '多少', pinyin: 'duō shǎo', meaning: 'Bao nhiêu', topic: 'Thời gian & Số đếm', mnemonic: '多 (nhiều: 2 miếng thịt 夕 chồng lên nhau) + 少 (ít) = Bao nhiêu' },
-
-      // 3. Ăn uống & Mua sắm
-      { hanzi: '吃饭', pinyin: 'chī fàn', meaning: 'Ăn cơm', topic: 'Ăn uống & Mua sắm', mnemonic: 'Chữ 吃 có bộ Khẩu (口 - miệng) ăn; chữ 饭 có bộ Thực (饣 - thức ăn)' },
-      { hanzi: '喝水', pinyin: 'hē shuǐ', meaning: 'Uống nước', topic: 'Ăn uống & Mua sắm', mnemonic: '喝 có bộ Khẩu (口) để uống; 水 vẽ hình dòng nước chảy' },
-      { hanzi: '菜单', pinyin: 'cài dān', meaning: 'Thực đơn (Menu)', topic: 'Ăn uống & Mua sắm', mnemonic: '菜 có bộ Thảo (艹 - rau cỏ/món ăn) + 单 (tờ danh sách)' },
-      { hanzi: '好吃', pinyin: 'hǎo chī', meaning: 'Ngon (đồ ăn)', topic: 'Ăn uống & Mua sắm', mnemonic: '好 (tốt/thích) + 吃 (ăn) = Ăn rất thích -> Ngon' },
-      { hanzi: '买东西', pinyin: 'mǎi dōng xi', meaning: 'Mua đồ, mua sắm', topic: 'Ăn uống & Mua sắm', mnemonic: '买 (mua) + 东西 (Đông Tây - ngày xưa chợ họp ở phía Đông và Tây nên gọi đồ đạc là Đông Tây)' },
-      { hanzi: '多少钱', pinyin: 'duō shao qián', meaning: 'Bao nhiêu tiền?', topic: 'Ăn uống & Mua sắm', mnemonic: 'Chữ 钱 (tiền) có bộ Kim (钅 - kim loại/vàng bạc) ở bên trái' },
-      { hanzi: '太贵了', pinyin: 'tài guì le', meaning: 'Đắt quá rồi', topic: 'Ăn uống & Mua sắm', mnemonic: 'Chữ 贵 (đắt) có bộ Bối (贝 - vỏ sò dùng làm tiền thời xưa)' },
-      { hanzi: '便宜', pinyin: 'pián yi', meaning: 'Rẻ', topic: 'Ăn uống & Mua sắm', mnemonic: 'Chữ 便 có bộ Nhân (亻): giá cả thuận tiện cho người mua' },
-      { hanzi: '咖啡', pinyin: 'kā fēi', meaning: 'Cà phê', topic: 'Ăn uống & Mua sắm', mnemonic: 'Phiên âm từ Coffee, cả hai chữ đều có bộ Khẩu (口) vì là đồ uống' },
-      { hanzi: '米饭', pinyin: 'mǐ fàn', meaning: 'Cơm trắng', topic: 'Ăn uống & Mua sắm', mnemonic: 'Chữ 米 (gạo) vẽ hình hạt gạo tách ra bốn phía' },
-
-      // 4. Động từ giao tiếp cốt lõi
-      { hanzi: '知道', pinyin: 'zhī dào', meaning: 'Biết', topic: 'Động từ cốt lõi', mnemonic: '知 gồm mũi tên (矢) và miệng (口): nói trúng đích như mũi tên là hiểu biết' },
-      { hanzi: '觉得', pinyin: 'jué de', meaning: 'Cảm thấy, thấy rằng', topic: 'Động từ cốt lõi', mnemonic: 'Chữ 觉 bên dưới có chữ Kiến (见 - nhìn thấy/nhận thức)' },
-      { hanzi: '喜欢', pinyin: 'xǐ huan', meaning: 'Thích', topic: 'Động từ cốt lõi', mnemonic: 'Chữ 喜 có cái miệng (口) cười toe toét khi vui mừng' },
-      { hanzi: '想要', pinyin: 'xiǎng yào', meaning: 'Muốn, mong muốn', topic: 'Động từ cốt lõi', mnemonic: 'Chữ 想 bên dưới có bộ Tâm (心 - trái tim): suy nghĩ mong mỏi trong lòng' },
-      { hanzi: '可以', pinyin: 'kě yǐ', meaning: 'Có thể, được', topic: 'Động từ cốt lõi', mnemonic: 'Dùng để xin phép hoặc đồng ý rất phổ biến trong giao tiếp' },
-      { hanzi: '帮助', pinyin: 'bāng zhù', meaning: 'Giúp đỡ', topic: 'Động từ cốt lõi', mnemonic: 'Chữ 助 có chữ Lực (力 - sức lực) ở bên phải: góp sức giúp người khác' },
-      { hanzi: '说话', pinyin: 'shuō huà', meaning: 'Nói chuyện', topic: 'Động từ cốt lõi', mnemonic: 'Cả hai chữ 说 và 话 đều có bộ Ngôn (讠 - lời nói) ở bên trái' },
-      { hanzi: '听懂', pinyin: 'tīng dǒng', meaning: 'Nghe hiểu', topic: 'Động từ cốt lõi', mnemonic: '听 có bộ Khẩu (口); 懂 có bộ Tâm đứng (忄): nghe vào trong tâm là hiểu' },
-      { hanzi: '学习', pinyin: 'xué xí', meaning: 'Học tập', topic: 'Động từ cốt lõi', mnemonic: '学 có đứa trẻ (子) dưới mái nhà học bài; 习 là đôi cánh chim tập bay' },
-      { hanzi: '工作', pinyin: 'gōng zuò', meaning: 'Làm việc, công việc', topic: 'Động từ cốt lõi', mnemonic: '工 vẽ hình chiếc thước thợ; 作 có bộ Nhân (亻) đang thao tác' },
-
-      // 5. Tính từ & Cảm xúc
-      { hanzi: '高兴', pinyin: 'gāo xìng', meaning: 'Vui vẻ, phấn khởi', topic: 'Tính từ & Cảm xúc', mnemonic: '高 (cao - vẽ hình lầu cao) + 兴 (hứng khởi) = Tinh thần lên cao' },
-      { hanzi: '忙', pinyin: 'máng', meaning: 'Bận rộn', topic: 'Tính từ & Cảm xúc', mnemonic: 'Bộ Tâm đứng (忄) + 亡 (mất): bận đến mức đánh mất cả tâm trí' },
-      { hanzi: '累', pinyin: 'lèi', meaning: 'Mệt mỏi', topic: 'Tính từ & Cảm xúc', mnemonic: 'Ruộng đồng (田) trên sợi dây (系): làm ruộng nhiều nên mệt' },
-      { hanzi: '漂亮', pinyin: 'piào liang', meaning: 'Xinh đẹp', topic: 'Tính từ & Cảm xúc', mnemonic: '漂 có bộ Thủy (氵) rửa sạch; 亮 là sáng sủa rạng rỡ' },
-      { hanzi: '没问题', pinyin: 'méi wèn tí', meaning: 'Không thành vấn đề', topic: 'Tính từ & Cảm xúc', mnemonic: '没 (không) + 问题 (câu hỏi/vấn đề) = Ok luôn!' },
-      { hanzi: '一样', pinyin: 'yī yàng', meaning: 'Giống nhau', topic: 'Tính từ & Cảm xúc', mnemonic: '一 (một) + 样 (kiểu mẫu) = Cùng một kiểu' },
-      { hanzi: '快', pinyin: 'kuài', meaning: 'Nhanh', topic: 'Tính từ & Cảm xúc', mnemonic: 'Có bộ Tâm đứng (忄): tâm trạng vui vẻ thì thấy thời gian trôi nhanh' },
-      { hanzi: '慢', pinyin: 'màn', meaning: 'Chậm', topic: 'Tính từ & Cảm xúc', mnemonic: 'Cũng có bộ Tâm đứng (忄) ở bên trái, trái nghĩa với 快' },
-
-      // 6. Địa điểm & Đi lại
-      { hanzi: '家', pinyin: 'jiā', meaning: 'Nhà, gia đình', topic: 'Địa điểm & Đi lại', mnemonic: 'Mái nhà (宀) bên dưới có con lợn (豕): ngày xưa nhà có nuôi lợn mới là tổ ấm' },
-      { hanzi: '公司', pinyin: 'gōng sī', meaning: 'Công ty', topic: 'Địa điểm & Đi lại', mnemonic: '公 (công cộng/chung) + 司 (quản lý điều hành)' },
-      { hanzi: '医院', pinyin: 'yī yuàn', meaning: 'Bệnh viện', topic: 'Địa điểm & Đi lại', mnemonic: '医 (y tế, bên trong có mũi tên 矢 gắp ra) + 院 (khu nhà)' },
-      { hanzi: '机场', pinyin: 'jī chǎng', meaning: 'Sân bay', topic: 'Địa điểm & Đi lại', mnemonic: '机 (máy bay - có bộ Mộc 木) + 场 (bãi đất rộng)' },
-      { hanzi: '洗手间', pinyin: 'xǐ shǒu jiān', meaning: 'Nhà vệ sinh', topic: 'Địa điểm & Đi lại', mnemonic: '洗 (rửa - có bộ Thủy 氵) + 手 (tay) + 间 (căn phòng)' },
-      { hanzi: '这里', pinyin: 'zhè lǐ', meaning: 'Ở đây, chỗ này', topic: 'Địa điểm & Đi lại', mnemonic: '这 (này) + 里 (bên trong/nơi chốn)' },
-      { hanzi: '那里', pinyin: 'nà lǐ', meaning: 'Ở kia, chỗ đó', topic: 'Địa điểm & Đi lại', mnemonic: '那 (kia/đó) + 里 (nơi chốn)' },
-      { hanzi: '怎么走', pinyin: 'zěn me zǒu', meaning: 'Đi như thế nào? (Hỏi đường)', topic: 'Địa điểm & Đi lại', mnemonic: '怎么 (như thế nào) + 走 (đi bộ/di chuyển)' }
-    ];
-
-    function getTodayStr() {
-      const d = new Date();
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      return `${y}-${m}-${day}`;
-    }
-
-    // Dữ liệu khởi tạo mẫu
-    const SAMPLE_DATA = {
-      activityDates: [getTodayStr()],
-      speechRate: 1.0,
-      vocab: [
-        {
-          id: 'v1',
-          hanzi: '你好',
-          pinyin: 'nǐ hǎo',
-          meaning: 'Xin chào',
-          mnemonic: '你 (bạn) + 好 (tốt: gồm bộ Nữ 女 người mẹ ôm con 子 là điều tốt lành)',
-          status: 'mastered',
-          createdAt: Date.now() - 86400000 * 3
-        },
-        {
-          id: 'v2',
-          hanzi: '休息',
-          pinyin: 'xiū xi',
-          meaning: 'Nghỉ ngơi',
-          mnemonic: 'Chữ 休 gồm người (亻) đứng tựa vào gốc cây (木) để nghỉ ngơi',
-          status: 'learning',
-          createdAt: Date.now() - 86400000 * 2
-        },
-        {
-          id: 'v3',
-          hanzi: '谢谢',
-          pinyin: 'xiè xie',
-          meaning: 'Cảm ơn',
-          mnemonic: 'Bên trái có bộ Ngôn (讠 - lời nói), cảm ơn thì phải mở lời nói ra',
-          status: 'mastered',
-          createdAt: Date.now() - 86400000 * 2
-        },
-        {
-          id: 'v4',
-          hanzi: '明白',
-          pinyin: 'míng bai',
-          meaning: 'Hiểu rồi, rõ rồi',
-          mnemonic: 'Chữ 明 ghép từ Mặt trời (日) và Mặt trăng (月) cùng chiếu sáng nên mọi thứ rõ ràng',
-          status: 'new',
-          createdAt: Date.now() - 86400000
-        },
-        {
-          id: 'v5',
-          hanzi: '喝咖啡',
-          pinyin: 'hē kā fēi',
-          meaning: 'Uống cà phê',
-          mnemonic: 'Chữ 喝 (uống) và 咖啡 đều có bộ Khẩu (口 - cái miệng) ở bên trái',
-          status: 'new',
-          createdAt: Date.now()
-        }
-      ],
-      phrases: [
-        {
-          id: 'p1',
-          hanzi: '你好，很高兴认识你！',
-          pinyin: 'nǐ hǎo, hěn gāo xìng rèn shi nǐ!',
-          meaning: 'Xin chào, rất vui được làm quen với bạn!',
-          topic: 'Chào hỏi'
-        },
-        {
-          id: 'p2',
-          hanzi: '这个多少钱？',
-          pinyin: 'zhè ge duō shao qián?',
-          meaning: 'Cái này bao nhiêu tiền?',
-          topic: 'Mua sắm'
-        },
-        {
-          id: 'p3',
-          hanzi: '我想点菜，请给我菜单。',
-          pinyin: 'wǒ xiǎng diǎn cài, qǐng gěi wǒ cài dān.',
-          meaning: 'Tôi muốn gọi món, vui lòng cho tôi xem thực đơn.',
-          topic: 'Ăn uống'
-        },
-        {
-          id: 'p4',
-          hanzi: '不好意思，请再说一遍。',
-          pinyin: 'bù hǎo yì si, qǐng zài shuō yī biàn.',
-          meaning: 'Xin lỗi, phiền bạn nói lại một lần nữa.',
-          topic: 'Giao tiếp cơ bản'
-        }
-      ],
-      journals: [
-        {
-          id: 'j1',
-          date: getTodayStr(),
-          hanzi: '今天我想喝咖啡，然后休息一下。',
-          pinyin: 'jīn tiān wǒ xiǎng hē kā fēi, rán hòu xiū xi yī xià.',
-          meaning: 'Hôm nay tôi muốn uống cà phê, sau đó nghỉ ngơi một chút.'
-        }
-      ]
+    // ==========================================
+    // 1. DỮ LIỆU TỪ ĐIỂN & BỘ THỦ CHIẾT TỰ TÍCH HỢP
+    // ==========================================
+    const RADICAL_DB = {
+      '人': 'Người', '亻': 'Người đứng', '木': 'Cây cối', '口': 'Cái miệng', '日': 'Mặt trời / Ngày',
+      '月': 'Mặt trăng / Tháng / Thịt', '水': 'Nước', '氵': 'Ba chấm nước', '火': 'Lửa', '灬': 'Bốn chấm lửa',
+      '土': 'Đất', '金': 'Kim loại / Vàng', '钅': 'Kim loại', '心': 'Trái tim', '忄': 'Tâm đứng (cảm xúc)',
+      '手': 'Bàn tay', '扌': 'Tay gảy', '女': 'Phụ nữ', '子': 'Con cái / Đứa trẻ', '宀': 'Mái nhà',
+      '广': 'Mái hiên rộng', '门': 'Cánh cửa', '山': 'Ngọn núi', '石': 'Hòn đá', '田': 'Ruộng đồng',
+      '目': 'Con mắt', '耳': 'Cái tai', '足': 'Bàn chân', '走': 'Đi chạy', '辶': 'Quai xước (bước đi)',
+      '言': 'Lời nói', '讠': 'Ngôn ngữ / Lời nói', '食': 'Thức ăn', '饣': 'Ăn uống', '衣': 'Quần áo',
+      '衤': 'Y phục', '马': 'Con ngựa', '牛': 'Con trâu/bò', '羊': 'Con dê', '犬': 'Con chó',
+      '犭': 'Thú vật', '鸟': 'Con chim', '鱼': 'Con cá', '虫': 'Côn trùng', '草': 'Cỏ cây',
+      '艹': 'Thảo đầu (cỏ cây)', '竹': 'Cây tre', '米': 'Hạt gạo', '糸': 'Sợi tơ', '纟': 'Sợi chỉ',
+      '车': 'Xe cộ', '舟': 'Con thuyền', '雨': 'Mưa', '风': 'Gió', '云': 'Mây', '电': 'Điện / Chớp',
+      '力': 'Sức lực', '刀': 'Con dao', '刂': 'Đao đứng', '弓': 'Cái cung', '矢': 'Mũi tên',
+      '戈': 'Cây giáo', '王': 'Vua / Ngọc', '玉': 'Viên ngọc', '贝': 'Vỏ sò / Tiền bạc', '见': 'Nhìn thấy',
+      '气': 'Hơi thở / Khí', '生': 'Sinh sôi / Sống', '白': 'Màu trắng', '黑': 'Màu đen', '红': 'Màu đỏ',
+      '大': 'To lớn', '小': 'Nhỏ bé', '上': 'Bên trên', '下': 'Bên dưới', '中': 'Ở giữa',
+      '一': 'Số một / Nét ngang', '二': 'Số hai', '三': 'Số ba', '十': 'Số mười / Chữ thập',
+      '休': 'Người (亻) tựa gốc cây (木) nghỉ ngơi', '好': 'Phụ nữ (女) bên con trẻ (子) là điều tốt đẹp',
+      '明': 'Mặt trời (日) và mặt trăng (月) cùng chiếu sáng', '看': 'Đưa tay (手) che trên mắt (目) để nhìn xa',
+      '听': 'Dùng miệng (口) và tai/rìu (斤) để lắng nghe', '说': 'Dùng lời nói (讠) để bày tỏ niềm vui (兑)',
+      '话': 'Lời nói (讠) từ chiếc lưỡi (舌)', '吃': 'Miệng (口) cầu xin (乞) đồ ăn',
+      '喝': 'Miệng (口) khát nước (曷) nên uống', '想': 'Tâm trí (心) hướng về hình ảnh (相) để suy nghĩ',
+      '爱': 'Dùng tay (爫) che chở mái đầu (冖) cho người bạn (友) bằng cả tấm lòng',
+      '家': 'Dưới mái nhà (宀) có nuôi lợn (豕) là gia đình ấm no', '安': 'Người phụ nữ (女) ở dưới mái nhà (宀) là bình yên',
+      '学': 'Đứa trẻ (子) học tập dưới mái trường (冖)', '习': 'Chim non vỗ đôi cánh luyện bay',
+      '工作': 'Người thợ (工) đứng làm việc (作)', '买': 'Đầu đội hàng hóa đi mua', '卖': 'Thêm chữ thập (十) lên trên mua (买) thành bán',
+      '钱': 'Kim loại (钅) quý giá mọi người tranh nhau (戋)', '谢': 'Dùng lời nói (讠) bắn (射) đi sự cảm ơn',
+      '忙': 'Trong lòng (忄) thấy mất đi (亡) thời gian nên bận rộn', '累': 'Làm việc ngoài ruộng (田) mệt đến rã rời sợi tơ (糸)',
+      '饿': 'Đồ ăn (饣) của riêng tôi (我) chưa có nên đói', '渴': 'Nước (氵) bị mặt trời làm khô cạn (曷) nên khát'
     };
 
-    // Trạng thái toàn cục của ứng dụng
-    let appState = loadState();
-    let currentVocabFilter = 'all';
-    let currentPhraseTopic = 'Tất cả';
-    let recallOptions = { pinyin: false, meaning: false };
+    // Phân rã cấu tạo chữ Hán phổ biến thành các bộ thủ trực quan
+    const CHAR_DECOMP = {
+      '休': ['亻', '木'], '息': ['自', '心'], '好': ['女', '子'], '明': ['日', '月'],
+      '看': ['手', '目'], '听': ['口', '斤'], '说': ['讠', '兑'], '话': ['讠', '舌'],
+      '吃': ['口', '乞'], '喝': ['口', '曷'], '想': ['相', '心'], '忘': ['亡', '心'],
+      '忙': ['忄', '亡'], '快': ['忄', '夬'], '慢': ['忄', '曼'], '懂': ['忄', '董'],
+      '家': ['宀', '豕'], '安': ['宀', '女'], '字': ['宀', '子'], '室': ['宀', '至'],
+      '学': ['小', '冖', '子'], '买': ['乛', '头'], '卖': ['十', '买'], '钱': ['钅', '戋'],
+      '银': ['钅', '艮'], '谢': ['讠', '射'], '请': ['讠', '青'], '认': ['讠', '人'],
+      '识': ['讠', '只'], '语': ['讠', '吾'], '课': ['讠', '果'], '谁': ['讠', '隹'],
+      '饿': ['饣', '我'], '饭': ['饣', '反'], '饮': ['饣', '欠'], '馆': ['饣', '官'],
+      '渴': ['氵', '曷'], '洗': ['氵', '先'], '海': ['氵', '每'], '河': ['氵', '可'],
+      '没': ['氵', '殳'], '活': ['氵', '舌'], '汽': ['氵', '气'], '油': ['氵', '由'],
+      '烧': ['火', '尧'], '热': ['执', '灬'], '点': ['占', '灬'], '照': ['昭', '灬'],
+      '打': ['扌', '丁'], '找': ['扌', '戈'], '拿': ['合', '手'], '推': ['扌', '隹'],
+      '拉': ['扌', '立'], '接': ['扌', '妾'], '换': ['扌', '奂'], '扫': ['扌', '彐'],
+      '做': ['亻', '故'], '作': ['亻', '乍'], '住': ['亻', '主'], '位': ['亻', '立'],
+      '他': ['亻', '也'], '你': ['亻', '尔'], '们': ['亻', '门'], '件': ['亻', '牛'],
+      '信': ['亻', '言'], '便': ['亻', '更'], '借': ['亻', '昔'], '停': ['亻', '亭'],
+      '妈': ['女', '马'], '姐': ['女', '且'], '妹': ['女', '未'], '奶': ['女', '乃'],
+      '她': ['女', '也'], '姓': ['女', '生'], '婚': ['女', '昏'], '始': ['女', '台'],
+      '时': ['日', '寸'], '早': ['日', '十'], '晚': ['日', '免'], '晴': ['日', '青'],
+      '星': ['日', '生'], '昨': ['日', '乍'], '春': ['三', '人', '日'], '暖': ['日', '爰'],
+      '朋': ['月', '月'], '期': ['其', '月'], '服': ['月', '卩', '又'], '胖': ['月', '半'],
+      '桌': ['卜', '日', '木'], '椅': ['木', '奇'], '杯': ['木', '不'], '机': ['木', '几'],
+      '校': ['木', '交'], '楼': ['木', '娄'], '树': ['木', '对'], '样': ['木', '羊'],
+      '病': ['疒', '丙'], '疼': ['疒', '冬'], '瘦': ['疒', '叟'], '累': ['田', '糸'],
+      '男': ['田', '力'], '思': ['田', '心'], '留': ['卯', '田'], '画': ['一', '田', '凵'],
+      '路': ['足', '各'], '跑': ['足', '包'], '跳': ['足', '兆'], '踢': ['足', '易'],
+      '跟': ['足', '艮'], '远': ['元', '辶'], '近': ['斤', '辶'], '进': ['井', '辶'],
+      '送': ['关', '辶'], '还': ['不', '辶'], '这': ['文', '辶'], '道': ['首', '辶'],
+      '问': ['门', '口'], '间': ['门', '日'], '闻': ['门', '耳'], '开': ['一', '廾'],
+      '关': ['丷', '天'], '冷': ['冫', '令'], '凉': ['冫', '京'], '净': ['冫', '争'],
+      '次': ['冫', '欠'], '准': ['冫', '隹'], '决': ['冫', '夬'], '冰': ['冫', '水']
+    };
 
-    // Trạng thái Tab Database & Chế độ chọn nhiều từ
-    let currentDbTopic = 'Tất cả';
-    let selectedDbHanzis = new Set();
-    let isVocabSelectMode = false;
-    let selectedVocabIds = new Set();
+    const CORE_DATABASE = [
+      // Chào hỏi & Đại từ
+      { hanzi: '你好', pinyin: 'nǐ hǎo', meaning: 'Xin chào', category: 'Chào hỏi', mnemonic: 'Bạn (你) tốt lành (好) -> Lời chào thân thiện.' },
+      { hanzi: '谢谢', pinyin: 'xiè xie', meaning: 'Cảm ơn', category: 'Chào hỏi', mnemonic: 'Dùng lời nói (讠) bày tỏ sự trân trọng (射).' },
+      { hanzi: '不客气', pinyin: 'bú kè qi', meaning: 'Đừng khách sáo', category: 'Chào hỏi', mnemonic: 'Không (不) cần khách (客) khí (气).' },
+      { hanzi: '对不起', pinyin: 'duì bu qǐ', meaning: 'Xin lỗi', category: 'Chào hỏi', mnemonic: 'Không dám đối mặt ngẩng đầu lên vì có lỗi.' },
+      { hanzi: '没关系', pinyin: 'méi guān xi', meaning: 'Không sao đâu', category: 'Chào hỏi', mnemonic: 'Không (没) có vướng mắc liên quan (关系) gì cả.' },
+      { hanzi: '再见', pinyin: 'zài jiàn', meaning: 'Tạm biệt', category: 'Chào hỏi', mnemonic: 'Lại (再) gặp mặt (见) nhau nhé.' },
+      { hanzi: '请问', pinyin: 'qǐng wèn', meaning: 'Xin hỏi', category: 'Chào hỏi', mnemonic: 'Mời/xin phép (请) mở cửa miệng (门+口) để hỏi (问).' },
+      { hanzi: '名字', pinyin: 'míng zi', meaning: 'Tên gọi', category: 'Chào hỏi', mnemonic: 'Đêm tối (夕) dùng miệng (口) gọi tên (名), đứa trẻ (子) dưới mái nhà (宀) có tên (字).' },
+      // Động từ cốt lõi
+      { hanzi: '休息', pinyin: 'xiū xi', meaning: 'Nghỉ ngơi', category: 'Động từ', mnemonic: 'Người (亻) tựa gốc cây (木) thở nhẹ bằng mũi (自) và tim (心).' },
+      { hanzi: '工作', pinyin: 'gōng zuò', meaning: 'Làm việc / Công việc', category: 'Động từ', mnemonic: 'Người thợ (工) đứng làm việc (作).' },
+      { hanzi: '学习', pinyin: 'xué xí', meaning: 'Học tập', category: 'Động từ', mnemonic: 'Đứa trẻ (子) dưới mái trường (冖) luyện tập vỗ cánh (习).' },
+      { hanzi: '喜欢', pinyin: 'xǐ huan', meaning: 'Thích', category: 'Động từ', mnemonic: 'Miệng (口) cười vui (喜) hoan hỉ (欢).' },
+      { hanzi: '知道', pinyin: 'zhī dào', meaning: 'Biết', category: 'Động từ', mnemonic: 'Nói ra (口) nhanh như mũi tên (矢) là hiểu rõ đạo lý (道).' },
+      { hanzi: '觉得', pinyin: 'jué de', meaning: 'Cảm thấy / Cho rằng', category: 'Động từ', mnemonic: 'Nhìn thấy (见) và cảm nhận được trong lòng.' },
+      { hanzi: '明白', pinyin: 'míng bai', meaning: 'Hiểu rõ', category: 'Động từ', mnemonic: 'Sáng sủa như mặt trời mặt trăng (明) và rõ ràng như màu trắng (白).' },
+      { hanzi: '忘记', pinyin: 'wàng jì', meaning: 'Quên mất', category: 'Động từ', mnemonic: 'Trong tâm (心) bị mất đi (亡) ký ức đã ghi (记).' },
+      { hanzi: '帮助', pinyin: 'bāng zhù', meaning: 'Giúp đỡ', category: 'Động từ', mnemonic: 'Dùng sức lực (力) để hỗ trợ (助) lẫn nhau.' },
+      { hanzi: '准备', pinyin: 'zhǔn bèi', meaning: 'Chuẩn bị', category: 'Động từ', mnemonic: 'Con người (亻) sẵn sàng mọi thứ chuẩn xác (准).' },
+      // Ăn uống & Mua sắm
+      { hanzi: '吃饭', pinyin: 'chī fàn', meaning: 'Ăn cơm', category: 'Ăn uống', mnemonic: 'Miệng (口) ăn (吃) thức ăn (饣) nấu chín (反).' },
+      { hanzi: '喝水', pinyin: 'hē shuǐ', meaning: 'Uống nước', category: 'Ăn uống', mnemonic: 'Miệng (口) uống (喝) dòng nước (水) mát.' },
+      { hanzi: '多少钱', pinyin: 'duō shǎo qián', meaning: 'Bao nhiêu tiền', category: 'Mua sắm', mnemonic: 'Nhiều (多) hay ít (少) kim loại quý (钅+戋 = 钱).' },
+      { hanzi: '便宜', pinyin: 'pián yi', meaning: 'Rẻ', category: 'Mua sắm', mnemonic: 'Người (亻) cảm thấy thuận tiện, hợp túi tiền.' },
+      { hanzi: '太贵了', pinyin: 'tài guì le', meaning: 'Đắt quá rồi', category: 'Mua sắm', mnemonic: 'Vỏ sò tiền bạc (贝) chất cao quá mức (太).' },
+      { hanzi: '买东西', pinyin: 'mǎi dōng xi', meaning: 'Mua đồ', category: 'Mua sắm', mnemonic: 'Ngày xưa đi chợ chỉ đựng đồ phía Đông (东) và phía Tây (西) trong giỏ.' },
+      { hanzi: '菜单', pinyin: 'cài dān', meaning: 'Thực đơn', category: 'Ăn uống', mnemonic: 'Danh sách (单) các món rau thịt (艹+采 = 菜).' },
+      { hanzi: '好吃', pinyin: 'hǎo chī', meaning: 'Ngon miệng', category: 'Ăn uống', mnemonic: 'Tốt (好) để ăn (吃) -> Ngon.' },
+      // Thời gian & Đi lại
+      { hanzi: '现在', pinyin: 'xiàn zài', meaning: 'Bây giờ / Hiện tại', category: 'Thời gian', mnemonic: 'Viên ngọc (王) hiện ra (见) ngay tại lúc này (在).' },
+      { hanzi: '明天', pinyin: 'míng tiān', meaning: 'Ngày mai', category: 'Thời gian', mnemonic: 'Qua hết mặt trăng (月) lại tới mặt trời (日) mới là ngày mai.' },
+      { hanzi: '昨天', pinyin: 'zuó tiān', meaning: 'Hôm qua', category: 'Thời gian', mnemonic: 'Ngày (日) vừa mới trôi qua (乍).' },
+      { hanzi: '时间', pinyin: 'shí jiān', meaning: 'Thời gian', category: 'Thời gian', mnemonic: 'Mặt trời (日) lọt qua khe cửa (门+日) tạo thành khoảng thời gian.' },
+      { hanzi: '出发', pinyin: 'chū fā', meaning: 'Xuất phát', category: 'Đi lại', mnemonic: 'Bước chân ra khỏi (出) điểm khởi đầu (发).' },
+      { hanzi: '到了', pinyin: 'dào le', meaning: 'Đến nơi rồi', category: 'Đi lại', mnemonic: 'Đã chạm tới đích đến (到).' },
+      { hanzi: '小心', pinyin: 'xiǎo xīn', meaning: 'Cẩn thận', category: 'Đi lại', mnemonic: 'Thu nhỏ (小) trái tim (心) lại để tập trung chú ý.' },
+      { hanzi: '路口', pinyin: 'lù kǒu', meaning: 'Ngã tư / Giao lộ', category: 'Đi lại', mnemonic: 'Cửa miệng (口) của con đường (足+各 = 路).' },
+      // Cảm xúc & Tính từ
+      { hanzi: '开心', pinyin: 'kāi xīn', meaning: 'Vui vẻ', category: 'Cảm xúc', mnemonic: 'Mở rộng (开) trái tim (心) ra thì thấy vui.' },
+      { hanzi: '累了', pinyin: 'lèi le', meaning: 'Mệt rồi', category: 'Cảm xúc', mnemonic: 'Làm ruộng (田) vất vả đến rã rời sợi tơ (糸).' },
+      { hanzi: '很忙', pinyin: 'hěn máng', meaning: 'Rất bận', category: 'Cảm xúc', mnemonic: 'Trong lòng (忄) thấy mất (亡) hết thời gian rảnh.' },
+      { hanzi: '舒服', pinyin: 'shū fu', meaning: 'Thoải mái / Dễ chịu', category: 'Cảm xúc', mnemonic: 'Thư giãn (舒) cả cơ thể (月).' },
+      { hanzi: '没问题', pinyin: 'méi wèn tí', meaning: 'Không vấn đề gì', category: 'Giao tiếp', mnemonic: 'Không (没) có câu hỏi (问) hay khúc mắc (题) nào.' },
+      { hanzi: '加油', pinyin: 'jiā yóu', meaning: 'Cố lên!', category: 'Giao tiếp', mnemonic: 'Đổ thêm (加) dầu (油) vào động cơ để tiến lên!' }
+    ];
 
-    // Trạng thái Phiên ôn tập Ghi nhớ Nhắc lại (SRS)
-    let srsQueue = [];
-    let srsCurrentIndex = 0;
-
-    // Biến điều khiển HanziWriter & Ghi âm & Âm thanh
-    let writerInstance = null;
-    let currentWriterChars = [];
-    let currentWriterIndex = 0;
-    let mediaRecorder = null;
-    let recordingPhraseId = null;
-    let recordedAudioUrls = {};
-    let currentAudioPlayer = null;
-    let cachedZhVoice = null;
-    let toastTimer = null;
-
-    // ==================== KHỞI TẠO & PWA SETUP ====================
-    window.addEventListener('DOMContentLoaded', () => {
-      setupDynamicPWA();
-      initSpeechVoices();
-      updateDateLabel();
-      updateSpeedUI();
-      renderAll();
-    });
-
-    function setupDynamicPWA() {
-      try {
-        const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="42" fill="#C83E37"/><text x="96" y="132" font-size="110" text-anchor="middle" fill="#FFFFFF" font-family="sans-serif" font-weight="bold">汉</text></svg>`;
-        const iconUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(iconSvg);
-        const manifest = {
-          name: 'Sổ Tay Học Tiếng Trung',
-          short_name: 'Hán Ngữ',
-          start_url: '.',
-          display: 'standalone',
-          background_color: '#FAF8F5',
-          theme_color: '#FAF8F5',
-          icons: [{ src: iconUrl, sizes: '192x192', type: 'image/svg+xml' }]
-        };
-        const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
-        const link = document.createElement('link');
-        link.rel = 'manifest';
-        link.href = URL.createObjectURL(blob);
-        document.head.appendChild(link);
-      } catch (e) {
-        // Bỏ qua nếu môi trường sandbox hạn chế manifest blob
+    const SPEAKING_SCENARIOS = [
+      {
+        title: 'Chào hỏi & Làm quen',
+        items: [
+          { hanzi: '你好，认识你很高兴！', pinyin: 'Nǐ hǎo, rèn shi nǐ hěn gāo xìng!', vi: 'Xin chào, rất vui được làm quen với bạn!' },
+          { hanzi: '你叫什么名字？', pinyin: 'Nǐ jiào shén me míng zi?', vi: 'Bạn tên là gì?' },
+          { hanzi: '我是越南人，我在学中文。', pinyin: 'Wǒ shì Yuè nán rén, wǒ zài xué Zhōng wén.', vi: 'Tôi là người Việt Nam, tôi đang học tiếng Trung.' }
+        ]
+      },
+      {
+        title: 'Ăn uống & Mua sắm',
+        items: [
+          { hanzi: '老板，这个多少钱？', pinyin: 'Lǎo bǎn, zhè ge duō shǎo qián?', vi: 'Ông chủ ơi, cái này bao nhiêu tiền?' },
+          { hanzi: '太贵了，可以便宜一点吗？', pinyin: 'Tài guì le, kě yǐ pián yi yì diǎn ma?', vi: 'Đắt quá rồi, có thể rẻ hơn một chút được không?' },
+          { hanzi: '我要一杯冰咖啡，不要糖。', pinyin: 'Wǒ yào yì bēi bīng kā fēi, bú yào táng.', vi: 'Tôi muốn một ly cà phê đá, không đường.' }
+        ]
+      },
+      {
+        title: 'Giao tiếp công việc & Hằng ngày',
+        items: [
+          { hanzi: '不好意思，让你久等了。', pinyin: 'Bù hǎo yì si, ràng nǐ jiǔ děng le.', vi: 'Ngại quá, để bạn phải đợi lâu rồi.' },
+          { hanzi: '请再说一遍，我没听清楚。', pinyin: 'Qǐng zài shuō yí biàn, wǒ méi tīng qīng chu.', vi: 'Vui lòng nói lại lần nữa, tôi nghe chưa rõ.' },
+          { hanzi: '今天有点忙，晚点联系你。', pinyin: 'Jīn tiān yǒu diǎn máng, wǎn diǎn lián xì nǐ.', vi: 'Hôm nay hơi bận chút, lát nữa liên hệ bạn nhé.' }
+        ]
       }
-    }
+    ];
+
+    // ==========================================
+    // 2. QUẢN LÝ TRẠNG THÁI & LƯU TRỮ LOCAL
+    // ==========================================
+    const STORAGE_KEY = 'sotay_hanngu_v2';
+    let state = {
+      vocab: [
+        { id: 1, hanzi: '休息', pinyin: 'xiū xi', meaning: 'Nghỉ ngơi', mnemonic: 'Người (亻) tựa gốc cây (木) thở nhẹ bằng mũi (自) và tim (心).', level: 'new' },
+        { id: 2, hanzi: '明白', pinyin: 'míng bai', meaning: 'Hiểu rõ', mnemonic: 'Mặt trời (日) và mặt trăng (月) cùng chiếu sáng rõ ràng (白).', level: 'new' },
+        { id: 3, hanzi: '加油', pinyin: 'jiā yóu', meaning: 'Cố lên!', mnemonic: 'Thêm (加) dầu (油) tiếp thêm năng lượng.', level: 'learning' }
+      ],
+      streak: 1,
+      lastStudyDate: new Date().toISOString().slice(0, 10),
+      historyDates: [new Date().toISOString().slice(0, 10)],
+      speechRate: 1.0,
+      aiConfig: {
+        provider: 'gemini', // 'gemini' hoặc 'deepseek'
+        apiKey: ''
+      }
+    };
+
+    let currentTab = 'vocab';
+    let vocabFilter = 'all';
+    let searchQuery = '';
+    let dbSearchQuery = '';
+    let dbCategory = 'Tất cả';
+    let selectedDbWords = new Set();
+    let selectMode = false;
+    let selectedReviewIds = new Set();
+
+    // Review state
+    let reviewQueue = [];
+    let reviewIndex = 0;
+    let reviewFlipped = false;
+
+    // Writer state
+    let currentWriter = null;
+    let writerChars = [];
 
     function loadState() {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return JSON.parse(JSON.stringify(SAMPLE_DATA));
-        const parsed = JSON.parse(raw);
-        return {
-          activityDates: Array.isArray(parsed.activityDates) ? parsed.activityDates : [getTodayStr()],
-          speechRate: typeof parsed.speechRate === 'number' ? parsed.speechRate : 1.0,
-          vocab: Array.isArray(parsed.vocab) ? parsed.vocab : [],
-          phrases: Array.isArray(parsed.phrases) ? parsed.phrases : [],
-          journals: Array.isArray(parsed.journals) ? parsed.journals : []
-        };
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          state = { ...state, ...parsed, aiConfig: { ...state.aiConfig, ...(parsed.aiConfig || {}) } };
+        }
+        updateStreak();
       } catch (e) {
-        return JSON.parse(JSON.stringify(SAMPLE_DATA));
+        console.error(e);
       }
     }
 
-    function persistState() {
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      document.getElementById('streakCount').textContent = state.streak;
+      document.getElementById('rateLabel').textContent = state.speechRate + 'x';
+    }
+
+    function updateStreak() {
+      const today = new Date().toISOString().slice(0, 10);
+      if (!state.historyDates.includes(today)) {
+        state.historyDates.push(today);
+      }
+      state.streak = Math.max(1, state.historyDates.length);
+      state.lastStudyDate = today;
+      saveState();
+    }
+
+    // ==========================================
+    // 3. PHÁT ÂM THANH CHUẨN (CÓ FALLBACK MOBILE)
+    // ==========================================
+    function speakChinese(text) {
+      if (!text) return;
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
-      } catch (e) {
-        showToast('Bộ nhớ trình duyệt đã đầy, hãy tải file sao lưu JSON!');
-      }
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const utter = new SpeechSynthesisUtterance(text);
+          utter.lang = 'zh-CN';
+          utter.rate = state.speechRate;
+          const voices = window.speechSynthesis.getVoices();
+          const zhVoice = voices.find(v => v.lang.includes('zh') || v.lang.includes('cmn'));
+          if (zhVoice) {
+            utter.voice = zhVoice;
+            window.speechSynthesis.speak(utter);
+            return;
+          }
+        }
+      } catch (e) {}
+
+      // Fallback Audio TTS cho điện thoại thiếu gói giọng đọc zh-CN
+      const url = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=zh-CN&q=${encodeURIComponent(text)}`;
+      const audio = new Audio(url);
+      audio.playbackRate = state.speechRate;
+      audio.play().catch(() => {});
     }
 
-    function initSpeechVoices() {
-      if (!('speechSynthesis' in window)) return;
-      const loadVoices = () => {
-        const voices = window.speechSynthesis.getVoices();
-        cachedZhVoice = voices.find(v =>
-          v.lang.toLowerCase().includes('zh-cn') ||
-          v.lang.toLowerCase().includes('cmn') ||
-          v.lang.toLowerCase().startsWith('zh')
-        ) || null;
-      };
-      loadVoices();
-      if (typeof window.speechSynthesis.onvoiceschanged !== 'undefined') {
-        window.speechSynthesis.onvoiceschanged = loadVoices;
-      }
+    function cycleSpeechRate() {
+      const rates = [1.0, 0.8, 1.2];
+      const nextIdx = (rates.indexOf(state.speechRate) + 1) % rates.length;
+      state.speechRate = rates[nextIdx];
+      saveState();
     }
 
-    // Đọc phát âm tiếng Trung (Kết hợp Web Speech API + Audio Fallback cho điện thoại)
-    function speakText(text) {
-      if (!text || !text.trim()) return;
-      const cleanText = text.trim();
-      const rate = appState.speechRate || 1.0;
+    // ==========================================
+    // 4. TỰ ĐỘNG ĐIỀN PINYIN, NGHĨA & CHIẾT TỰ
+    // ==========================================
+    let autoFillTimer = null;
 
-      // Dừng âm thanh đang phát trước đó (nếu có)
-      if (currentAudioPlayer) {
-        currentAudioPlayer.pause();
-        currentAudioPlayer = null;
-      }
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-      }
+    function buildLocalMnemonic(hanzi) {
+      const clean = hanzi.replace(/[^\u4e00-\u9fa5]/g, '');
+      if (!clean) return '';
 
-      // Kiểm tra xem thiết bị có sẵn giọng đọc tiếng Trung không
-      if ('speechSynthesis' in window) {
-        const voices = window.speechSynthesis.getVoices();
-        const zhVoice = cachedZhVoice || voices.find(v =>
-          v.lang.toLowerCase().includes('zh-cn') ||
-          v.lang.toLowerCase().includes('cmn') ||
-          v.lang.toLowerCase().startsWith('zh')
-        );
+      // 1. Kiểm tra cụm từ có sẵn trong kho
+      const exactCore = CORE_DATABASE.find(item => item.hanzi === clean);
+      if (exactCore && exactCore.mnemonic) return exactCore.mnemonic;
 
-        if (zhVoice) {
-          let started = false;
-          let fellBack = false;
-
-          const triggerFallback = () => {
-            if (fellBack) return;
-            fellBack = true;
-            window.speechSynthesis.cancel();
-            playAudioFallback(cleanText, rate);
-          };
-
-          const utterance = new SpeechSynthesisUtterance(cleanText);
-          utterance.lang = 'zh-CN';
-          utterance.voice = zhVoice;
-          utterance.rate = rate;
-
-          utterance.onstart = () => {
-            started = true;
-          };
-          utterance.onerror = () => {
-            triggerFallback();
-          };
-
-          window.speechSynthesis.resume();
-          window.speechSynthesis.speak(utterance);
-
-          // Nếu sau 650ms trình duyệt mobile/iframe vẫn im lặng -> tự chuyển sang Audio TTS
-          setTimeout(() => {
-            if (!started) {
-              triggerFallback();
-            }
-          }, 650);
-          return;
+      // 2. Phân tách từng chữ Hán
+      const parts = [];
+      for (const ch of clean) {
+        if (CHAR_DECOMP[ch]) {
+          const radList = CHAR_DECOMP[ch].map(r => `${r} (${RADICAL_DB[r] || 'bộ thủ'})`).join(' + ');
+          const wholeNote = RADICAL_DB[ch] ? ` → ${RADICAL_DB[ch]}` : '';
+          parts.push(`• ${ch} = ${radList}${wholeNote}`);
+        } else if (RADICAL_DB[ch]) {
+          parts.push(`• ${ch}: ${RADICAL_DB[ch]}`);
         }
       }
-
-      // Thiết bị không có gói giọng tiếng Trung -> dùng thẳng Audio TTS
-      playAudioFallback(cleanText, rate);
+      return parts.join('\n');
     }
 
-    // Bộ phát âm thanh dự phòng qua thẻ HTML5 Audio (vượt qua lỗi thiếu voice & nút gạt im lặng iPhone)
-    function playAudioFallback(text, rate = 1.0) {
-      const encoded = encodeURIComponent(text);
-      const urls = [
-        `https://dict.youdao.com/dictvoice?audio=${encoded}&type=2`,
-        `https://translate.googleapis.com/translate_tts?ie=UTF-8&q=${encoded}&tl=zh-CN&client=gtx`
-      ];
+    async function fetchFreeMeaning(hanzi) {
+      // 1. Tra trong kho từ nội bộ trước cho siêu nhanh
+      const found = CORE_DATABASE.find(w => w.hanzi === hanzi.trim());
+      if (found) return { meaning: found.meaning, source: 'Kho từ điển' };
 
-      let index = 0;
-      const tryNextSource = () => {
-        if (index >= urls.length) {
-          showToast('Không thể phát âm. Hãy kiểm tra kết nối mạng hoặc âm lượng máy!');
-          return;
+      // 2. Gọi API dịch miễn phí (MyMemory / Google Translate endpoint công cộng)
+      try {
+        const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=zh-CN&tl=vi&dt=t&q=${encodeURIComponent(hanzi)}`);
+        if (res.ok) {
+          const data = await res.json();
+          const translated = data?.[0]?.map(item => item[0]).join('').trim();
+          if (translated && translated !== hanzi) {
+            return { meaning: translated.charAt(0).toUpperCase() + translated.slice(1), source: 'Tự động dịch' };
+          }
         }
-        const audio = new Audio();
-        audio.referrerPolicy = 'no-referrer';
-        audio.src = urls[index++];
-        audio.playbackRate = rate;
-        currentAudioPlayer = audio;
+      } catch (e) {}
+      return null;
+    }
 
-        audio.onerror = () => {
-          tryNextSource();
-        };
+    function handleHanziInput(val) {
+      const trimmed = val.trim();
+      const pinyinEl = document.getElementById('inputPinyin');
+      const meaningEl = document.getElementById('inputMeaning');
+      const mnemonicEl = document.getElementById('inputMnemonic');
+      const statusEl = document.getElementById('autoFillStatus');
 
-        const playPromise = audio.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(() => {
-            tryNextSource();
+      if (!trimmed) {
+        pinyinEl.value = '';
+        statusEl.classList.add('hidden');
+        return;
+      }
+
+      // 1. Tự động điền Pinyin ngay lập tức
+      if (window.pinyinPro) {
+        pinyinEl.value = window.pinyinPro.pinyin(trimmed, { toneType: 'symbol' });
+      }
+
+      // 2. Tự động tách bộ thủ chiết tự ngay lập tức
+      const autoMnemonic = buildLocalMnemonic(trimmed);
+      if (autoMnemonic) {
+        mnemonicEl.value = autoMnemonic;
+        document.getElementById('mnemonicTag').textContent = 'Đã tách bộ thủ';
+      }
+
+      // 3. Debounce tự động điền Nghĩa tiếng Việt sau 450ms ngừng gõ
+      clearTimeout(autoFillTimer);
+      statusEl.textContent = 'Đang tra nghĩa...';
+      statusEl.classList.remove('hidden');
+
+      autoFillTimer = setTimeout(async () => {
+        const result = await fetchFreeMeaning(trimmed);
+        if (result && document.getElementById('inputHanzi').value.trim() === trimmed) {
+          meaningEl.value = result.meaning;
+          document.getElementById('meaningTag').textContent = result.source;
+        }
+        statusEl.classList.add('hidden');
+      }, 450);
+    }
+
+    // Cách 2: Gọi AI (Gemini hoặc DeepSeek) để viết câu chuyện chiết tự sâu & nghĩa chuẩn ngữ cảnh
+    async function triggerDeepAI() {
+      const hanzi = document.getElementById('inputHanzi').value.trim();
+      if (!hanzi) {
+        alert('Bạn hãy nhập chữ Hán trước rồi bấm AI Chiết tự nhé!');
+        return;
+      }
+
+      if (!state.aiConfig.apiKey) {
+        const goSetup = confirm('Bạn chưa nhập API Key (Gemini hoặc DeepSeek miễn phí). Bạn có muốn mở tab Tiến độ & AI để dán Key vào dùng không?');
+        if (goSetup) {
+          closeAddModal();
+          switchTab('stats');
+        }
+        return;
+      }
+
+      const btn = document.getElementById('aiFillBtn');
+      const origHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<span class="animate-pulse-soft">⏳ Đang tạo...</span>`;
+
+      const prompt = `Bạn là trợ lý dạy tiếng Trung giao tiếp cho người Việt. Với từ tiếng Trung "${hanzi}", hãy trả về DUY NHẤT một chuỗi JSON hợp lệ (không markdown) theo mẫu:
+{"meaning": "nghĩa tiếng Việt ngắn gọn, tự nhiên nhất trong giao tiếp", "mnemonic": "giải thích chiết tự bộ thủ và ghép thành một câu chuyện 1-2 câu thật dễ nhớ mặt chữ, ví dụ: Người (亻) tựa vào gốc cây (木) để nghỉ ngơi (休)"}`;
+
+      try {
+        let rawText = '';
+        if (state.aiConfig.provider === 'deepseek') {
+          const res = await fetch('https://api.deepseek.com/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${state.aiConfig.apiKey}`
+            },
+            body: JSON.stringify({
+              model: 'deepseek-chat',
+              messages: [{ role: 'user', content: prompt }],
+              temperature: 0.4
+            })
           });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error?.message || 'Lỗi DeepSeek API');
+          rawText = data.choices?.[0]?.message?.content || '';
+        } else {
+          // Mặc định Gemini Flash Free Tier
+          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${state.aiConfig.apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }],
+              generationConfig: { temperature: 0.4 }
+            })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error?.message || 'Lỗi Gemini API');
+          rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
         }
+
+        const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) throw new Error('AI trả về sai định dạng');
+        const parsed = JSON.parse(jsonMatch[0]);
+
+        if (parsed.meaning) {
+          document.getElementById('inputMeaning').value = parsed.meaning;
+          document.getElementById('meaningTag').textContent = '✨ AI điền';
+        }
+        if (parsed.mnemonic) {
+          document.getElementById('inputMnemonic').value = parsed.mnemonic;
+          document.getElementById('mnemonicTag').textContent = '✨ AI chiết tự';
+        }
+      } catch (err) {
+        alert('Không gọi được AI: ' + err.message + '\n(Hệ thống vẫn giữ nguyên nghĩa và bộ thủ tự động bên dưới cho bạn!)');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origHtml;
+      }
+    }
+
+    // ==========================================
+    // 5. RENDER GIAO DIỆN CÁC TAB
+    // ==========================================
+    function switchTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        if (btn.dataset.tab === tab) {
+          btn.classList.remove('text-[#8b837a]');
+          btn.classList.add('text-[#e07a5f]', 'bg-[#221d1a]');
+        } else {
+          btn.classList.add('text-[#8b837a]');
+          btn.classList.remove('text-[#e07a5f]', 'bg-[#221d1a]');
+        }
+      });
+      renderApp();
+    }
+
+    function renderApp() {
+      const main = document.getElementById('appMain');
+      if (currentTab === 'vocab') renderVocabTab(main);
+      else if (currentTab === 'database') renderDatabaseTab(main);
+      else if (currentTab === 'speak') renderSpeakTab(main);
+      else if (currentTab === 'stats') renderStatsTab(main);
+    }
+
+    function renderVocabTab(container) {
+      const needReviewCount = state.vocab.filter(w => w.level !== 'mastered').length;
+      const filtered = state.vocab.filter(w => {
+        const matchFilter = vocabFilter === 'all' || w.level === vocabFilter;
+        const q = searchQuery.toLowerCase();
+        const matchSearch = !q || w.hanzi.includes(q) || w.pinyin.toLowerCase().includes(q) || w.meaning.toLowerCase().includes(q);
+        return matchFilter && matchSearch;
+      });
+
+      const levelBadge = {
+        new: { label: '🔴 Mới học', cls: 'bg-[#361c1a] text-[#f87171]' },
+        learning: { label: '🟡 Đang nhớ', cls: 'bg-[#362c18] text-[#fbbf24]' },
+        mastered: { label: '🟢 Đã thuộc', cls: 'bg-[#193324] text-[#4ade80]' }
       };
 
-      tryNextSource();
+      container.innerHTML = `
+        <!-- Banner Ôn tập -->
+        <div class="bg-gradient-to-r from-[#3a1d19] to-[#291916] border border-[#542923] rounded-2xl p-3.5 flex items-center justify-between">
+          <div>
+            <div class="text-xs font-bold text-[#f3efe9] flex items-center gap-1.5">
+              <span>🧠</span> Ôn tập Ghi nhớ Nhắc lại
+            </div>
+            <p class="text-[11px] text-[#cbbeb5] mt-0.5">
+              ${selectMode ? `Đã chọn ${selectedReviewIds.size} từ để ôn` : `Còn ${needReviewCount} từ chưa thuộc cần ôn nhắc lại`}
+            </p>
+          </div>
+          <button onclick="startReviewSession()" class="px-3.5 py-2 rounded-xl bg-[#b9382c] text-white text-xs font-bold active:scale-95 transition whitespace-nowrap">
+            Ôn ngay →
+          </button>
+        </div>
+
+        <!-- Thanh tìm kiếm & Nút + Tự thêm -->
+        <div class="flex gap-2">
+          <div class="flex-1 relative">
+            <input type="text" value="${searchQuery}" oninput="searchQuery=this.value; renderApp()" placeholder="🔍 Tìm trong sổ của bạn..."
+              class="w-full bg-[#1c1917] border border-[#2d2925] rounded-xl px-3.5 py-2.5 text-xs text-[#f3efe9] outline-none" />
+          </div>
+          <button onclick="openAddModal()" class="px-3.5 py-2.5 rounded-xl bg-[#b9382c] text-white text-xs font-bold active:scale-95 transition whitespace-nowrap">
+            + Tự thêm
+          </button>
+        </div>
+
+        <!-- Bộ lọc -->
+        <div class="flex items-center justify-between gap-1.5 overflow-x-auto pb-1">
+          <div class="flex gap-1.5">
+            <button onclick="vocabFilter='all'; renderApp()" class="px-2.5 py-1.5 rounded-lg text-[11px] font-medium ${vocabFilter==='all' ? 'bg-[#332d28] text-white' : 'bg-[#1c1917] text-[#9b938a]'}">Tất cả (${state.vocab.length})</button>
+            <button onclick="vocabFilter='new'; renderApp()" class="px-2.5 py-1.5 rounded-lg text-[11px] font-medium ${vocabFilter==='new' ? 'bg-[#332d28] text-white' : 'bg-[#1c1917] text-[#9b938a]'}">🔴 Mới học</button>
+            <button onclick="vocabFilter='learning'; renderApp()" class="px-2.5 py-1.5 rounded-lg text-[11px] font-medium ${vocabFilter==='learning' ? 'bg-[#332d28] text-white' : 'bg-[#1c1917] text-[#9b938a]'}">🟡 Đang nhớ</button>
+          </div>
+          <button onclick="toggleSelectMode()" class="px-2.5 py-1.5 rounded-lg text-[11px] font-medium border ${selectMode ? 'bg-[#3a251d] border-[#e07a5f] text-[#e07a5f]' : 'bg-[#1c1917] border-[#2d2925] text-[#9b938a]'}">
+            ☑️ Chọn ôn
+          </button>
+        </div>
+
+        <!-- Danh sách từ vựng -->
+        <div class="space-y-2.5">
+          ${filtered.length === 0 ? `<div class="text-center py-10 text-xs text-[#7a7269]">Chưa có từ nào ở mục này. Bấm "+ Tự thêm" hoặc sang tab "Kho từ" để chọn nhé!</div>` : ''}
+          ${filtered.map(w => `
+            <div onclick="${selectMode ? `toggleSelectWord(${w.id})` : ''}" class="bg-[#1b1917] border ${selectMode && selectedReviewIds.has(w.id) ? 'border-[#e07a5f]' : 'border-[#292522]'} rounded-2xl p-3.5 space-y-2">
+              <div class="flex items-start justify-between">
+                <div class="flex items-center gap-3">
+                  ${selectMode ? `<input type="checkbox" ${selectedReviewIds.has(w.id) ? 'checked' : ''} class="w-4 h-4 accent-[#b9382c]" />` : ''}
+                  <div>
+                    <div class="flex items-baseline gap-2">
+                      <span onclick="event.stopPropagation(); speakChinese('${w.hanzi}')" class="text-2xl font-bold hanzi-font text-[#f3efe9] cursor-pointer active:text-[#e07a5f]">${w.hanzi}</span>
+                      <span class="text-xs font-medium text-[#e07a5f]">${w.pinyin}</span>
+                    </div>
+                    <div class="text-sm font-semibold text-[#e6dfd5] mt-0.5">${w.meaning}</div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <button onclick="event.stopPropagation(); speakChinese('${w.hanzi}')" class="w-8 h-8 rounded-lg bg-[#26221f] text-xs flex items-center justify-center active:scale-90">🔊</button>
+                  <button onclick="event.stopPropagation(); openWriterModal('${w.hanzi}', '${w.pinyin} - ${w.meaning}')" class="w-8 h-8 rounded-lg bg-[#26221f] text-xs flex items-center justify-center active:scale-90" title="Tập viết nét">✍️</button>
+                  <button onclick="event.stopPropagation(); deleteWord(${w.id})" class="w-8 h-8 rounded-lg bg-[#26221f] text-xs text-[#8b837a] flex items-center justify-center active:scale-90">🗑️</button>
+                </div>
+              </div>
+              ${w.mnemonic ? `<div class="text-[11px] text-[#d4b475] bg-[#241f17] px-3 py-2 rounded-xl whitespace-pre-line leading-relaxed">💡 ${w.mnemonic}</div>` : ''}
+              <div class="flex items-center justify-between pt-1">
+                <span class="text-[10px] px-2 py-0.5 rounded-md font-medium ${levelBadge[w.level].cls}">${levelBadge[w.level].label}</span>
+                <button onclick="event.stopPropagation(); cycleWordLevel(${w.id})" class="text-[11px] text-[#9b938a] underline">Đổi mức độ</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
     }
 
-    function toggleSpeechRate() {
-      const rates = [1.0, 0.8, 0.65];
-      const current = appState.speechRate || 1.0;
-      const nextIdx = (rates.indexOf(current) + 1) % rates.length;
-      appState.speechRate = rates[nextIdx];
-      persistState();
-      updateSpeedUI();
-      showToast(`Tốc độ đọc mẫu: ${appState.speechRate}x`);
-    }
-
-    function updateSpeedUI() {
-      const rate = appState.speechRate || 1.0;
-      document.getElementById('speed-label').textContent = `${rate}x`;
-    }
-
-    function updateDateLabel() {
-      const now = new Date();
-      const days = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
-      const label = `${days[now.getDay()]}, ${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()}`;
-      document.getElementById('today-date-label').textContent = label;
-    }
-
-    function generatePinyin(text) {
-      if (!text || !text.trim()) return '';
-      if (window.pinyinPro && typeof window.pinyinPro.pinyin === 'function') {
-        try {
-          return window.pinyinPro.pinyin(text.trim(), { toneType: 'symbol' });
-        } catch (e) {
-          return '';
-        }
-      }
-      return '';
-    }
-
-    function switchTab(tabName) {
-      const tabs = ['today', 'hanzi', 'database', 'speaking', 'backup'];
-      tabs.forEach(t => {
-        const el = document.getElementById('tab-' + t);
-        if (el) {
-          if (t === tabName) el.classList.remove('hidden');
-          else el.classList.add('hidden');
-        }
+    function renderDatabaseTab(container) {
+      const categories = ['Tất cả', ...new Set(CORE_DATABASE.map(i => i.category))];
+      const existingSet = new Set(state.vocab.map(w => w.hanzi));
+      const filtered = CORE_DATABASE.filter(item => {
+        const matchCat = dbCategory === 'Tất cả' || item.category === dbCategory;
+        const q = dbSearchQuery.toLowerCase();
+        const matchQ = !q || item.hanzi.includes(q) || item.pinyin.toLowerCase().includes(q) || item.meaning.toLowerCase().includes(q);
+        return matchCat && matchQ;
       });
 
-      document.querySelectorAll('.nav-btn').forEach(btn => {
-        const isCurrent = btn.getAttribute('data-tab') === tabName;
-        btn.className = isCurrent
-          ? 'nav-btn flex flex-col items-center justify-center gap-1 text-cinnabar font-semibold'
-          : 'nav-btn flex flex-col items-center justify-center gap-1 text-stone-400 font-medium';
-      });
+      container.innerHTML = `
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-sm font-bold text-[#f3efe9]">Kho từ giao tiếp cốt lõi</h2>
+            <p class="text-[11px] text-[#9b938a]">Tích chọn các từ bạn đang học để đưa vào Sổ ôn tập</p>
+          </div>
+          ${selectedDbWords.size > 0 ? `
+            <button onclick="importSelectedDbWords()" class="px-3 py-2 rounded-xl bg-[#b9382c] text-white text-xs font-bold shadow-lg active:scale-95">
+              + Thêm ${selectedDbWords.size} từ
+            </button>
+          ` : ''}
+        </div>
 
-      if (tabName === 'today') renderDashboard();
-      if (tabName === 'hanzi') renderVocabList();
-      if (tabName === 'database') renderDatabaseSection();
-      if (tabName === 'speaking') renderSpeakingSection();
+        <input type="text" value="${dbSearchQuery}" oninput="dbSearchQuery=this.value; renderApp()" placeholder="🔍 Tìm chữ Hán, Pinyin hoặc nghĩa Việt..."
+          class="w-full bg-[#1c1917] border border-[#2d2925] rounded-xl px-3.5 py-2.5 text-xs text-[#f3efe9] outline-none" />
+
+        <div class="flex gap-1.5 overflow-x-auto pb-1">
+          ${categories.map(cat => `
+            <button onclick="dbCategory='${cat}'; renderApp()" class="px-2.5 py-1.5 rounded-lg text-[11px] font-medium whitespace-nowrap ${dbCategory===cat ? 'bg-[#b9382c] text-white' : 'bg-[#1c1917] text-[#9b938a]'}">${cat}</button>
+          `).join('')}
+        </div>
+
+        <div class="space-y-2">
+          ${filtered.map(item => {
+            const alreadyAdded = existingSet.has(item.hanzi);
+            const isChecked = selectedDbWords.has(item.hanzi);
+            return `
+              <div onclick="${alreadyAdded ? '' : `toggleDbSelect('${item.hanzi}')`}" class="bg-[#1b1917] border ${isChecked ? 'border-[#e07a5f]' : 'border-[#292522]'} rounded-2xl p-3 flex items-center justify-between ${alreadyAdded ? 'opacity-60' : 'cursor-pointer'}">
+                <div class="flex items-center gap-3">
+                  <input type="checkbox" ${alreadyAdded || isChecked ? 'checked' : ''} ${alreadyAdded ? 'disabled' : ''} class="w-4 h-4 accent-[#b9382c]" />
+                  <div>
+                    <div class="flex items-baseline gap-2">
+                      <span onclick="event.stopPropagation(); speakChinese('${item.hanzi}')" class="text-xl font-bold hanzi-font text-[#f3efe9]">${item.hanzi}</span>
+                      <span class="text-xs text-[#e07a5f]">${item.pinyin}</span>
+                      <span class="text-[10px] px-1.5 py-0.5 rounded bg-[#26221f] text-[#9b938a]">${item.category}</span>
+                    </div>
+                    <div class="text-xs font-semibold text-[#e6dfd5]">${item.meaning}</div>
+                    <div class="text-[11px] text-[#d4b475] mt-0.5">💡 ${item.mnemonic}</div>
+                  </div>
+                </div>
+                <button onclick="event.stopPropagation(); speakChinese('${item.hanzi}')" class="w-8 h-8 rounded-lg bg-[#26221f] text-xs flex items-center justify-center shrink-0">🔊</button>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
     }
 
-    function renderAll() {
-      renderDashboard();
-      renderVocabList();
-      renderDatabaseSection();
-      renderSpeakingSection();
+    function renderSpeakTab(container) {
+      container.innerHTML = `
+        <div class="bg-[#1b1917] border border-[#292522] rounded-2xl p-3.5">
+          <h2 class="text-sm font-bold text-[#f3efe9]">Luyện phản xạ giao tiếp</h2>
+          <p class="text-[11px] text-[#9b938a] mt-0.5">Chạm vào phần chữ bị làm mờ để tự kiểm tra trí nhớ mặt chữ và cách đọc</p>
+        </div>
+
+        ${SPEAKING_SCENARIOS.map((group, gIdx) => `
+          <div class="space-y-2">
+            <h3 class="text-xs font-bold text-[#e07a5f] px-1">${group.title}</h3>
+            ${group.items.map((item, iIdx) => `
+              <div class="bg-[#1b1917] border border-[#292522] rounded-2xl p-3.5 space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-semibold text-[#e6dfd5]">🇻🇳 ${item.vi}</span>
+                  <button onclick="speakChinese('${item.hanzi}')" class="px-2.5 py-1 rounded-lg bg-[#26221f] text-xs text-[#f3efe9] active:scale-95">🔊 Nghe</button>
+                </div>
+                <div onclick="this.classList.toggle('revealed')" class="blur-mask bg-[#24201d] rounded-xl p-2.5 cursor-pointer">
+                  <div class="text-lg font-bold hanzi-font text-[#f3efe9]">${item.hanzi}</div>
+                  <div class="text-xs text-[#e07a5f] mt-0.5">${item.pinyin}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `).join('')}
+      `;
     }
 
-    // ==================== LOGIC TAB 1: DASHBOARD & NHẬT KÝ ====================
-    function markActiveToday() {
-      const today = getTodayStr();
-      if (!appState.activityDates.includes(today)) {
-        appState.activityDates.push(today);
-      }
-    }
+    function renderStatsTab(container) {
+      const mastered = state.vocab.filter(w => w.level === 'mastered').length;
+      const total = state.vocab.length;
 
-    function checkInToday() {
-      markActiveToday();
-      persistState();
-      renderDashboard();
-      showToast('🎉 Tuyệt vời! Đã điểm danh ngày học hôm nay.');
-    }
-
-    function calculateStreak() {
-      const activeSet = new Set(appState.activityDates);
-      let streak = 0;
-      const cursor = new Date();
-
-      // Nếu hôm nay chưa điểm danh thì tính từ hôm qua lùi về trước
-      const todayStr = getTodayStr();
-      if (!activeSet.has(todayStr)) {
-        cursor.setDate(cursor.getDate() - 1);
-      }
-
-      while (true) {
-        const y = cursor.getFullYear();
-        const m = String(cursor.getMonth() + 1).padStart(2, '0');
-        const d = String(cursor.getDate()).padStart(2, '0');
-        const key = `${y}-${m}-${d}`;
-        if (activeSet.has(key)) {
-          streak++;
-          cursor.setDate(cursor.getDate() - 1);
-        } else {
-          break;
-        }
-      }
-      return streak;
-    }
-
-    function renderDashboard() {
-      const totalWords = appState.vocab.length;
-      const masteredWords = appState.vocab.filter(v => v.status === 'mastered').length;
-      const totalPhrases = appState.phrases.length;
-
-      document.getElementById('stat-total-words').textContent = totalWords;
-      document.getElementById('stat-mastered-words').textContent = masteredWords;
-      document.getElementById('stat-total-phrases').textContent = totalPhrases;
-
-      const streak = calculateStreak();
-      document.getElementById('header-streak').textContent = streak;
-      document.getElementById('streak-text').textContent = `Chuỗi ${streak} ngày`;
-
-      // Cập nhật nút điểm danh
-      const btnCheckin = document.getElementById('btn-checkin');
-      if (appState.activityDates.includes(getTodayStr())) {
-        btnCheckin.textContent = '✓ Đã điểm danh';
-        btnCheckin.className = 'px-3.5 py-2 rounded-xl bg-jade/10 text-jade border border-jade/30 text-xs font-semibold transition';
-      } else {
-        btnCheckin.textContent = '✓ Điểm danh hôm nay';
-        btnCheckin.className = 'px-3.5 py-2 rounded-xl bg-cinnabar text-white text-xs font-semibold shadow-xs active:scale-95 transition';
-      }
-
-      // Render biểu đồ 14 ngày gần nhất (2 hàng x 7 cột)
-      const heatmapEl = document.getElementById('heatmap-grid');
-      const activeSet = new Set(appState.activityDates);
-      const cells = [];
+      // 14 ngày gần nhất (2 hàng x 7 cột)
+      const days = [];
       for (let i = 13; i >= 0; i--) {
         const d = new Date();
         d.setDate(d.getDate() - i);
-        const y = d.getFullYear();
-        const m = String(d.getMonth() + 1).padStart(2, '0');
-        const day = String(d.getDate()).padStart(2, '0');
-        const dateStr = `${y}-${m}-${day}`;
-        const isActive = activeSet.has(dateStr);
-        const isToday = i === 0;
+        const iso = d.toISOString().slice(0, 10);
+        days.push({ day: d.getDate(), active: state.historyDates.includes(iso) });
+      }
 
-        cells.push(`
-          <div class="h-8 rounded-lg flex items-center justify-center text-[11px] font-semibold border ${
-            isActive
-              ? 'bg-cinnabar text-white border-cinnabar'
-              : 'bg-paper text-stone-400 border-stone-200/70'
-          } ${isToday ? 'ring-2 ring-amber-400/70' : ''}" title="${dateStr}">
-            ${d.getDate()}
+      container.innerHTML = `
+        <!-- Thống kê nhanh -->
+        <div class="grid grid-cols-3 gap-2.5">
+          <div class="bg-[#1b1917] border border-[#292522] rounded-2xl p-3 text-center">
+            <div class="text-xl font-bold text-[#f3efe9]">${total}</div>
+            <div class="text-[11px] text-[#9b938a]">Tổng từ vựng</div>
           </div>
-        `);
-      }
-      heatmapEl.innerHTML = cells.join('');
-
-      // Render danh sách từ cần ôn mặt chữ hôm nay
-      const dueList = document.getElementById('due-words-list');
-      const dueWords = appState.vocab.filter(v => v.status !== 'mastered').slice(0, 4);
-      if (dueWords.length === 0) {
-        dueList.innerHTML = `<p class="text-xs text-jade bg-jade/5 border border-jade/20 rounded-xl p-3 text-center font-medium">
-          🎉 Bạn đã thuộc hết các từ hiện tại! Hãy thêm từ mới từ Kho từ nhé.
-        </p>`;
-      } else {
-        dueList.innerHTML = dueWords.map(v => `
-          <div class="flex items-center justify-between p-2.5 rounded-xl bg-paper border border-stone-100">
-            <div onclick="speakText('${escapeAttr(v.hanzi)}')" class="flex items-center gap-3 cursor-pointer active:opacity-70">
-              <span class="font-hanzi text-xl font-bold text-ink active:text-cinnabar">${escapeHtml(v.hanzi)}</span>
-              <div>
-                <div class="text-xs font-semibold text-cinnabar">${escapeHtml(v.pinyin)}</div>
-                <div class="text-xs text-stone-600">${escapeHtml(v.meaning)}</div>
-              </div>
-            </div>
-            <div class="flex items-center gap-1.5">
-              <button onclick="speakText('${escapeAttr(v.hanzi)}')" class="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center text-xs active:scale-95">🔊</button>
-              <button onclick="openWriterModal('${v.id}')" class="px-2.5 h-8 rounded-lg bg-cinnabar/10 text-cinnabar text-xs font-semibold active:scale-95">✍️ Viết</button>
-            </div>
+          <div class="bg-[#1b1917] border border-[#292522] rounded-2xl p-3 text-center">
+            <div class="text-xl font-bold text-[#4ade80]">${mastered}</div>
+            <div class="text-[11px] text-[#9b938a]">Đã thuộc mặt chữ</div>
           </div>
-        `).join('');
-      }
-
-      // Render lịch sử nhật ký
-      const journalHistory = document.getElementById('journal-history');
-      if (appState.journals.length === 0) {
-        journalHistory.innerHTML = `<p class="text-xs text-stone-400 text-center">Chưa có câu nhật ký nào.</p>`;
-      } else {
-        journalHistory.innerHTML = appState.journals.slice(0, 5).map(j => `
-          <div class="p-3 rounded-xl bg-paper border border-stone-100 space-y-1">
-            <div class="flex items-center justify-between">
-              <span class="text-[10px] font-medium text-stone-400">${j.date}</span>
-              <div class="flex items-center gap-2">
-                <button onclick="speakText('${escapeAttr(j.hanzi)}')" class="text-xs text-stone-600 hover:text-cinnabar">🔊 Nghe</button>
-                <button onclick="deleteJournal('${j.id}')" class="text-xs text-stone-400 hover:text-red-600">✕</button>
-              </div>
-            </div>
-            <p onclick="speakText('${escapeAttr(j.hanzi)}')" class="font-hanzi text-base font-bold text-ink active:text-cinnabar cursor-pointer">${escapeHtml(j.hanzi)}</p>
-            <p class="text-xs text-cinnabar font-medium">${escapeHtml(j.pinyin)}</p>
-            ${j.meaning ? `<p class="text-xs text-stone-600">${escapeHtml(j.meaning)}</p>` : ''}
+          <div class="bg-[#1b1917] border border-[#292522] rounded-2xl p-3 text-center">
+            <div class="text-xl font-bold text-[#f59e0b]">${state.streak}</div>
+            <div class="text-[11px] text-[#9b938a]">Ngày điểm danh</div>
           </div>
-        `).join('');
-      }
-    }
+        </div>
 
-    function previewJournalPinyin() {
-      const hanzi = document.getElementById('journal-input').value;
-      document.getElementById('journal-pinyin-preview').textContent = generatePinyin(hanzi);
-    }
-
-    function speakInputJournal() {
-      const hanzi = document.getElementById('journal-input').value;
-      if (!hanzi.trim()) {
-        showToast('Hãy nhập câu tiếng Trung trước khi nghe thử');
-        return;
-      }
-      speakText(hanzi);
-    }
-
-    function saveJournalEntry() {
-      const hanzi = document.getElementById('journal-input').value.trim();
-      const meaning = document.getElementById('journal-meaning').value.trim();
-      if (!hanzi) {
-        showToast('Hãy viết một câu tiếng Trung ngắn trước nhé!');
-        return;
-      }
-
-      appState.journals.unshift({
-        id: 'j_' + Date.now(),
-        date: getTodayStr(),
-        hanzi,
-        pinyin: generatePinyin(hanzi),
-        meaning
-      });
-
-      document.getElementById('journal-input').value = '';
-      document.getElementById('journal-meaning').value = '';
-      document.getElementById('journal-pinyin-preview').textContent = '';
-
-      markActiveToday();
-      persistState();
-      renderDashboard();
-      showToast('Đã lưu câu vào nhật ký!');
-    }
-
-    function deleteJournal(id) {
-      appState.journals = appState.journals.filter(j => j.id !== id);
-      persistState();
-      renderDashboard();
-      showToast('Đã xóa câu nhật ký');
-    }
-
-    // ==================== LOGIC TAB 2: SỔ TỪ VỰNG & MẶT CHỮ ====================
-    function setVocabFilter(filter) {
-      currentVocabFilter = filter;
-      document.querySelectorAll('.vocab-filter-btn').forEach(btn => {
-        const isCurrent = btn.getAttribute('data-filter') === filter;
-        btn.className = isCurrent
-          ? 'vocab-filter-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-ink text-white shrink-0'
-          : 'vocab-filter-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-white border border-stone-200 text-stone-600 shrink-0';
-      });
-      renderVocabList();
-    }
-
-    function toggleVocabSelectMode() {
-      isVocabSelectMode = !isVocabSelectMode;
-      if (!isVocabSelectMode) {
-        selectedVocabIds.clear();
-      }
-      const btn = document.getElementById('btn-toggle-vocab-select');
-      btn.className = isVocabSelectMode
-        ? 'px-2.5 py-1.5 rounded-full text-xs font-bold bg-cinnabar text-white shrink-0 active:scale-95'
-        : 'px-2.5 py-1.5 rounded-full text-xs font-semibold bg-white border border-stone-200 text-stone-700 shrink-0 active:scale-95';
-      updateVocabBatchBar();
-      renderVocabList();
-    }
-
-    function toggleVocabItemSelect(id) {
-      if (selectedVocabIds.has(id)) {
-        selectedVocabIds.delete(id);
-      } else {
-        selectedVocabIds.add(id);
-      }
-      updateVocabBatchBar();
-      renderVocabList();
-    }
-
-    function getFilteredVocab() {
-      const rawQuery = (document.getElementById('search-vocab').value || '').trim().toLowerCase();
-      const normQuery = normalizeText(rawQuery);
-
-      return appState.vocab.filter(v => {
-        const matchStatus = currentVocabFilter === 'all' || v.status === currentVocabFilter;
-        if (!matchStatus) return false;
-        if (!rawQuery) return true;
-
-        return (
-          v.hanzi.includes(rawQuery) ||
-          v.pinyin.toLowerCase().includes(rawQuery) ||
-          normalizeText(v.pinyin).includes(normQuery) ||
-          v.meaning.toLowerCase().includes(rawQuery) ||
-          normalizeText(v.meaning).includes(normQuery)
-        );
-      });
-    }
-
-    function selectAllVisibleVocab() {
-      const visible = getFilteredVocab();
-      visible.forEach(v => selectedVocabIds.add(v.id));
-      updateVocabBatchBar();
-      renderVocabList();
-    }
-
-    function updateVocabBatchBar() {
-      const bar = document.getElementById('vocab-batch-bar');
-      if (isVocabSelectMode) {
-        bar.classList.remove('hidden');
-        document.getElementById('vocab-selected-count').textContent = `Đã chọn ${selectedVocabIds.size} từ`;
-      } else {
-        bar.classList.add('hidden');
-      }
-    }
-
-    function renderVocabList() {
-      const dueCount = appState.vocab.filter(v => v.status !== 'mastered').length;
-      document.getElementById('srs-due-summary').textContent = dueCount > 0
-        ? `Còn ${dueCount} từ chưa thuộc cần ôn nhắc lại`
-        : 'Tất cả từ đã thuộc! Bấm để ôn tổng hợp';
-
-      const filtered = getFilteredVocab();
-      const container = document.getElementById('vocab-list');
-
-      if (filtered.length === 0) {
-        container.innerHTML = `<div class="bg-white rounded-2xl p-6 text-center border border-stone-200/80 text-xs text-stone-500">
-          Chưa có từ vựng nào phù hợp. Hãy thêm từ mới hoặc chọn từ tab <strong>Kho từ</strong> nhé!
-        </div>`;
-        return;
-      }
-
-      const statusConfig = {
-        new: { text: '🔴 Mới học', cls: 'bg-red-50 text-cinnabar border-red-200' },
-        learning: { text: '🟡 Đang nhớ', cls: 'bg-amber-50 text-amber-700 border-amber-200' },
-        mastered: { text: '🟢 Đã thuộc', cls: 'bg-emerald-50 text-jade border-emerald-200' }
-      };
-
-      container.innerHTML = filtered.map(v => {
-        const badge = statusConfig[v.status] || statusConfig.new;
-        const isSelected = selectedVocabIds.has(v.id);
-
-        return `
-          <div onclick="${isVocabSelectMode ? `toggleVocabItemSelect('${v.id}')` : ''}" class="bg-white rounded-2xl p-4 border ${
-            isVocabSelectMode && isSelected ? 'border-cinnabar ring-2 ring-cinnabar/20' : 'border-stone-200/80'
-          } shadow-xs space-y-2.5 transition">
-            <div class="flex items-start justify-between gap-2">
-              <div class="flex items-start gap-2.5">
-                ${isVocabSelectMode ? `
-                  <div class="mt-1.5 w-5 h-5 rounded-md border-2 flex items-center justify-center text-xs font-bold shrink-0 ${
-                    isSelected ? 'bg-cinnabar border-cinnabar text-white' : 'border-stone-300 bg-paper'
-                  }">
-                    ${isSelected ? '✓' : ''}
-                  </div>
-                ` : ''}
-                <div>
-                  <div class="flex items-baseline gap-2.5">
-                    <span onclick="event.stopPropagation(); speakText('${escapeAttr(v.hanzi)}')" class="font-hanzi text-3xl font-bold text-ink active:text-cinnabar tracking-wide cursor-pointer">${escapeHtml(v.hanzi)}</span>
-                    <span class="text-sm font-semibold text-cinnabar">${escapeHtml(v.pinyin)}</span>
-                  </div>
-                  <p class="text-sm font-medium text-stone-700 mt-1">${escapeHtml(v.meaning)}</p>
-                </div>
-              </div>
-
-              <button onclick="event.stopPropagation(); cycleVocabStatus('${v.id}')" class="px-2.5 py-1 rounded-full text-[11px] font-semibold border ${badge.cls} active:scale-95 transition shrink-0" title="Bấm để đổi trạng thái nhớ">
-                ${badge.text} ↻
-              </button>
-            </div>
-
-            ${v.mnemonic ? `
-              <div class="bg-amber-50/70 border border-amber-200/60 rounded-xl px-3 py-2 text-xs text-stone-700 leading-relaxed">
-                <span class="font-semibold text-amber-800">💡 Mẹo nhớ:</span> ${escapeHtml(v.mnemonic)}
-              </div>
-            ` : ''}
-
-            <div class="flex items-center justify-between pt-2 border-t border-stone-100" onclick="event.stopPropagation()">
-              <div class="flex items-center gap-2">
-                <button onclick="speakText('${escapeAttr(v.hanzi)}')" class="px-3 py-1.5 rounded-xl bg-stone-100 text-stone-700 text-xs font-semibold active:scale-95 transition">
-                  🔊 Nghe
-                </button>
-                <button onclick="openWriterModal('${v.id}')" class="px-3 py-1.5 rounded-xl bg-cinnabar/10 text-cinnabar text-xs font-semibold active:scale-95 transition">
-                  ✍️ Tập viết nét
-                </button>
-              </div>
-
-              <div class="flex items-center gap-1">
-                <button onclick="openVocabModal('${v.id}')" class="p-2 text-stone-400 hover:text-ink text-xs" title="Sửa">✏️</button>
-                <button onclick="confirmDeleteVocab('${v.id}')" class="p-2 text-stone-400 hover:text-red-600 text-xs" title="Xóa">🗑️</button>
-              </div>
-            </div>
+        <!-- Lịch 14 ngày (2 hàng x 7 cột gọn gàng) -->
+        <div class="bg-[#1b1917] border border-[#292522] rounded-2xl p-4 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-[#f3efe9]">Chuỗi học 14 ngày gần nhất</span>
+            <span class="text-[11px] text-[#9b938a]">Tự động điểm danh</span>
           </div>
-        `;
-      }).join('');
-    }
-
-    function cycleVocabStatus(id) {
-      const order = ['new', 'learning', 'mastered'];
-      const item = appState.vocab.find(v => v.id === id);
-      if (!item) return;
-      const nextIdx = (order.indexOf(item.status) + 1) % order.length;
-      item.status = order[nextIdx];
-      markActiveToday();
-      persistState();
-      renderVocabList();
-      renderDashboard();
-    }
-
-    function openVocabModal(editId = null) {
-      const modal = document.getElementById('modal-vocab');
-      if (editId) {
-        const item = appState.vocab.find(v => v.id === editId);
-        if (!item) return;
-        document.getElementById('vocab-modal-title').textContent = 'Chỉnh sửa từ vựng';
-        document.getElementById('vocab-edit-id').value = item.id;
-        document.getElementById('vocab-hanzi').value = item.hanzi;
-        document.getElementById('vocab-pinyin').value = item.pinyin;
-        document.getElementById('vocab-meaning').value = item.meaning;
-        document.getElementById('vocab-mnemonic').value = item.mnemonic || '';
-        document.getElementById('vocab-status').value = item.status || 'new';
-      } else {
-        document.getElementById('vocab-modal-title').textContent = 'Thêm từ vựng mới';
-        document.getElementById('vocab-edit-id').value = '';
-        document.getElementById('vocab-hanzi').value = '';
-        document.getElementById('vocab-pinyin').value = '';
-        document.getElementById('vocab-meaning').value = '';
-        document.getElementById('vocab-mnemonic').value = '';
-        document.getElementById('vocab-status').value = 'new';
-      }
-      modal.classList.remove('hidden');
-    }
-
-    function closeVocabModal() {
-      document.getElementById('modal-vocab').classList.add('hidden');
-    }
-
-    function autoFillVocabPinyin() {
-      const hanzi = document.getElementById('vocab-hanzi').value;
-      document.getElementById('vocab-pinyin').value = generatePinyin(hanzi);
-    }
-
-    function saveVocab() {
-      const editId = document.getElementById('vocab-edit-id').value;
-      const hanzi = document.getElementById('vocab-hanzi').value.trim();
-      const pinyin = document.getElementById('vocab-pinyin').value.trim() || generatePinyin(hanzi);
-      const meaning = document.getElementById('vocab-meaning').value.trim();
-      const mnemonic = document.getElementById('vocab-mnemonic').value.trim();
-      const status = document.getElementById('vocab-status').value;
-
-      if (!hanzi || !meaning) {
-        showToast('Vui lòng nhập Chữ Hán và Nghĩa tiếng Việt');
-        return;
-      }
-
-      if (editId) {
-        const idx = appState.vocab.findIndex(v => v.id === editId);
-        if (idx !== -1) {
-          appState.vocab[idx] = { ...appState.vocab[idx], hanzi, pinyin, meaning, mnemonic, status };
-        }
-        showToast('Đã cập nhật từ vựng!');
-      } else {
-        appState.vocab.unshift({
-          id: 'v_' + Date.now(),
-          hanzi,
-          pinyin,
-          meaning,
-          mnemonic,
-          status,
-          createdAt: Date.now()
-        });
-        showToast('Đã thêm từ mới vào sổ!');
-      }
-
-      markActiveToday();
-      persistState();
-      closeVocabModal();
-      renderAll();
-    }
-
-    function confirmDeleteVocab(id) {
-      openConfirmModal('Bạn có chắc muốn xóa từ vựng này khỏi sổ tay?', () => {
-        appState.vocab = appState.vocab.filter(v => v.id !== id);
-        persistState();
-        renderAll();
-        showToast('Đã xóa từ vựng');
-      });
-    }
-
-    // ==================== LOGIC TẬP VIẾT NÉT CHỮ HÁN (HANZI WRITER) ====================
-    function openWriterModal(vocabId) {
-      const item = appState.vocab.find(v => v.id === vocabId);
-      if (!item) return;
-
-      const chars = item.hanzi.match(/[\u4e00-\u9fa5]/g);
-      if (!chars || chars.length === 0) {
-        showToast('Từ này không có ký tự chữ Hán để tập viết');
-        return;
-      }
-
-      currentWriterChars = chars;
-      currentWriterIndex = 0;
-      document.getElementById('writer-pinyin-meaning').textContent = `${item.pinyin} • ${item.meaning}`;
-
-      renderWriterCharTabs();
-      document.getElementById('modal-writer').classList.remove('hidden');
-      loadHanziCharacter(currentWriterChars[0]);
-      markActiveToday();
-    }
-
-    function renderWriterCharTabs() {
-      const tabsEl = document.getElementById('writer-char-tabs');
-      tabsEl.innerHTML = currentWriterChars.map((ch, idx) => `
-        <button onclick="selectWriterChar(${idx})" class="w-11 h-11 rounded-xl font-hanzi text-xl font-bold border transition ${
-          idx === currentWriterIndex
-            ? 'bg-cinnabar text-white border-cinnabar shadow-xs'
-            : 'bg-paper text-ink border-stone-200'
-        }">
-          ${ch}
-        </button>
-      `).join('');
-    }
-
-    function selectWriterChar(idx) {
-      currentWriterIndex = idx;
-      renderWriterCharTabs();
-      loadHanziCharacter(currentWriterChars[idx]);
-    }
-
-    function loadHanziCharacter(char) {
-      const target = document.getElementById('hanzi-writer-target');
-      target.innerHTML = '';
-      document.getElementById('writer-feedback').textContent = 'Dùng ngón tay tô theo thứ tự nét hoặc bấm "Xem nét mẫu"';
-
-      if (!window.HanziWriter) {
-        target.innerHTML = `<span class="font-hanzi text-8xl text-ink">${char}</span>`;
-        document.getElementById('writer-feedback').textContent = 'Đang ngoại tuyến: hiển thị mặt chữ tĩnh';
-        return;
-      }
-
-      writerInstance = HanziWriter.create('hanzi-writer-target', char, {
-        width: 236,
-        height: 236,
-        padding: 16,
-        showOutline: true,
-        strokeAnimationSpeed: 1,
-        delayBetweenStrokes: 250,
-        strokeColor: '#1E242B',
-        outlineColor: '#E5E0D8',
-        drawingColor: '#C83E37',
-        drawingWidth: 6,
-        showHintAfterMisses: 2
-      });
-
-      quizCurrentChar();
-    }
-
-    function animateCurrentChar() {
-      if (!writerInstance) return;
-      document.getElementById('writer-feedback').textContent = 'Hãy quan sát thứ tự các nét...';
-      writerInstance.animateCharacter({
-        onComplete: () => {
-          document.getElementById('writer-feedback').textContent = 'Bấm "Tự viết thử" để luyện tay nhé!';
-        }
-      });
-    }
-
-    function quizCurrentChar() {
-      if (!writerInstance) return;
-      document.getElementById('writer-feedback').textContent = '✍️ Hãy dùng ngón tay viết từng nét vào ô!';
-      writerInstance.quiz({
-        onCorrectStroke: () => {
-          document.getElementById('writer-feedback').textContent = 'Đúng nét rồi! Tiếp tục nào...';
-        },
-        onMistake: () => {
-          document.getElementById('writer-feedback').textContent = 'Sai thứ tự hoặc hướng nét rồi, thử lại nhé!';
-        },
-        onComplete: (summaryData) => {
-          document.getElementById('writer-feedback').textContent = `🎉 Hoàn thành chữ "${currentWriterChars[currentWriterIndex]}"! (Sai ${summaryData.totalMistakes} nét)`;
-          speakText(currentWriterChars[currentWriterIndex]);
-        }
-      });
-    }
-
-    function closeWriterModal() {
-      document.getElementById('modal-writer').classList.add('hidden');
-      writerInstance = null;
-    }
-
-    // ==================== LOGIC TAB 3: KHO TỪ VỰNG (DATABASE) ====================
-    function normalizeText(str) {
-      return (str || '')
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .trim();
-    }
-
-    function renderDatabaseSection() {
-      document.getElementById('db-total-badge').textContent = `${VOCAB_DATABASE.length} từ`;
-
-      const topics = ['Tất cả', ...new Set(VOCAB_DATABASE.map(item => item.topic))];
-      const topicContainer = document.getElementById('db-topics');
-      topicContainer.innerHTML = topics.map(t => `
-        <button onclick="selectDbTopic('${escapeAttr(t)}')" class="px-3 py-1.5 rounded-full text-xs font-semibold shrink-0 transition ${
-          currentDbTopic === t
-            ? 'bg-ink text-white'
-            : 'bg-paper border border-stone-200 text-stone-600'
-        }">
-          ${escapeHtml(t)}
-        </button>
-      `).join('');
-
-      renderDatabaseList();
-    }
-
-    function selectDbTopic(topic) {
-      currentDbTopic = topic;
-      renderDatabaseSection();
-    }
-
-    function renderDatabaseList() {
-      const rawQuery = (document.getElementById('search-db').value || '').trim().toLowerCase();
-      const normQuery = normalizeText(rawQuery);
-      const existingHanzis = new Set(appState.vocab.map(v => v.hanzi));
-
-      const filtered = VOCAB_DATABASE.filter(item => {
-        const matchTopic = currentDbTopic === 'Tất cả' || item.topic === currentDbTopic;
-        if (!matchTopic) return false;
-        if (!rawQuery) return true;
-
-        return (
-          item.hanzi.includes(rawQuery) ||
-          item.pinyin.toLowerCase().includes(rawQuery) ||
-          normalizeText(item.pinyin).includes(normQuery) ||
-          item.meaning.toLowerCase().includes(rawQuery) ||
-          normalizeText(item.meaning).includes(normQuery)
-        );
-      });
-
-      const container = document.getElementById('database-list');
-      if (filtered.length === 0) {
-        container.innerHTML = `<div class="bg-white rounded-2xl p-6 text-center border border-stone-200/80 text-xs text-stone-500">
-          Không tìm thấy từ này trong kho có sẵn. Bạn có thể bấm "+ Tự thêm" ở tab Sổ học nhé!
-        </div>`;
-        return;
-      }
-
-      container.innerHTML = filtered.map(item => {
-        const alreadyInVocab = existingHanzis.has(item.hanzi);
-        const isSelected = selectedDbHanzis.has(item.hanzi);
-
-        return `
-          <div onclick="${alreadyInVocab ? '' : `toggleDbItemSelect('${escapeAttr(item.hanzi)}')`}" class="bg-white rounded-2xl p-3.5 border ${
-            isSelected
-              ? 'border-cinnabar ring-2 ring-cinnabar/20'
-              : alreadyInVocab
-                ? 'border-emerald-200/80 bg-emerald-50/20'
-                : 'border-stone-200/80'
-          } shadow-xs flex items-center justify-between gap-3 transition">
-            <div class="flex items-start gap-3 min-w-0">
-              <div class="mt-1 shrink-0">
-                ${alreadyInVocab ? `
-                  <span class="w-5 h-5 rounded-md bg-jade/15 text-jade flex items-center justify-center text-xs font-bold">✓</span>
-                ` : `
-                  <div class="w-5 h-5 rounded-md border-2 flex items-center justify-center text-xs font-bold ${
-                    isSelected ? 'bg-cinnabar border-cinnabar text-white' : 'border-stone-300 bg-paper'
-                  }">
-                    ${isSelected ? '✓' : ''}
-                  </div>
-                `}
+          <div class="grid grid-cols-7 gap-2">
+            ${days.map(d => `
+              <div class="aspect-square rounded-xl flex items-center justify-center text-xs font-bold ${d.active ? 'bg-[#b9382c] text-white' : 'bg-[#25221f] text-[#7a7269]'}">
+                ${d.day}
               </div>
-
-              <div class="min-w-0">
-                <div class="flex items-baseline gap-2 flex-wrap">
-                  <span onclick="event.stopPropagation(); speakText('${escapeAttr(item.hanzi)}')" class="font-hanzi text-2xl font-bold text-ink active:text-cinnabar cursor-pointer">${escapeHtml(item.hanzi)}</span>
-                  <span class="text-xs font-semibold text-cinnabar">${escapeHtml(item.pinyin)}</span>
-                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-stone-100 text-stone-500">${escapeHtml(item.topic)}</span>
-                </div>
-                <p class="text-xs font-semibold text-stone-700 mt-0.5">${escapeHtml(item.meaning)}</p>
-                ${item.mnemonic ? `<p class="text-[11px] text-stone-500 mt-1 line-clamp-2">💡 ${escapeHtml(item.mnemonic)}</p>` : ''}
-              </div>
-            </div>
-
-            <div class="flex flex-col items-end gap-1.5 shrink-0" onclick="event.stopPropagation()">
-              <button onclick="speakText('${escapeAttr(item.hanzi)}')" class="w-8 h-8 rounded-xl bg-stone-100 text-stone-700 flex items-center justify-center text-xs active:scale-95">
-                🔊
-              </button>
-              ${alreadyInVocab ? `
-                <span class="text-[10px] font-bold text-jade px-2 py-1 rounded-lg bg-jade/10">Đã có</span>
-              ` : `
-                <button onclick="quickAddSingleDbWord('${escapeAttr(item.hanzi)}')" class="px-2.5 py-1 rounded-lg bg-cinnabar/10 text-cinnabar text-[11px] font-bold active:scale-95">
-                  + Học
-                </button>
-              `}
-            </div>
+            `).join('')}
           </div>
-        `;
-      }).join('');
-    }
+        </div>
 
-    function toggleDbItemSelect(hanzi) {
-      if (selectedDbHanzis.has(hanzi)) {
-        selectedDbHanzis.delete(hanzi);
-      } else {
-        selectedDbHanzis.add(hanzi);
-      }
-      updateDbBatchBar();
-      renderDatabaseList();
-    }
-
-    function clearDbSelection() {
-      selectedDbHanzis.clear();
-      updateDbBatchBar();
-      renderDatabaseList();
-    }
-
-    function updateDbBatchBar() {
-      const bar = document.getElementById('db-batch-bar');
-      if (selectedDbHanzis.size > 0) {
-        bar.classList.remove('hidden');
-        document.getElementById('db-selected-count').textContent = `Đã tích chọn ${selectedDbHanzis.size} từ`;
-      } else {
-        bar.classList.add('hidden');
-      }
-    }
-
-    function quickAddSingleDbWord(hanzi) {
-      const item = VOCAB_DATABASE.find(d => d.hanzi === hanzi);
-      if (!item) return;
-      if (appState.vocab.some(v => v.hanzi === hanzi)) {
-        showToast('Từ này đã có trong Sổ học của bạn');
-        return;
-      }
-
-      appState.vocab.unshift({
-        id: 'v_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
-        hanzi: item.hanzi,
-        pinyin: item.pinyin,
-        meaning: item.meaning,
-        mnemonic: item.mnemonic || '',
-        status: 'new',
-        createdAt: Date.now()
-      });
-
-      selectedDbHanzis.delete(hanzi);
-      updateDbBatchBar();
-      markActiveToday();
-      persistState();
-      renderAll();
-      showToast(`Đã thêm "${item.hanzi}" vào Sổ học!`);
-    }
-
-    function importSelectedFromDb() {
-      if (selectedDbHanzis.size === 0) return;
-      const existingHanzis = new Set(appState.vocab.map(v => v.hanzi));
-      let addedCount = 0;
-
-      selectedDbHanzis.forEach(hanzi => {
-        if (existingHanzis.has(hanzi)) return;
-        const item = VOCAB_DATABASE.find(d => d.hanzi === hanzi);
-        if (item) {
-          appState.vocab.unshift({
-            id: 'v_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
-            hanzi: item.hanzi,
-            pinyin: item.pinyin,
-            meaning: item.meaning,
-            mnemonic: item.mnemonic || '',
-            status: 'new',
-            createdAt: Date.now()
-          });
-          addedCount++;
-        }
-      });
-
-      selectedDbHanzis.clear();
-      updateDbBatchBar();
-      markActiveToday();
-      persistState();
-      renderAll();
-      showToast(`🎉 Đã thêm ${addedCount} từ vào Sổ học! Chuyển sang tab "Sổ học" để ôn tập nhé.`);
-    }
-
-    // ==================== LOGIC PHIÊN ÔN TẬP GHI NHỚ NHẮC LẠI (SRS FLASHCARD) ====================
-    function startSrsSession(mode = 'due') {
-      let pool = [];
-      if (mode === 'selected') {
-        if (selectedVocabIds.size === 0) {
-          showToast('Hãy tích chọn ít nhất 1 từ trước khi bấm "Ôn nhóm này"');
-          return;
-        }
-        pool = appState.vocab.filter(v => selectedVocabIds.has(v.id));
-      } else {
-        const unmastered = appState.vocab.filter(v => v.status !== 'mastered');
-        pool = unmastered.length > 0 ? unmastered : [...appState.vocab];
-      }
-
-      if (pool.length === 0) {
-        showToast('Sổ học đang trống, hãy thêm từ từ Kho từ trước nhé!');
-        return;
-      }
-
-      srsQueue = [...pool].sort(() => Math.random() - 0.5);
-      srsCurrentIndex = 0;
-
-      document.getElementById('modal-srs').classList.remove('hidden');
-      renderCurrentSrsCard();
-    }
-
-    function renderCurrentSrsCard() {
-      if (srsCurrentIndex >= srsQueue.length) {
-        closeSrsModal();
-        markActiveToday();
-        persistState();
-        renderAll();
-        showToast('🎉 Xuất sắc! Bạn đã hoàn thành phiên ôn tập nhắc lại!');
-        return;
-      }
-
-      const card = srsQueue[srsCurrentIndex];
-      const totalNow = srsQueue.length;
-      const pct = Math.round(((srsCurrentIndex + 1) / totalNow) * 100);
-
-      document.getElementById('srs-progress-text').textContent = `Thẻ ${srsCurrentIndex + 1} / ${totalNow}`;
-      document.getElementById('srs-progress-bar').style.width = `${pct}%`;
-
-      const statusLabels = {
-        new: '🔴 Mới học',
-        learning: '🟡 Đang nhớ',
-        mastered: '🟢 Đã thuộc'
-      };
-      document.getElementById('srs-status-pill').textContent = statusLabels[card.status] || '🔴 Mới học';
-      document.getElementById('srs-hanzi').textContent = card.hanzi;
-      document.getElementById('srs-pinyin').textContent = card.pinyin;
-      document.getElementById('srs-meaning').textContent = card.meaning;
-
-      const mnemonicEl = document.getElementById('srs-mnemonic');
-      if (card.mnemonic) {
-        mnemonicEl.textContent = '💡 ' + card.mnemonic;
-        mnemonicEl.classList.remove('hidden');
-      } else {
-        mnemonicEl.classList.add('hidden');
-      }
-
-      document.getElementById('srs-answer-area').classList.add('hidden');
-      document.getElementById('srs-reveal-controls').classList.remove('hidden');
-      document.getElementById('srs-rating-controls').classList.add('hidden');
-    }
-
-    function revealSrsAnswer() {
-      const card = srsQueue[srsCurrentIndex];
-      if (!card) return;
-      document.getElementById('srs-answer-area').classList.remove('hidden');
-      document.getElementById('srs-reveal-controls').classList.add('hidden');
-      document.getElementById('srs-rating-controls').classList.remove('hidden');
-      speakText(card.hanzi);
-    }
-
-    function rateSrsCard(rating) {
-      const card = srsQueue[srsCurrentIndex];
-      if (!card) return;
-
-      const targetInState = appState.vocab.find(v => v.id === card.id);
-
-      if (rating === 'again') {
-        if (targetInState) targetInState.status = 'new';
-        const reinsertPos = Math.min(srsCurrentIndex + 3, srsQueue.length);
-        srsQueue.splice(reinsertPos, 0, { ...card, status: 'new' });
-        showToast('Sẽ nhắc lại từ này sau 2 thẻ nữa!');
-      } else if (rating === 'hard') {
-        if (targetInState) targetInState.status = 'learning';
-      } else if (rating === 'good') {
-        if (targetInState) targetInState.status = 'mastered';
-      }
-
-      srsCurrentIndex++;
-      persistState();
-      renderCurrentSrsCard();
-    }
-
-    function speakCurrentSrsWord() {
-      const card = srsQueue[srsCurrentIndex];
-      if (card) speakText(card.hanzi);
-    }
-
-    function openWriterFromSrs() {
-      const card = srsQueue[srsCurrentIndex];
-      if (card) openWriterModal(card.id);
-    }
-
-    function closeSrsModal() {
-      document.getElementById('modal-srs').classList.add('hidden');
-      renderAll();
-    }
-
-    // ==================== LOGIC TAB 4: GIAO TIẾP & GHI ÂM ĐỐI CHIẾU ====================
-    function toggleRecallOption(type) {
-      recallOptions[type] = !recallOptions[type];
-      const btn = document.getElementById('toggle-hide-' + type);
-      if (recallOptions[type]) {
-        btn.className = 'py-2 px-3 rounded-xl border border-cinnabar bg-cinnabar/10 text-xs font-bold text-cinnabar flex items-center justify-center gap-1.5 active:scale-95 transition';
-      } else {
-        btn.className = 'py-2 px-3 rounded-xl border border-stone-200 bg-paper text-xs font-semibold text-stone-700 flex items-center justify-center gap-1.5 active:scale-95 transition';
-      }
-      renderPhraseList();
-    }
-
-    function renderSpeakingSection() {
-      const topics = ['Tất cả', ...new Set(appState.phrases.map(p => p.topic).filter(Boolean))];
-      const topicContainer = document.getElementById('phrase-topics');
-      topicContainer.innerHTML = topics.map(t => `
-        <button onclick="selectPhraseTopic('${escapeAttr(t)}')" class="px-3 py-1.5 rounded-full text-xs font-semibold shrink-0 transition ${
-          currentPhraseTopic === t
-            ? 'bg-ink text-white'
-            : 'bg-white border border-stone-200 text-stone-600'
-        }">
-          ${escapeHtml(t)}
-        </button>
-      `).join('');
-
-      renderPhraseList();
-    }
-
-    function selectPhraseTopic(topic) {
-      currentPhraseTopic = topic;
-      renderSpeakingSection();
-    }
-
-    function renderPhraseList() {
-      const filtered = appState.phrases.filter(
-        p => currentPhraseTopic === 'Tất cả' || p.topic === currentPhraseTopic
-      );
-
-      const container = document.getElementById('phrase-list');
-      if (filtered.length === 0) {
-        container.innerHTML = `<div class="bg-white rounded-2xl p-6 text-center border border-stone-200/80 text-xs text-stone-500">Chưa có mẫu câu nào trong chủ đề này.</div>`;
-        return;
-      }
-
-      container.innerHTML = filtered.map(p => {
-        const isRecordingThis = recordingPhraseId === p.id;
-        const hasAudio = Boolean(recordedAudioUrls[p.id]);
-
-        return `
-          <div class="bg-white rounded-2xl p-4 border border-stone-200/80 shadow-xs space-y-2.5">
-            <div class="flex items-center justify-between">
-              <span class="px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-600 text-[10px] font-semibold">
-                ${escapeHtml(p.topic || 'Giao tiếp')}
+        <!-- Cấu hình AI Chiết tự sâu (Lưu cục bộ trên điện thoại) -->
+        <div class="bg-[#1b1917] border border-[#292522] rounded-2xl p-4 space-y-3">
+          <div>
+            <h3 class="text-xs font-bold text-[#f3efe9] flex items-center gap-1.5">
+              <span>✨</span> Cấu hình AI Chiết tự sâu (Tùy chọn)
+            </h3>
+            <p class="text-[11px] text-[#9b938a] mt-1 leading-relaxed">
+              Mặc định web đã tự động điền nghĩa và tách bộ thủ miễn phí không cần Key. Nếu muốn AI viết câu chuyện chiết tự sinh động hơn, hãy dán API Key cá nhân của bạn vào đây (chỉ lưu trong bộ nhớ máy bạn, không lộ lên GitHub).
+            </p>
+          </div>
+          <div class="space-y-2">
+            <select id="aiProviderSelect" onchange="updateAiConfig()" class="w-full bg-[#25221f] border border-[#38332e] rounded-xl px-3 py-2 text-xs text-[#f3efe9] outline-none">
+              <option value="gemini" ${state.aiConfig.provider === 'gemini' ? 'selected' : ''}>Google Gemini API (Gói Free Tier)</option>
+              <option value="deepseek" ${state.aiConfig.provider === 'deepseek' ? 'selected' : ''}>DeepSeek API</option>
+            </select>
+            <input type="password" id="aiApiKeyInput" value="${state.aiConfig.apiKey}" onchange="updateAiConfig()" placeholder="Dán API Key của bạn vào đây..."
+              class="w-full bg-[#25221f] border border-[#38332e] rounded-xl px-3 py-2 text-xs text-[#f3efe9] outline-none" />
+            <div class="flex justify-between items-center">
+              <span class="text-[11px] ${state.aiConfig.apiKey ? 'text-[#4ade80]' : 'text-[#8b837a]'}">
+                ${state.aiConfig.apiKey ? '✅ Đã lưu Key trên máy' : 'Chưa nhập Key (Đang dùng bộ tách bộ thủ nội bộ)'}
               </span>
-              <button onclick="confirmDeletePhrase('${p.id}')" class="text-xs text-stone-300 hover:text-red-500 px-1">✕</button>
-            </div>
-
-            <p onclick="speakText('${escapeAttr(p.hanzi)}')" class="font-hanzi text-xl font-bold text-ink active:text-cinnabar leading-snug cursor-pointer">
-              ${escapeHtml(p.hanzi)}
-            </p>
-
-            <p onclick="this.classList.toggle('revealed')" class="text-xs font-semibold text-cinnabar cursor-pointer ${recallOptions.pinyin ? 'blur-recall' : ''}">
-              ${escapeHtml(p.pinyin)}
-            </p>
-
-            <p onclick="this.classList.toggle('revealed')" class="text-xs text-stone-600 cursor-pointer ${recallOptions.meaning ? 'blur-recall' : ''}">
-              ${escapeHtml(p.meaning)}
-            </p>
-
-            <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-stone-100">
-              <button onclick="speakText('${escapeAttr(p.hanzi)}')" class="px-3 py-1.5 rounded-xl bg-stone-100 text-stone-700 text-xs font-semibold active:scale-95 transition">
-                🔊 Giọng mẫu
-              </button>
-
-              <button onclick="toggleRecordPhrase('${p.id}')" class="px-3 py-1.5 rounded-xl text-xs font-semibold active:scale-95 transition ${
-                isRecordingThis
-                  ? 'bg-red-600 text-white animate-pulse'
-                  : 'bg-cinnabar/10 text-cinnabar'
-              }">
-                ${isRecordingThis ? '⏹️ Dừng thu âm' : '🎙️ Nhại giọng'}
-              </button>
-
-              ${hasAudio ? `
-                <button onclick="playRecordedPhrase('${p.id}')" class="px-3 py-1.5 rounded-xl bg-jade text-white text-xs font-semibold active:scale-95 transition">
-                  ▶️ Nghe lại giọng bạn
-                </button>
-              ` : ''}
+              <button onclick="updateAiConfig(true)" class="px-3 py-1.5 rounded-lg bg-[#2f231e] text-[#f29b7e] text-xs font-semibold">Lưu Key</button>
             </div>
           </div>
-        `;
-      }).join('');
+        </div>
+
+        <!-- Sao lưu & Khôi phục dữ liệu -->
+        <div class="bg-[#1b1917] border border-[#292522] rounded-2xl p-4 space-y-3">
+          <h3 class="text-xs font-bold text-[#f3efe9]">Sao lưu &amp; Khôi phục dữ liệu trên máy</h3>
+          <div class="grid grid-cols-2 gap-2.5">
+            <button onclick="exportBackup()" class="py-2.5 rounded-xl bg-[#26221f] text-[#f3efe9] text-xs font-semibold">⬇️ Xuất file sao lưu</button>
+            <label class="py-2.5 rounded-xl bg-[#26221f] text-[#f3efe9] text-xs font-semibold text-center cursor-pointer">
+              ⬆️ Khôi phục file
+              <input type="file" accept=".json" onchange="importBackup(event)" class="hidden" />
+            </label>
+          </div>
+        </div>
+      `;
     }
 
-    async function toggleRecordPhrase(phraseId) {
-      if (recordingPhraseId === phraseId && mediaRecorder) {
-        mediaRecorder.stop();
-        recordingPhraseId = null;
-        renderPhraseList();
-        return;
-      }
-
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        showToast('Trình duyệt không hỗ trợ micro ghi âm');
-        return;
-      }
-
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const chunks = [];
-        mediaRecorder = new MediaRecorder(stream);
-        recordingPhraseId = phraseId;
-
-        mediaRecorder.ondataavailable = e => {
-          if (e.data.size > 0) chunks.push(e.data);
-        };
-
-        mediaRecorder.onstop = () => {
-          const blob = new Blob(chunks, { type: 'audio/webm' });
-          if (recordedAudioUrls[phraseId]) {
-            URL.revokeObjectURL(recordedAudioUrls[phraseId]);
-          }
-          recordedAudioUrls[phraseId] = URL.createObjectURL(blob);
-          stream.getTracks().forEach(t => t.stop());
-          markActiveToday();
-          renderPhraseList();
-          showToast('Đã thu âm xong! Bấm "Nghe lại giọng bạn" để đối chiếu');
-        };
-
-        mediaRecorder.start();
-        renderPhraseList();
-        showToast('🎙️ Đang ghi âm... Hãy đọc to câu tiếng Trung');
-      } catch (err) {
-        showToast('Vui lòng cấp quyền Micro để dùng tính năng luyện nói');
-      }
+    function updateAiConfig(showToast = false) {
+      state.aiConfig.provider = document.getElementById('aiProviderSelect').value;
+      state.aiConfig.apiKey = document.getElementById('aiApiKeyInput').value.trim();
+      saveState();
+      renderApp();
+      if (showToast) alert('Đã lưu cấu hình AI trực tiếp trên điện thoại của bạn!');
     }
 
-    function playRecordedPhrase(phraseId) {
-      const url = recordedAudioUrls[phraseId];
-      if (!url) return;
-      const audio = new Audio(url);
-      audio.play();
+    // ==========================================
+    // 6. THAO TÁC MODAL THÊM TỪ, FLASHCARD & VIẾT CHỮ
+    // ==========================================
+    function openAddModal() {
+      document.getElementById('inputHanzi').value = '';
+      document.getElementById('inputPinyin').value = '';
+      document.getElementById('inputMeaning').value = '';
+      document.getElementById('inputMnemonic').value = '';
+      document.getElementById('inputLevel').value = 'new';
+      document.getElementById('meaningTag').textContent = 'Tự động gợi ý';
+      document.getElementById('mnemonicTag').textContent = 'Tự tách bộ thủ';
+      document.getElementById('autoFillStatus').classList.add('hidden');
+      const modal = document.getElementById('addModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      setTimeout(() => document.getElementById('inputHanzi').focus(), 100);
     }
 
-    function openPhraseModal() {
-      document.getElementById('phrase-hanzi').value = '';
-      document.getElementById('phrase-pinyin').value = '';
-      document.getElementById('phrase-meaning').value = '';
-      document.getElementById('phrase-topic').value = '';
-      document.getElementById('modal-phrase').classList.remove('hidden');
+    function closeAddModal() {
+      const modal = document.getElementById('addModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
     }
 
-    function closePhraseModal() {
-      document.getElementById('modal-phrase').classList.add('hidden');
-    }
-
-    function autoFillPhrasePinyin() {
-      const hanzi = document.getElementById('phrase-hanzi').value;
-      document.getElementById('phrase-pinyin').value = generatePinyin(hanzi);
-    }
-
-    function savePhrase() {
-      const hanzi = document.getElementById('phrase-hanzi').value.trim();
-      const pinyin = document.getElementById('phrase-pinyin').value.trim() || generatePinyin(hanzi);
-      const meaning = document.getElementById('phrase-meaning').value.trim();
-      const topic = document.getElementById('phrase-topic').value.trim() || 'Giao tiếp';
+    function saveNewWord() {
+      const hanzi = document.getElementById('inputHanzi').value.trim();
+      const pinyin = document.getElementById('inputPinyin').value.trim();
+      const meaning = document.getElementById('inputMeaning').value.trim();
+      const mnemonic = document.getElementById('inputMnemonic').value.trim();
+      const level = document.getElementById('inputLevel').value;
 
       if (!hanzi || !meaning) {
-        showToast('Vui lòng nhập câu tiếng Trung và nghĩa tiếng Việt');
+        alert('Bạn cần nhập đầy đủ Chữ Hán và Nghĩa tiếng Việt nhé!');
         return;
       }
 
-      appState.phrases.unshift({
-        id: 'p_' + Date.now(),
+      state.vocab.unshift({
+        id: Date.now(),
         hanzi,
         pinyin,
         meaning,
-        topic
+        mnemonic,
+        level
       });
-
-      markActiveToday();
-      persistState();
-      closePhraseModal();
-      renderAll();
-      showToast('Đã thêm mẫu câu giao tiếp!');
+      saveState();
+      closeAddModal();
+      renderApp();
     }
 
-    function confirmDeletePhrase(id) {
-      openConfirmModal('Xóa mẫu câu giao tiếp này?', () => {
-        appState.phrases = appState.phrases.filter(p => p.id !== id);
-        persistState();
-        renderAll();
-        showToast('Đã xóa mẫu câu');
-      });
+    function deleteWord(id) {
+      if (!confirm('Xóa từ vựng này khỏi sổ của bạn?')) return;
+      state.vocab = state.vocab.filter(w => w.id !== id);
+      selectedReviewIds.delete(id);
+      saveState();
+      renderApp();
     }
 
-    // ==================== LOGIC TAB 5: SAO LƯU & KHÔI PHỤC DỮ LIỆU ====================
-    function exportDataJSON() {
-      const dataStr = JSON.stringify(appState, null, 2);
-      const blob = new Blob([dataStr], { type: 'application/json' });
+    function cycleWordLevel(id) {
+      const order = ['new', 'learning', 'mastered'];
+      const w = state.vocab.find(item => item.id === id);
+      if (w) {
+        w.level = order[(order.indexOf(w.level) + 1) % order.length];
+        saveState();
+        renderApp();
+      }
+    }
+
+    function toggleSelectMode() {
+      selectMode = !selectMode;
+      selectedReviewIds.clear();
+      renderApp();
+    }
+
+    function toggleSelectWord(id) {
+      if (selectedReviewIds.has(id)) selectedReviewIds.delete(id);
+      else selectedReviewIds.add(id);
+      renderApp();
+    }
+
+    function toggleDbSelect(hanzi) {
+      if (selectedDbWords.has(hanzi)) selectedDbWords.delete(hanzi);
+      else selectedDbWords.add(hanzi);
+      renderApp();
+    }
+
+    function importSelectedDbWords() {
+      const toAdd = CORE_DATABASE.filter(item => selectedDbWords.has(item.hanzi));
+      toAdd.forEach((item, idx) => {
+        state.vocab.unshift({
+          id: Date.now() + idx,
+          hanzi: item.hanzi,
+          pinyin: item.pinyin,
+          meaning: item.meaning,
+          mnemonic: item.mnemonic,
+          level: 'new'
+        });
+      });
+      selectedDbWords.clear();
+      saveState();
+      switchTab('vocab');
+    }
+
+    // Spaced Repetition Flashcard
+    function startReviewSession() {
+      let pool = [];
+      if (selectMode && selectedReviewIds.size > 0) {
+        pool = state.vocab.filter(w => selectedReviewIds.has(w.id));
+      } else {
+        pool = state.vocab.filter(w => w.level !== 'mastered');
+      }
+      if (pool.length === 0) pool = [...state.vocab];
+      if (pool.length === 0) {
+        alert('Sổ của bạn chưa có từ nào để ôn!');
+        return;
+      }
+
+      reviewQueue = [...pool];
+      reviewIndex = 0;
+      const modal = document.getElementById('reviewModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      showCurrentReviewCard();
+    }
+
+    function closeReviewModal() {
+      const modal = document.getElementById('reviewModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      renderApp();
+    }
+
+    function showCurrentReviewCard() {
+      if (reviewIndex >= reviewQueue.length) {
+        alert('🎉 Tuyệt vời! Bạn đã hoàn thành phiên ôn tập ghi nhớ nhắc lại!');
+        closeReviewModal();
+        return;
+      }
+      const w = reviewQueue[reviewIndex];
+      reviewFlipped = false;
+      document.getElementById('reviewProgress').textContent = `${reviewIndex + 1} / ${reviewQueue.length}`;
+      document.getElementById('reviewHanzi').textContent = w.hanzi;
+      document.getElementById('reviewPinyin').textContent = w.pinyin;
+      document.getElementById('reviewMeaning').textContent = w.meaning;
+      document.getElementById('reviewMnemonic').textContent = w.mnemonic ? `💡 ${w.mnemonic}` : 'Chưa có ghi chú chiết tự';
+      document.getElementById('reviewBack').classList.add('hidden');
+      speakChinese(w.hanzi);
+    }
+
+    function flipReviewCard() {
+      reviewFlipped = !reviewFlipped;
+      document.getElementById('reviewBack').classList.toggle('hidden', !reviewFlipped);
+    }
+
+    function speakCurrentReview() {
+      const w = reviewQueue[reviewIndex];
+      if (w) speakChinese(w.hanzi);
+    }
+
+    function answerReview(rating) {
+      const w = reviewQueue[reviewIndex];
+      const orig = state.vocab.find(item => item.id === w.id);
+      if (rating === 'again') {
+        if (orig) orig.level = 'new';
+        // Đẩy thẻ quay lại hàng đợi sau 2 thẻ nữa để nhắc lại
+        const insertPos = Math.min(reviewQueue.length, reviewIndex + 3);
+        reviewQueue.splice(insertPos, 0, w);
+      } else if (rating === 'good') {
+        if (orig) orig.level = 'learning';
+      } else if (rating === 'easy') {
+        if (orig) orig.level = 'mastered';
+      }
+      saveState();
+      reviewIndex++;
+      showCurrentReviewCard();
+    }
+
+    // Hanzi Writer (Tập viết nét)
+    function openWriterModal(hanzi, info) {
+      writerChars = hanzi.replace(/[^\u4e00-\u9fa5]/g, '').split('');
+      if (writerChars.length === 0) return;
+      document.getElementById('writerWordInfo').textContent = info;
+      const selector = document.getElementById('charSelector');
+      selector.innerHTML = writerChars.map((ch, idx) => `
+        <button onclick="loadWriterChar('${ch}')" class="w-10 h-10 rounded-xl bg-[#26221f] text-lg hanzi-font font-bold text-[#f3efe9] border border-[#38332e]">${ch}</button>
+      `).join('');
+      const modal = document.getElementById('writerModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      loadWriterChar(writerChars[0]);
+    }
+
+    function loadWriterChar(ch) {
+      const target = document.getElementById('characterTarget');
+      target.innerHTML = '';
+      currentWriter = HanziWriter.create('characterTarget', ch, {
+        width: 220,
+        height: 220,
+        padding: 15,
+        strokeColor: '#f3efe9',
+        radicalColor: '#e07a5f',
+        outlineColor: '#38332e',
+        showOutline: true
+      });
+      currentWriter.animateCharacter();
+    }
+
+    function animateWriter() { if (currentWriter) currentWriter.animateCharacter(); }
+    function quizWriter() { if (currentWriter) currentWriter.quiz(); }
+    function closeWriterModal() {
+      const modal = document.getElementById('writerModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    // Backup & Restore
+    function exportBackup() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `so-tay-tieng-trung-${getTodayStr()}.json`;
-      document.body.appendChild(a);
+      a.download = `sotay-hanngu-backup-${new Date().toISOString().slice(0, 10)}.json`;
       a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      showToast('Đã tải xuống file sao lưu JSON!');
     }
 
-    function copyDataJSON() {
-      const dataStr = JSON.stringify(appState);
-      const textarea = document.createElement('textarea');
-      textarea.value = dataStr;
-      textarea.style.position = 'fixed';
-      textarea.style.opacity = '0';
-      document.body.appendChild(textarea);
-      textarea.select();
-      try {
-        document.execCommand('copy');
-        showToast('Đã copy toàn bộ dữ liệu sao lưu!');
-      } catch (e) {
-        showToast('Không thể copy, hãy dùng nút Tải file sao lưu');
-      }
-      document.body.removeChild(textarea);
-    }
-
-    function importDataJSON(event) {
+    function importBackup(event) {
       const file = event.target.files[0];
       if (!file) return;
-
       const reader = new FileReader();
       reader.onload = e => {
         try {
           const parsed = JSON.parse(e.target.result);
-          if (!parsed || !Array.isArray(parsed.vocab) || !Array.isArray(parsed.phrases)) {
-            throw new Error('Invalid format');
+          if (Array.isArray(parsed.vocab)) {
+            state = { ...state, ...parsed };
+            saveState();
+            renderApp();
+            alert('✅ Khôi phục dữ liệu thành công!');
           }
-          appState = parsed;
-          persistState();
-          renderAll();
-          showToast('🎉 Khôi phục dữ liệu thành công!');
         } catch (err) {
-          showToast('File sao lưu không hợp lệ!');
+          alert('File sao lưu không hợp lệ!');
         }
       };
       reader.readAsText(file);
-      event.target.value = '';
     }
 
-    function confirmResetSample() {
-      openConfirmModal('Thao tác này sẽ thay thế dữ liệu hiện tại bằng bộ từ vựng mẫu ban đầu. Bạn chắc chắn chứ?', () => {
-        appState = JSON.parse(JSON.stringify(SAMPLE_DATA));
-        persistState();
-        renderAll();
-        showToast('Đã nạp lại dữ liệu mẫu!');
-      });
-    }
-
-    // ==================== MODAL XÁC NHẬN, TOAST & BẢO MẬT XSS ====================
-    function showToast(msg) {
-      const toast = document.getElementById('toast');
-      toast.textContent = msg;
-      toast.classList.remove('hidden');
-      if (toastTimer) clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => {
-        toast.classList.add('hidden');
-      }, 2600);
-    }
-
-    function openConfirmModal(message, onYes) {
-      document.getElementById('confirm-message').textContent = message;
-      const yesBtn = document.getElementById('confirm-yes-btn');
-      yesBtn.onclick = () => {
-        closeConfirmModal();
-        onYes();
-      };
-      document.getElementById('modal-confirm').classList.remove('hidden');
-    }
-
-    function closeConfirmModal() {
-      document.getElementById('modal-confirm').classList.add('hidden');
-    }
-
-    function escapeHtml(str) {
-      if (!str) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-    }
-
-    function escapeAttr(str) {
-      if (!str) return '';
-      return String(str).replace(/'/g, "\\'").replace(/"/g, '&quot;');
-    }
+    // Khởi chạy ứng dụng
+    loadState();
+    renderApp();
   </script>
 </body>
 </html>
