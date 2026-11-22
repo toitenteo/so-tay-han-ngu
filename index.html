@@ -1,9 +1,11 @@
+```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#C83E2B" />
+  <meta name="color-scheme" content="light only" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Sổ Tay Hán Ngữ" />
@@ -21,6 +23,7 @@
 
   <style>
     :root {
+      color-scheme: light only;
       --bg-page: #FAF8F5;
       --bg-card: #FFFFFF;
       --border-soft: #E8E2D9;
@@ -1068,9 +1071,22 @@
         openModal('modal-confirm');
       }
 
+      // Hàm chuẩn hóa một mốc thời gian (timestamp) về đúng 00:00:00 đầu ngày lịch theo giờ máy
+      // Cơ chế: Dùng năm/tháng/ngày địa phương và bỏ qua giờ/phút/giây, có thể cộng thêm số ngày (daysOffset)
+      function getStartOfDayTimestamp(baseTime, daysOffset = 0) {
+        const d = baseTime ? new Date(baseTime) : new Date();
+        return new Date(d.getFullYear(), d.getMonth(), d.getDate() + daysOffset).getTime();
+      }
+
       function getDueWords() {
-        const now = Date.now();
-        return appData.words.filter(w => !w.nextReview || w.nextReview <= now || w.level === 'new');
+        // Lấy mốc 00:00:00 của ngày hôm nay để so sánh theo ngày lịch (qua 0h đêm là sang ngày mới)
+        const todayStart = getStartOfDayTimestamp();
+        return appData.words.filter(w => {
+          if (!w.nextReview || w.level === 'new') return true;
+          // Chuẩn hóa cả mốc nextReview cũ (nếu có giờ/phút) về 00:00:00 của ngày lịch đó trước khi so sánh
+          const dueDayStart = getStartOfDayTimestamp(w.nextReview);
+          return dueDayStart <= todayStart;
+        });
       }
 
       function calculateStreak() {
@@ -1613,28 +1629,33 @@ Trả về ĐÚNG 1 JSON object hợp lệ (không thêm markdown \`\`\`json) g�
       function rateSrsWord(rating) {
         const current = srsQueue[srsIndex];
         const target = appData.words.find(w => w.id === current.id);
-        const now = Date.now();
+        // Lấy mốc 00:00:00 của ngày hôm nay làm gốc để tính ngày ôn tiếp theo theo ngày lịch (không phụ thuộc giờ/phút bấm)
+        const todayStart = getStartOfDayTimestamp();
         if (target) {
           if (rating === 'again') {
             target.level = 'new';
             target.interval = 0;
-            target.nextReview = now;
+            // Đánh dấu cần ôn lại ngay trong hôm nay
+            target.nextReview = todayStart;
             // Push back into queue to review again in this session
             srsQueue.push(target);
           } else if (rating === 'hard') {
             target.level = 'learning';
             target.interval = 1;
-            target.nextReview = now + 1 * 86400000;
+            // Hẹn ôn lại vào 00:00:00 ngày mai (học 8h tối nay thì 2h sáng mai đã tính là 1 ngày)
+            target.nextReview = getStartOfDayTimestamp(todayStart, 1);
           } else if (rating === 'good') {
             const nextDays = Math.max(3, Math.round((target.interval || 1) * 2.2));
             target.level = nextDays >= 7 ? 'mastered' : 'learning';
             target.interval = nextDays;
-            target.nextReview = now + nextDays * 86400000;
+            // Hẹn ôn lại vào 00:00:00 của ngày cách hôm nay đúng nextDays ngày lịch
+            target.nextReview = getStartOfDayTimestamp(todayStart, nextDays);
           } else if (rating === 'easy') {
             const nextDays = Math.max(7, Math.round((target.interval || 2) * 3));
             target.level = 'mastered';
             target.interval = nextDays;
-            target.nextReview = now + nextDays * 86400000;
+            // Hẹn ôn lại vào 00:00:00 của ngày cách hôm nay đúng nextDays ngày lịch
+            target.nextReview = getStartOfDayTimestamp(todayStart, nextDays);
           }
           saveAppData();
         }
