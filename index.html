@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -341,6 +342,94 @@
         <p class="text-xs text-[#646B73]">Bật chế độ che mờ để tự nhớ, nghe mẫu và thu âm nhại giọng đối chiếu</p>
       </div>
 
+      <!-- [MỚI] Bảng điều khiển Luyện tập toàn diện (8 chế độ + Nghe thụ động rảnh tay) -->
+      <div class="bg-white rounded-2xl border border-[#E8E2D9] p-4 shadow-sm space-y-3.5">
+        <div class="flex items-center justify-between gap-2">
+          <div>
+            <h3 class="text-sm font-bold text-[#1F2328]">Luyện tập toàn diện</h3>
+            <p class="text-[11px] text-[#646B73]">Luyện trực tiếp từ kho từ vựng trong Sổ học của bạn</p>
+          </div>
+          <!-- Nút bật/tắt chế độ Nghe thụ động rảnh tay -->
+          <button type="button" id="btn-passive-audio" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FDF1EF] hover:bg-[#FCE3DF] border border-[#F5D6D1] text-[#C83E2B] text-xs font-semibold transition shrink-0">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072M18.364 5.636a9 9 0 010 12.728M11 5L6 9H2v6h4l5 4V5z"/></svg>
+            <span id="passive-audio-label">Nghe rảnh tay</span>
+          </button>
+        </div>
+
+        <!-- Thanh trạng thái hiển thị từ đang đọc khi bật Nghe thụ động -->
+        <div id="passive-audio-status" class="hidden rounded-xl bg-[#FAF8F5] border border-[#EFEAE2] px-3 py-2 text-xs text-[#1F2328] flex items-center justify-between gap-2">
+          <span id="passive-audio-text" class="font-medium truncate">Đang chuẩn bị phát...</span>
+          <span class="text-[10px] text-[#1B875B] font-semibold shrink-0">Đang phát</span>
+        </div>
+
+        <!-- Lưới 8 chế độ luyện tập theo thiết kế mẫu (2 cột trên di động, 4 cột trên màn hình lớn) -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <button type="button" data-practice-mode="match" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-[#FAF8F5] hover:bg-[#FDF1EF] border border-[#E8E2D9] hover:border-[#F3CBC4] text-left transition">
+            <span class="w-7 h-7 rounded-lg bg-white border border-[#EFEAE2] flex items-center justify-center text-[#C83E2B] text-sm shrink-0">🃏</span>
+            <div class="min-w-0">
+              <div class="text-xs font-bold text-[#1F2328] truncate">Kết hợp</div>
+              <div class="text-[10px] text-[#646B73] truncate">Ghép thẻ nhanh</div>
+            </div>
+          </button>
+
+          <button type="button" data-practice-mode="speaking" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-[#FAF8F5] hover:bg-[#FDF1EF] border border-[#E8E2D9] hover:border-[#F3CBC4] text-left transition">
+            <span class="w-7 h-7 rounded-lg bg-white border border-[#EFEAE2] flex items-center justify-center text-[#C83E2B] text-sm shrink-0">🎙️</span>
+            <div class="min-w-0">
+              <div class="text-xs font-bold text-[#1F2328] truncate">Speaking</div>
+              <div class="text-[10px] text-[#646B73] truncate">Chấm phát âm</div>
+            </div>
+          </button>
+
+          <button type="button" data-practice-mode="roleplay" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-[#FAF8F5] hover:bg-[#FDF1EF] border border-[#E8E2D9] hover:border-[#F3CBC4] text-left transition">
+            <span class="w-7 h-7 rounded-lg bg-white border border-[#EFEAE2] flex items-center justify-center text-[#C83E2B] text-sm shrink-0">💬</span>
+            <div class="min-w-0">
+              <div class="text-xs font-bold text-[#1F2328] truncate">Hội thoại</div>
+              <div class="text-[10px] text-[#646B73] truncate">Đóng vai AI</div>
+            </div>
+          </button>
+
+          <button type="button" data-practice-mode="grammar" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-[#FAF8F5] hover:bg-[#FDF1EF] border border-[#E8E2D9] hover:border-[#F3CBC4] text-left transition">
+            <span class="w-7 h-7 rounded-lg bg-white border border-[#EFEAE2] flex items-center justify-center text-[#C83E2B] text-sm shrink-0">📘</span>
+            <div class="min-w-0">
+              <div class="text-xs font-bold text-[#1F2328] truncate">Ngữ pháp</div>
+              <div class="text-[10px] text-[#646B73] truncate">Phân tích AI</div>
+            </div>
+          </button>
+
+          <button type="button" data-practice-mode="reading" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-[#FAF8F5] hover:bg-[#FDF1EF] border border-[#E8E2D9] hover:border-[#F3CBC4] text-left transition">
+            <span class="w-7 h-7 rounded-lg bg-white border border-[#EFEAE2] flex items-center justify-center text-[#C83E2B] text-sm shrink-0">📖</span>
+            <div class="min-w-0">
+              <div class="text-xs font-bold text-[#1F2328] truncate">Đọc hiểu</div>
+              <div class="text-[10px] text-[#646B73] truncate">Đoạn văn AI</div>
+            </div>
+          </button>
+
+          <button type="button" data-practice-mode="srs" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-[#FAF8F5] hover:bg-[#FDF1EF] border border-[#E8E2D9] hover:border-[#F3CBC4] text-left transition">
+            <span class="w-7 h-7 rounded-lg bg-white border border-[#EFEAE2] flex items-center justify-center text-[#1B875B] text-sm shrink-0">🎓</span>
+            <div class="min-w-0">
+              <div class="text-xs font-bold text-[#1F2328] truncate">Học (SRS)</div>
+              <div class="text-[10px] text-[#646B73] truncate">Flashcard nhắc lại</div>
+            </div>
+          </button>
+
+          <button type="button" data-practice-mode="quiz" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-[#FAF8F5] hover:bg-[#FDF1EF] border border-[#E8E2D9] hover:border-[#F3CBC4] text-left transition">
+            <span class="w-7 h-7 rounded-lg bg-white border border-[#EFEAE2] flex items-center justify-center text-[#B45309] text-sm shrink-0">🎮</span>
+            <div class="min-w-0">
+              <div class="text-xs font-bold text-[#1F2328] truncate">Test/Game</div>
+              <div class="text-[10px] text-[#646B73] truncate">Phản xạ 5 giây</div>
+            </div>
+          </button>
+
+          <button type="button" data-practice-mode="dictation" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-[#FAF8F5] hover:bg-[#FDF1EF] border border-[#E8E2D9] hover:border-[#F3CBC4] text-left transition">
+            <span class="w-7 h-7 rounded-lg bg-white border border-[#EFEAE2] flex items-center justify-center text-[#1D4ED8] text-sm shrink-0">🎧</span>
+            <div class="min-w-0">
+              <div class="text-xs font-bold text-[#1F2328] truncate">Nghe Chép</div>
+              <div class="text-[10px] text-[#646B73] truncate">Nghe &amp; gõ lại</div>
+            </div>
+          </button>
+        </div>
+      </div>
+
       <!-- Reflex Blur Controls & Situation Filter -->
       <div class="bg-white rounded-2xl border border-[#E8E2D9] p-3.5 space-y-3 shadow-sm">
         <div class="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-[#F0EBE3]">
@@ -574,6 +663,27 @@
         <button type="button" id="btn-writer-quiz" class="px-3 py-2 rounded-xl bg-[#C83E2B] hover:bg-[#A63120] text-white text-xs font-semibold transition">Luyện viết</button>
         <button type="button" id="btn-writer-outline" class="px-3 py-2 rounded-xl bg-[#FAF8F5] hover:bg-[#EFEAE2] border border-[#DDD6CB] text-xs font-semibold text-[#1F2328] transition">Ẩn/Hiện mờ</button>
       </div>
+      <!-- [MỚI] Nút Chế độ Viết mù (ẩn viền gợi ý và không hiện nét mẫu khi sai để kiểm tra trí nhớ thực) -->
+      <button type="button" id="btn-writer-blind" class="w-full py-2 rounded-xl bg-[#1F2328] hover:bg-[#343A40] text-white text-xs font-semibold transition">
+        Viết mù (Ẩn toàn bộ viền gợi ý)
+      </button>
+    </div>
+  </div>
+
+  <!-- [MỚI] ==================== MODAL: LUYỆN TẬP ĐA NĂNG ==================== -->
+  <div id="modal-practice" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="practice-modal-title">
+    <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-xl border border-[#E8E2D9] overflow-hidden">
+      <div class="flex items-center justify-between gap-2 px-5 py-3.5 border-b border-[#F0EBE3] shrink-0">
+        <div class="min-w-0">
+          <h3 id="practice-modal-title" class="text-base font-bold text-[#1F2328] truncate">Luyện tập</h3>
+          <p id="practice-modal-subtitle" class="text-xs text-[#646B73] truncate"></p>
+        </div>
+        <button type="button" id="btn-close-practice" class="p-1.5 rounded-lg hover:bg-[#FAF8F5] text-[#646B73]">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <!-- Khu vực nội dung động cho từng chế độ luyện tập -->
+      <div id="practice-modal-body" class="p-5 overflow-y-auto space-y-4"></div>
     </div>
   </div>
 
@@ -1623,6 +1733,9 @@ Trả về ĐÚNG 1 JSON object hợp lệ (không thêm markdown \`\`\`json) g�
         document.getElementById('srs-back-content').classList.add('hidden');
         document.getElementById('srs-flip-wrap').classList.remove('hidden');
         document.getElementById('srs-rate-wrap').classList.add('hidden');
+
+        // [MỚI] Tự động đọc phát âm chữ Hán mỗi khi hiện thẻ mới (vẫn giữ nút "Nghe phát âm" để nghe lại khi cần)
+        speakChinese(word.hanzi, 0.9);
       }
 
       function rateSrsWord(rating) {
@@ -2378,11 +2491,849 @@ Trả về ĐÚNG 1 JSON object hợp lệ (không thêm markdown \`\`\`json) g�
       }
 
       // ============================================================
+      // 16.5. LUYỆN TẬP TOÀN DIỆN, NGHE THỤ ĐỘNG & VIẾT MÙ (MỚI)
+      // ============================================================
+
+      // Biến quản lý trạng thái các bộ đếm, nhận diện giọng nói và phát âm thụ động để dọn dẹp an toàn khi đóng modal
+      let practiceQuizTimer = null;
+      let practiceRecognition = null;
+      let passiveAudioActive = false;
+      let passiveAudioToken = 0;
+      let roleplayHistory = [];
+
+      // Hàm tiện ích: Dọn dẹp toàn bộ bộ đếm thời gian và micro đang chạy khi đóng Modal Luyện tập
+      function cleanupPracticeSession() {
+        if (practiceQuizTimer) {
+          clearInterval(practiceQuizTimer);
+          practiceQuizTimer = null;
+        }
+        if (practiceRecognition) {
+          try { practiceRecognition.stop(); } catch (e) {}
+          practiceRecognition = null;
+        }
+      }
+
+      // Hàm tiện ích: Đóng Modal Luyện tập và dọn dẹp tài nguyên
+      function closePracticeModal() {
+        cleanupPracticeSession();
+        closeModal('modal-practice');
+      }
+
+      // Hàm tiện ích: Xáo trộn ngẫu nhiên một mảng (thuật toán Fisher-Yates) để tạo đề bài không trùng lặp
+      function shuffleArray(arr) {
+        const copy = [...arr];
+        for (let i = copy.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [copy[i], copy[j]] = [copy[j], copy[i]];
+        }
+        return copy;
+      }
+
+      // Hàm tiện ích: Lấy danh sách từ dùng để luyện tập (ưu tiên Sổ học; nếu ít hơn minCount từ thì tự động lấy thêm từ Kho từ)
+      function getPracticePool(minCount) {
+        const pool = [...appData.words];
+        if (pool.length < (minCount || 4)) {
+          const existing = new Set(pool.map(w => w.hanzi));
+          for (const item of CORE_LIBRARY) {
+            if (!existing.has(item.hanzi)) {
+              pool.push(item);
+              if (pool.length >= (minCount || 4)) break;
+            }
+          }
+        }
+        return pool;
+      }
+
+      // Hàm gọi AI dùng chung (tận dụng cấu hình aiConfig Gemini / DeepSeek đã lưu ở Tab Sao lưu)
+      async function callPracticeAI(promptText) {
+        if (!aiConfig.apiKey) {
+          throw new Error('Chưa có API Key AI. Hãy sang tab "Sao lưu" để dán Key Gemini hoặc DeepSeek.');
+        }
+        if (aiConfig.provider === 'deepseek') {
+          const res = await fetch('https://api.deepseek.com/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${aiConfig.apiKey}`
+            },
+            body: JSON.stringify({
+              model: 'deepseek-chat',
+              messages: [{ role: 'user', content: promptText }],
+              temperature: 0.6
+            })
+          });
+          if (!res.ok) throw new Error(`DeepSeek API lỗi (${res.status})`);
+          const data = await res.json();
+          return data.choices?.[0]?.message?.content || '';
+        } else {
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(aiConfig.apiKey)}`;
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: promptText }] }],
+              generationConfig: { temperature: 0.6 }
+            })
+          });
+          if (!res.ok) throw new Error(`Gemini API lỗi (${res.status})`);
+          const data = await res.json();
+          return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        }
+      }
+
+      // Hàm điều phối mở đúng chế độ luyện tập người dùng chọn từ lưới 8 nút
+      function openPracticeMode(mode) {
+        // Nếu chọn "Học (SRS)" thì mở thẳng modal SRS Flashcard sẵn có
+        if (mode === 'srs') {
+          openSrsModal();
+          return;
+        }
+        cleanupPracticeSession();
+        openModal('modal-practice');
+        if (mode === 'match') startMatchGame();
+        else if (mode === 'speaking') startSpeakingCheck();
+        else if (mode === 'roleplay') startRoleplayAI();
+        else if (mode === 'grammar') startGrammarAI();
+        else if (mode === 'reading') startReadingAI();
+        else if (mode === 'quiz') startSpeedQuiz();
+        else if (mode === 'dictation') startDictationMode();
+      }
+
+      // ------------------------------------------------------------
+      // CHẾ ĐỘ 1: KẾT HỢP (MATCHING GAME - GHÉP CHỮ HÁN & NGHĨA)
+      // Cơ chế: Chọn 4 cặp từ ngẫu nhiên -> tách thành 8 thẻ xáo trộn -> chạm 2 thẻ khớp nhau để xóa cặp
+      // ------------------------------------------------------------
+      function startMatchGame() {
+        document.getElementById('practice-modal-title').textContent = 'Kết hợp (Ghép thẻ)';
+        document.getElementById('practice-modal-subtitle').textContent = 'Chạm 1 thẻ Chữ Hán và 1 thẻ Nghĩa tương ứng để ghép cặp';
+
+        const selectedWords = shuffleArray(getPracticePool(4)).slice(0, 4);
+        const cards = shuffleArray([
+          ...selectedWords.map((w, idx) => ({ uid: 'h_' + idx, pairId: idx, type: 'hanzi', label: w.hanzi, sub: w.pinyin })),
+          ...selectedWords.map((w, idx) => ({ uid: 'm_' + idx, pairId: idx, type: 'meaning', label: w.meaning, sub: '' }))
+        ]);
+
+        let firstPick = null;
+        let matchedPairs = new Set();
+        let mistakes = 0;
+
+        function renderBoard() {
+          const body = document.getElementById('practice-modal-body');
+          if (matchedPairs.size === selectedWords.length) {
+            body.innerHTML = `
+              <div class="rounded-2xl bg-[#ECF8F2] border border-[#BEE8D4] p-6 text-center space-y-3">
+                <div class="text-3xl">🎉</div>
+                <div class="text-base font-bold text-[#1B875B]">Hoàn thành xuất sắc!</div>
+                <p class="text-xs text-[#3F464E]">Bạn đã ghép đúng toàn bộ ${selectedWords.length} cặp từ (số lần chọn nhầm: ${mistakes}).</p>
+                <button type="button" id="btn-match-replay" class="px-4 py-2 rounded-xl bg-[#C83E2B] hover:bg-[#A63120] text-white text-xs font-semibold">Chơi ván mới</button>
+              </div>
+            `;
+            document.getElementById('btn-match-replay').addEventListener('click', startMatchGame);
+            return;
+          }
+
+          body.innerHTML = `
+            <div class="flex items-center justify-between text-xs text-[#646B73]">
+              <span>Đã ghép: <strong class="text-[#1B875B]">${matchedPairs.size}/${selectedWords.length}</strong></span>
+              <span>Nhầm: <strong class="text-[#C83E2B]">${mistakes}</strong></span>
+            </div>
+            <div class="grid grid-cols-2 gap-2.5" id="match-grid">
+              ${cards.map(c => {
+                const isDone = matchedPairs.has(c.pairId);
+                const isPicked = firstPick && firstPick.uid === c.uid;
+                return `
+                  <button type="button" data-match-uid="${c.uid}" ${isDone ? 'disabled' : ''} class="p-3 rounded-xl border text-center transition min-h-[76px] flex flex-col items-center justify-center ${
+                    isDone
+                      ? 'bg-[#ECF8F2] border-[#BEE8D4] text-[#1B875B] opacity-40'
+                      : isPicked
+                        ? 'bg-[#FDF1EF] border-[#C83E2B] ring-2 ring-[#C83E2B]/30'
+                        : 'bg-[#FAF8F5] hover:bg-[#F2ECE3] border-[#E8E2D9]'
+                  }">
+                    <span class="${c.type === 'hanzi' ? 'text-xl font-bold hanzi-font' : 'text-xs font-semibold'} text-[#1F2328]">${escapeHtml(c.label)}</span>
+                    ${c.sub ? `<span class="text-[10px] text-[#C83E2B] mt-0.5">${escapeHtml(c.sub)}</span>` : ''}
+                  </button>
+                `;
+              }).join('')}
+            </div>
+          `;
+
+          body.querySelectorAll('[data-match-uid]').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const card = cards.find(x => x.uid === btn.getAttribute('data-match-uid'));
+              if (!card || matchedPairs.has(card.pairId)) return;
+              if (!firstPick) {
+                firstPick = card;
+                if (card.type === 'hanzi') speakChinese(card.label, 0.95);
+                renderBoard();
+                return;
+              }
+              if (firstPick.uid === card.uid) {
+                firstPick = null;
+                renderBoard();
+                return;
+              }
+              if (firstPick.pairId === card.pairId && firstPick.type !== card.type) {
+                matchedPairs.add(card.pairId);
+                firstPick = null;
+                renderBoard();
+              } else {
+                mistakes++;
+                firstPick = null;
+                showToast('Chưa khớp cặp, thử lại nhé!', 'error');
+                renderBoard();
+              }
+            });
+          });
+        }
+        renderBoard();
+      }
+
+      // ------------------------------------------------------------
+      // CHẾ ĐỘ 2: SPEAKING (CHẤM ĐIỂM PHÁT ÂM BẰNG WEB SPEECH API - 0 ĐỒNG)
+      // Cơ chế: Bật SpeechRecognition ngôn ngữ zh-CN, so sánh từng ký tự nói được với từ mẫu và tính % chính xác
+      // ------------------------------------------------------------
+      function startSpeakingCheck() {
+        document.getElementById('practice-modal-title').textContent = 'Speaking — Chấm điểm phát âm';
+        document.getElementById('practice-modal-subtitle').textContent = 'Nghe mẫu rồi nhấn micro đọc to tiếng Trung để máy chấm điểm';
+
+        const pool = shuffleArray(getPracticePool(5));
+        let idx = 0;
+
+        function renderSpeakingItem() {
+          const word = pool[idx % pool.length];
+          const body = document.getElementById('practice-modal-body');
+          const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+          body.innerHTML = `
+            <div class="rounded-2xl bg-[#FAF8F5] border border-[#E8E2D9] p-5 text-center space-y-2">
+              <div class="text-4xl font-bold hanzi-font text-[#1F2328]">${escapeHtml(word.hanzi)}</div>
+              <div class="text-sm font-semibold text-[#C83E2B]">${escapeHtml(word.pinyin || '')}</div>
+              <div class="text-xs text-[#646B73]">${escapeHtml(word.meaning || '')}</div>
+              <div class="pt-2">
+                <button type="button" id="btn-sp-sample" class="px-3 py-1.5 rounded-full bg-white border border-[#E5DFD6] text-xs font-semibold text-[#C83E2B] hover:bg-[#FDF1EF]">🔊 Nghe giọng mẫu</button>
+              </div>
+            </div>
+
+            <div class="text-center space-y-2">
+              <button type="button" id="btn-sp-mic" class="w-full py-3 rounded-xl bg-[#C83E2B] hover:bg-[#A63120] text-white text-sm font-semibold transition">
+                🎙️ Nhấn để đọc và chấm điểm
+              </button>
+              <div id="sp-result-box" class="rounded-xl bg-[#FAF8F5] border border-[#EFEAE2] p-3 text-xs text-[#646B73] min-h-[54px] flex items-center justify-center">
+                ${SpeechRec ? 'Sẵn sàng lắng nghe tiếng Trung (zh-CN)...' : 'Trình duyệt của bạn chưa hỗ trợ Web Speech API (khuyên dùng Chrome/Edge trên Android hoặc máy tính).'}
+              </div>
+            </div>
+
+            <div class="flex justify-end">
+              <button type="button" id="btn-sp-next" class="px-4 py-2 rounded-xl border border-[#DDD6CB] bg-white hover:bg-[#FAF8F5] text-xs font-semibold text-[#1F2328]">Từ tiếp theo →</button>
+            </div>
+          `;
+
+          document.getElementById('btn-sp-sample').addEventListener('click', () => speakChinese(word.hanzi, 0.88));
+          document.getElementById('btn-sp-next').addEventListener('click', () => {
+            cleanupPracticeSession();
+            idx++;
+            renderSpeakingItem();
+          });
+
+          const micBtn = document.getElementById('btn-sp-mic');
+          if (!SpeechRec) {
+            micBtn.disabled = true;
+            micBtn.classList.add('opacity-50');
+            return;
+          }
+
+          micBtn.addEventListener('click', () => {
+            cleanupPracticeSession();
+            const rec = new SpeechRec();
+            practiceRecognition = rec;
+            rec.lang = 'zh-CN';
+            rec.interimResults = false;
+            rec.maxAlternatives = 1;
+
+            const resultBox = document.getElementById('sp-result-box');
+            micBtn.textContent = '🔴 Đang lắng nghe... hãy đọc ngay!';
+            micBtn.classList.add('recording-pulse');
+
+            rec.onresult = (event) => {
+              const spoken = (event.results[0][0].transcript || '').replace(/[，。！？\s]/g, '');
+              const target = (word.hanzi || '').replace(/[，。！？\s]/g, '');
+              // So sánh từng ký tự mục tiêu xem có xuất hiện trong câu máy nhận diện hay không
+              let hit = 0;
+              const colored = Array.from(target).map(ch => {
+                if (spoken.includes(ch)) {
+                  hit++;
+                  return `<span class="text-[#1B875B] font-bold">${escapeHtml(ch)}</span>`;
+                }
+                return `<span class="text-[#C83E2B] font-bold underline">${escapeHtml(ch)}</span>`;
+              }).join('');
+              const score = target.length > 0 ? Math.round((hit / target.length) * 100) : 0;
+
+              resultBox.innerHTML = `
+                <div class="space-y-1 text-center">
+                  <div class="text-sm font-bold ${score >= 80 ? 'text-[#1B875B]' : 'text-[#C83E2B]'}">Độ khớp: ${score}%</div>
+                  <div class="text-xs text-[#3F464E]">Máy nghe được: <strong class="hanzi-font text-sm">${escapeHtml(spoken || '(trống)')}</strong></div>
+                  <div class="text-xs">Đối chiếu: <span class="hanzi-font text-base">${colored}</span></div>
+                </div>
+              `;
+            };
+
+            rec.onerror = () => {
+              resultBox.textContent = 'Không nghe rõ hoặc chưa cấp quyền Micro. Hãy thử bấm lại nhé.';
+            };
+
+            rec.onend = () => {
+              micBtn.textContent = '🎙️ Nhấn để đọc và chấm điểm';
+              micBtn.classList.remove('recording-pulse');
+              practiceRecognition = null;
+            };
+
+            try { rec.start(); } catch (e) {}
+          });
+        }
+        renderSpeakingItem();
+      }
+
+      // ------------------------------------------------------------
+      // CHẾ ĐỘ 3: HỘI THOẠI (ROLEPLAY CHAT VỚI AI THEO TỪ ĐÃ HỌC)
+      // Cơ chế: Lưu lịch sử chat ngắn trong bộ nhớ tạm, AI đóng vai người bản xứ trả lời kèm Pinyin & Nghĩa
+      // ------------------------------------------------------------
+      function startRoleplayAI() {
+        document.getElementById('practice-modal-title').textContent = 'Hội thoại AI (Roleplay)';
+        document.getElementById('practice-modal-subtitle').textContent = 'Phản xạ đối đáp tiếng Trung ngắn dựa trên từ vựng của bạn';
+
+        const sampleWords = shuffleArray(getPracticePool(5)).slice(0, 5).map(w => w.hanzi).join('、');
+        roleplayHistory = [
+          {
+            role: 'ai',
+            hanzi: '你好！今天过得怎么样？',
+            pinyin: 'Nǐ hǎo! Jīntiān guò de zěnmeyàng?',
+            meaning: 'Xin chào! Hôm nay của bạn thế nào?'
+          }
+        ];
+
+        function renderChat() {
+          const body = document.getElementById('practice-modal-body');
+          body.innerHTML = `
+            <div class="rounded-xl bg-[#FFF7E6] border border-[#F6DFB0] px-3 py-2 text-[11px] text-[#B45309]">
+              Gợi ý thử dùng các từ trong sổ: <strong class="hanzi-font">${escapeHtml(sampleWords)}</strong>
+            </div>
+            <div id="rp-messages" class="space-y-2.5 max-h-[280px] overflow-y-auto pr-1">
+              ${roleplayHistory.map(m => m.role === 'ai' ? `
+                <div class="rounded-2xl rounded-tl-sm bg-[#FAF8F5] border border-[#E8E2D9] p-3 space-y-1">
+                  <div class="flex items-start justify-between gap-2">
+                    <span class="text-sm font-bold hanzi-font text-[#1F2328]">${escapeHtml(m.hanzi)}</span>
+                    <button type="button" data-speak="${escapeHtml(m.hanzi)}" class="text-[11px] text-[#C83E2B] font-semibold shrink-0">🔊 Nghe</button>
+                  </div>
+                  ${m.pinyin ? `<div class="text-xs text-[#C83E2B]">${escapeHtml(m.pinyin)}</div>` : ''}
+                  ${m.meaning ? `<div class="text-xs text-[#646B73]">${escapeHtml(m.meaning)}</div>` : ''}
+                </div>
+              ` : `
+                <div class="rounded-2xl rounded-tr-sm bg-[#1F2328] text-white p-3 ml-8 text-sm hanzi-font">
+                  ${escapeHtml(m.hanzi)}
+                </div>
+              `).join('')}
+            </div>
+            <form id="rp-form" class="flex gap-2 pt-2 border-t border-[#F0EBE3]">
+              <input id="rp-input" type="text" placeholder="Nhập câu trả lời tiếng Trung..." class="flex-1 rounded-xl border border-[#DDD6CB] bg-[#FAF8F5] px-3 py-2 text-sm hanzi-font focus:outline-none focus:ring-2 focus:ring-[#C83E2B]/30" required />
+              <button type="submit" id="rp-send-btn" class="px-4 py-2 rounded-xl bg-[#C83E2B] hover:bg-[#A63120] text-white text-xs font-semibold shrink-0">Gửi AI</button>
+            </form>
+          `;
+
+          const msgBox = document.getElementById('rp-messages');
+          msgBox.scrollTop = msgBox.scrollHeight;
+
+          document.getElementById('rp-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const inp = document.getElementById('rp-input');
+            const userText = inp.value.trim();
+            if (!userText) return;
+            roleplayHistory.push({ role: 'user', hanzi: userText });
+            renderChat();
+
+            const sendBtn = document.getElementById('rp-send-btn');
+            if (sendBtn) { sendBtn.disabled = true; sendBtn.textContent = 'Đang nghĩ...'; }
+
+            const prompt = `Bạn là người bạn Trung Quốc đang chat giao tiếp ngắn với người Việt mới học (trình độ HSK1-2).
+Các từ người học đang ôn: ${sampleWords}.
+Người học vừa nhắn: "${userText}".
+Hãy phản hồi tự nhiên (1-2 câu ngắn, có thể nhẹ nhàng sửa lỗi nếu cần) và trả về ĐÚNG 1 JSON object:
+{"hanzi":"câu tiếng Trung","pinyin":"phiên âm pinyin","meaning":"dịch nghĩa tiếng Việt ngắn"}`;
+
+            try {
+              const raw = await callPracticeAI(prompt);
+              const match = raw.match(/\{[\s\S]*\}/);
+              if (!match) throw new Error('AI trả về định dạng chưa chuẩn.');
+              const parsed = JSON.parse(match[0]);
+              roleplayHistory.push({ role: 'ai', hanzi: parsed.hanzi || raw, pinyin: parsed.pinyin || '', meaning: parsed.meaning || '' });
+              speakChinese(parsed.hanzi, 0.92);
+            } catch (err) {
+              roleplayHistory.push({ role: 'ai', hanzi: 'Lỗi kết nối AI', pinyin: '', meaning: err.message });
+            }
+            renderChat();
+          });
+        }
+        renderChat();
+      }
+
+      // ------------------------------------------------------------
+      // CHẾ ĐỘ 4: NGỮ PHÁP AI (PHÂN TÍCH CẤU TRÚC TỪ VỰNG TRONG SỔ)
+      // Cơ chế: Chọn ngẫu nhiên 3 từ trong sổ học -> nhờ AI rút ra 2 mẫu câu ngữ pháp cốt lõi + ví dụ
+      // ------------------------------------------------------------
+      async function startGrammarAI() {
+        document.getElementById('practice-modal-title').textContent = 'Ngữ pháp cùng AI';
+        document.getElementById('practice-modal-subtitle').textContent = 'Phân tích cấu trúc đặt câu từ chính từ vựng trong Sổ học';
+
+        const chosen = shuffleArray(getPracticePool(3)).slice(0, 3);
+        const wordListText = chosen.map(w => `${w.hanzi} (${w.meaning})`).join(', ');
+        const body = document.getElementById('practice-modal-body');
+
+        body.innerHTML = `
+          <div class="rounded-xl bg-[#FAF8F5] border border-[#EFEAE2] p-4 text-center space-y-2">
+            <div class="text-xs text-[#646B73]">Đang phân tích ngữ pháp cho bộ từ: <strong class="text-[#1F2328] hanzi-font">${escapeHtml(wordListText)}</strong></div>
+            <div class="text-xs text-[#C83E2B] font-semibold">✨ Đang gọi AI...</div>
+          </div>
+        `;
+
+        const prompt = `Bạn là giáo viên tiếng Trung cho người Việt. Dựa trên 3 từ sau: ${wordListText}.
+Hãy tạo 2 điểm ngữ pháp giao tiếp thực tế, dễ nhớ. Trả về ĐÚNG 1 JSON object:
+{
+  "items": [
+    {
+      "pattern": "Cấu trúc ngữ pháp (ví dụ: Chủ ngữ + 想 + Động từ)",
+      "explain": "Giải thích cách dùng ngắn gọn bằng tiếng Việt",
+      "exampleHanzi": "Câu ví dụ ngắn bằng chữ Hán",
+      "examplePinyin": "Pinyin của câu ví dụ",
+      "exampleMeaning": "Nghĩa tiếng Việt của câu ví dụ"
+    }
+  ]
+}`;
+
+        try {
+          const raw = await callPracticeAI(prompt);
+          const match = raw.match(/\{[\s\S]*\}/);
+          if (!match) throw new Error('AI không trả về đúng định dạng JSON.');
+          const parsed = JSON.parse(match[0]);
+          const items = Array.isArray(parsed.items) ? parsed.items : [];
+
+          body.innerHTML = `
+            <div class="text-xs text-[#646B73]">Từ được chọn: <strong class="hanzi-font text-[#1F2328]">${escapeHtml(wordListText)}</strong></div>
+            <div class="space-y-3">
+              ${items.map(it => `
+                <div class="rounded-2xl bg-[#FAF8F5] border border-[#E8E2D9] p-3.5 space-y-1.5">
+                  <div class="text-sm font-bold text-[#C83E2B]">${escapeHtml(it.pattern)}</div>
+                  <p class="text-xs text-[#3F464E] leading-relaxed">${escapeHtml(it.explain)}</p>
+                  <div class="rounded-xl bg-white border border-[#EFEAE2] p-2.5 space-y-0.5">
+                    <div class="flex items-center justify-between gap-2">
+                      <span class="text-sm font-bold hanzi-font text-[#1F2328]">${escapeHtml(it.exampleHanzi)}</span>
+                      <button type="button" data-speak="${escapeHtml(it.exampleHanzi)}" class="text-[11px] font-semibold text-[#C83E2B] shrink-0">🔊 Nghe</button>
+                    </div>
+                    <div class="text-xs text-[#C83E2B]">${escapeHtml(it.examplePinyin)}</div>
+                    <div class="text-xs text-[#646B73]">${escapeHtml(it.exampleMeaning)}</div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+            <button type="button" id="btn-grammar-reload" class="w-full py-2.5 rounded-xl bg-[#1F2328] hover:bg-[#343A40] text-white text-xs font-semibold">Tạo bài ngữ pháp khác</button>
+          `;
+          document.getElementById('btn-grammar-reload').addEventListener('click', startGrammarAI);
+        } catch (err) {
+          body.innerHTML = `
+            <div class="rounded-xl bg-[#FDF1EF] border border-[#F5D6D1] p-4 text-xs text-[#C83E2B] space-y-2">
+              <div class="font-bold">Không thể tạo bài Ngữ pháp AI</div>
+              <p>${escapeHtml(err.message)}</p>
+            </div>
+          `;
+        }
+      }
+
+      // ------------------------------------------------------------
+      // CHẾ ĐỘ 5: ĐỌC HIỂU AI (TẠO ĐOẠN VĂN NGẮN + CÂU HỎI TỪ SỔ HỌC)
+      // Cơ chế: Dùng 4-5 từ trong sổ học tạo 1 đoạn hội thoại/văn ngắn kèm nút bật tắt bản dịch và 2 câu hỏi
+      // ------------------------------------------------------------
+      async function startReadingAI() {
+        document.getElementById('practice-modal-title').textContent = 'Đọc hiểu cùng AI';
+        document.getElementById('practice-modal-subtitle').textContent = 'Đọc đoạn văn ngắn chứa từ vựng bạn đang học và trả lời câu hỏi';
+
+        const chosen = shuffleArray(getPracticePool(5)).slice(0, 5);
+        const wordListText = chosen.map(w => w.hanzi).join('、');
+        const body = document.getElementById('practice-modal-body');
+
+        body.innerHTML = `
+          <div class="rounded-xl bg-[#FAF8F5] border border-[#EFEAE2] p-4 text-center space-y-2">
+            <div class="text-xs text-[#646B73]">Đang soạn đoạn văn chứa các từ: <strong class="hanzi-font text-[#1F2328]">${escapeHtml(wordListText)}</strong></div>
+            <div class="text-xs text-[#C83E2B] font-semibold">✨ Đang gọi AI...</div>
+          </div>
+        `;
+
+        const prompt = `Viết 1 đoạn văn tiếng Trung ngắn (3-4 câu, trình độ HSK1-2) có lồng ghép các từ: ${wordListText}.
+Sau đó tạo 2 câu hỏi đọc hiểu tiếng Việt kèm đáp án ngắn. Trả về ĐÚNG 1 JSON object:
+{
+  "passage": "Đoạn văn bằng chữ Hán",
+  "pinyin": "Pinyin toàn đoạn văn",
+  "translation": "Bản dịch tiếng Việt đầy đủ",
+  "questions": [
+    {"q": "Câu hỏi 1 bằng tiếng Việt?", "a": "Đáp án ngắn gọn"},
+    {"q": "Câu hỏi 2 bằng tiếng Việt?", "a": "Đáp án ngắn gọn"}
+  ]
+}`;
+
+        try {
+          const raw = await callPracticeAI(prompt);
+          const match = raw.match(/\{[\s\S]*\}/);
+          if (!match) throw new Error('AI không trả về đúng định dạng JSON.');
+          const parsed = JSON.parse(match[0]);
+
+          body.innerHTML = `
+            <div class="rounded-2xl bg-[#FAF8F5] border border-[#E8E2D9] p-4 space-y-2.5">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-semibold text-[#646B73]">Đoạn văn luyện đọc</span>
+                <button type="button" data-speak="${escapeHtml(parsed.passage)}" data-rate="0.85" class="px-2.5 py-1 rounded-lg bg-white border border-[#E5DFD6] text-[11px] font-semibold text-[#C83E2B]">🔊 Nghe cả đoạn</button>
+              </div>
+              <p class="text-base font-bold hanzi-font leading-relaxed text-[#1F2328]">${escapeHtml(parsed.passage)}</p>
+              <button type="button" id="btn-read-toggle-help" class="text-xs font-semibold text-[#C83E2B] hover:underline">Hiện / Ẩn Pinyin &amp; Dịch nghĩa</button>
+              <div id="read-help-box" class="hidden pt-2 border-t border-[#E8E2D9] space-y-1.5 text-xs">
+                <div class="text-[#C83E2B]">${escapeHtml(parsed.pinyin || '')}</div>
+                <div class="text-[#3F464E]">${escapeHtml(parsed.translation || '')}</div>
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <div class="text-xs font-bold text-[#1F2328]">Câu hỏi kiểm tra (chạm để xem đáp án):</div>
+              ${(parsed.questions || []).map(item => `
+                <details class="rounded-xl bg-white border border-[#E8E2D9] p-3 text-xs">
+                  <summary class="font-semibold text-[#1F2328] cursor-pointer">${escapeHtml(item.q)}</summary>
+                  <p class="mt-1.5 pt-1.5 border-t border-[#F0EBE3] text-[#1B875B] font-medium">Đáp án: ${escapeHtml(item.a)}</p>
+                </details>
+              `).join('')}
+            </div>
+
+            <button type="button" id="btn-reading-reload" class="w-full py-2.5 rounded-xl bg-[#1F2328] hover:bg-[#343A40] text-white text-xs font-semibold">Tạo bài đọc mới</button>
+          `;
+
+          document.getElementById('btn-read-toggle-help').addEventListener('click', () => {
+            document.getElementById('read-help-box').classList.toggle('hidden');
+          });
+          document.getElementById('btn-reading-reload').addEventListener('click', startReadingAI);
+        } catch (err) {
+          body.innerHTML = `
+            <div class="rounded-xl bg-[#FDF1EF] border border-[#F5D6D1] p-4 text-xs text-[#C83E2B] space-y-2">
+              <div class="font-bold">Không thể tạo bài Đọc hiểu AI</div>
+              <p>${escapeHtml(err.message)}</p>
+            </div>
+          `;
+        }
+      }
+
+      // ------------------------------------------------------------
+      // CHẾ ĐỘ 6: TEST / GAME TRẮC NGHIỆM PHẢN XẠ 5 GIÂY
+      // Cơ chế: 5 câu hỏi nhanh, mỗi câu có đồng hồ đếm ngược 5 giây để chọn đúng nghĩa tiếng Việt của chữ Hán
+      // ------------------------------------------------------------
+      function startSpeedQuiz() {
+        document.getElementById('practice-modal-title').textContent = 'Test/Game — Phản xạ 5 giây';
+        document.getElementById('practice-modal-subtitle').textContent = 'Chọn nhanh nghĩa đúng trước khi hết 5 giây';
+
+        const pool = shuffleArray(getPracticePool(5));
+        const questions = pool.slice(0, Math.min(5, pool.length));
+        let qIdx = 0;
+        let score = 0;
+
+        function renderQuestion() {
+          cleanupPracticeSession();
+          const body = document.getElementById('practice-modal-body');
+
+          if (qIdx >= questions.length) {
+            body.innerHTML = `
+              <div class="rounded-2xl bg-[#ECF8F2] border border-[#BEE8D4] p-6 text-center space-y-3">
+                <div class="text-3xl">🏆</div>
+                <div class="text-base font-bold text-[#1B875B]">Kết quả: ${score} / ${questions.length} câu đúng!</div>
+                <button type="button" id="btn-quiz-replay" class="px-4 py-2 rounded-xl bg-[#C83E2B] hover:bg-[#A63120] text-white text-xs font-semibold">Chơi lại</button>
+              </div>
+            `;
+            document.getElementById('btn-quiz-replay').addEventListener('click', startSpeedQuiz);
+            return;
+          }
+
+          const current = questions[qIdx];
+          const distractors = shuffleArray(pool.filter(w => w.hanzi !== current.hanzi)).slice(0, 3);
+          const options = shuffleArray([current, ...distractors]);
+          let timeLeft = 5;
+
+          body.innerHTML = `
+            <div class="flex items-center justify-between text-xs font-semibold">
+              <span class="text-[#646B73]">Câu ${qIdx + 1} / ${questions.length}</span>
+              <span id="quiz-timer-badge" class="px-2.5 py-0.5 rounded-full bg-[#FDF1EF] text-[#C83E2B]">⏱️ 5s</span>
+            </div>
+            <div class="rounded-2xl bg-[#FAF8F5] border border-[#E8E2D9] p-6 text-center space-y-1.5">
+              <div class="text-4xl font-bold hanzi-font text-[#1F2328]">${escapeHtml(current.hanzi)}</div>
+              <button type="button" data-speak="${escapeHtml(current.hanzi)}" class="text-xs text-[#C83E2B] font-semibold">🔊 Nghe phát âm</button>
+            </div>
+            <div class="grid grid-cols-1 gap-2" id="quiz-options">
+              ${options.map((opt, i) => `
+                <button type="button" data-quiz-opt="${i}" class="w-full py-2.5 px-3.5 rounded-xl border border-[#E8E2D9] bg-white hover:bg-[#FAF8F5] text-left text-sm font-medium text-[#1F2328] transition">
+                  ${escapeHtml(opt.meaning)}
+                </button>
+              `).join('')}
+            </div>
+          `;
+
+          speakChinese(current.hanzi, 0.95);
+
+          const finishQuestion = (isCorrect, msg) => {
+            cleanupPracticeSession();
+            if (isCorrect) {
+              score++;
+              showToast('Chuẩn xác!', 'success');
+            } else {
+              showToast(msg || `Đáp án đúng: ${current.meaning}`, 'error');
+            }
+            qIdx++;
+            setTimeout(renderQuestion, 550);
+          };
+
+          practiceQuizTimer = setInterval(() => {
+            timeLeft--;
+            const badge = document.getElementById('quiz-timer-badge');
+            if (badge) badge.textContent = `⏱️ ${timeLeft}s`;
+            if (timeLeft <= 0) {
+              finishQuestion(false, `Hết giờ! Đáp án: ${current.meaning}`);
+            }
+          }, 1000);
+
+          body.querySelectorAll('[data-quiz-opt]').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const picked = options[Number(btn.getAttribute('data-quiz-opt'))];
+              finishQuestion(picked.hanzi === current.hanzi);
+            });
+          });
+        }
+        renderQuestion();
+      }
+
+      // ------------------------------------------------------------
+      // CHẾ ĐỘ 7: NGHE CHÉP (DICTATION — NGHE ÂM THANH VÀ GÕ LẠI CHỮ HÁN)
+      // Cơ chế: Ẩn chữ Hán, tự động phát âm tiếng Trung -> người học gõ lại chữ Hán để kiểm tra
+      // ------------------------------------------------------------
+      function startDictationMode() {
+        document.getElementById('practice-modal-title').textContent = 'Nghe Chép (Dictation)';
+        document.getElementById('practice-modal-subtitle').textContent = 'Nghe phát âm tiếng Trung rồi tự gõ lại chữ Hán tương ứng';
+
+        const pool = shuffleArray(getPracticePool(5));
+        let idx = 0;
+
+        function renderDictation() {
+          const word = pool[idx % pool.length];
+          const body = document.getElementById('practice-modal-body');
+
+          body.innerHTML = `
+            <div class="rounded-2xl bg-[#FAF8F5] border border-[#E8E2D9] p-5 text-center space-y-3">
+              <div class="text-xs text-[#646B73]">Gợi ý nghĩa: <strong class="text-[#1F2328]">${escapeHtml(word.meaning)}</strong></div>
+              <div class="flex justify-center gap-2">
+                <button type="button" id="btn-dict-play" class="px-4 py-2 rounded-xl bg-[#C83E2B] hover:bg-[#A63120] text-white text-xs font-semibold">🔊 Nghe bình thường</button>
+                <button type="button" id="btn-dict-slow" class="px-3.5 py-2 rounded-xl bg-white border border-[#DDD6CB] text-xs font-semibold text-[#1F2328]">🐢 Nghe chậm</button>
+              </div>
+            </div>
+
+            <form id="dict-form" class="space-y-2.5">
+              <input id="dict-input" type="text" autocomplete="off" placeholder="Gõ chữ Hán bạn nghe được..." class="w-full rounded-xl border border-[#DDD6CB] bg-white px-3.5 py-2.5 text-lg text-center hanzi-font focus:outline-none focus:ring-2 focus:ring-[#C83E2B]/30" required />
+              <div class="grid grid-cols-2 gap-2">
+                <button type="submit" class="py-2.5 rounded-xl bg-[#1F2328] hover:bg-[#343A40] text-white text-xs font-semibold">Kiểm tra</button>
+                <button type="button" id="btn-dict-next" class="py-2.5 rounded-xl border border-[#DDD6CB] bg-[#FAF8F5] hover:bg-[#EFEAE2] text-xs font-semibold text-[#1F2328]">Câu tiếp theo →</button>
+              </div>
+            </form>
+
+            <div id="dict-feedback" class="hidden rounded-xl p-3 text-xs text-center"></div>
+          `;
+
+          speakChinese(word.hanzi, 0.9);
+
+          document.getElementById('btn-dict-play').addEventListener('click', () => speakChinese(word.hanzi, 0.92));
+          document.getElementById('btn-dict-slow').addEventListener('click', () => speakChinese(word.hanzi, 0.65));
+          document.getElementById('btn-dict-next').addEventListener('click', () => {
+            idx++;
+            renderDictation();
+          });
+
+          document.getElementById('dict-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const ans = document.getElementById('dict-input').value.trim();
+            const fb = document.getElementById('dict-feedback');
+            fb.classList.remove('hidden');
+
+            if (ans === word.hanzi) {
+              fb.className = 'rounded-xl p-3 text-xs text-center bg-[#ECF8F2] border border-[#BEE8D4] text-[#1B875B] font-semibold';
+              fb.innerHTML = `Chính xác tuyệt đối! <span class="hanzi-font text-base">${escapeHtml(word.hanzi)}</span> (${escapeHtml(word.pinyin || '')})`;
+            } else {
+              fb.className = 'rounded-xl p-3 text-xs text-center bg-[#FDF1EF] border border-[#F5D6D1] text-[#C83E2B]';
+              fb.innerHTML = `Chưa khớp! Đáp án đúng là: <strong class="hanzi-font text-base">${escapeHtml(word.hanzi)}</strong> (${escapeHtml(word.pinyin || '')})`;
+            }
+          });
+        }
+        renderDictation();
+      }
+
+      // ------------------------------------------------------------
+      // TÍNH NĂNG NGHE THỤ ĐỘNG RẢNH TAY (AUDIO PLAYLIST)
+      // Cơ chế: Phát tuần tự từng từ: Tiếng Trung -> nghỉ 2 giây để nhẩm -> Nghĩa tiếng Việt -> Tiếng Trung lặp lại
+      // ------------------------------------------------------------
+      function speakAsync(text, lang, rate) {
+        return new Promise((resolve) => {
+          if (typeof window.speechSynthesis === 'undefined' || !text) {
+            resolve();
+            return;
+          }
+          try {
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = lang;
+            u.rate = rate || 0.92;
+            const voices = window.speechSynthesis.getVoices();
+            const prefix = lang.slice(0, 2).toLowerCase();
+            const matched = voices.find(v => v.lang && v.lang.toLowerCase().startsWith(prefix));
+            if (matched) u.voice = matched;
+            u.onend = () => resolve();
+            u.onerror = () => resolve();
+            window.speechSynthesis.speak(u);
+          } catch (e) {
+            resolve();
+          }
+        });
+      }
+
+      function waitMs(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+      }
+
+      async function togglePassiveAudio() {
+        const btn = document.getElementById('btn-passive-audio');
+        const label = document.getElementById('passive-audio-label');
+        const statusBox = document.getElementById('passive-audio-status');
+        const statusText = document.getElementById('passive-audio-text');
+
+        // Nếu đang phát thì dừng ngay lập tức và tăng token để hủy vòng lặp cũ
+        if (passiveAudioActive) {
+          passiveAudioActive = false;
+          passiveAudioToken++;
+          if (typeof window.speechSynthesis !== 'undefined') window.speechSynthesis.cancel();
+          label.textContent = 'Nghe rảnh tay';
+          btn.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FDF1EF] hover:bg-[#FCE3DF] border border-[#F5D6D1] text-[#C83E2B] text-xs font-semibold transition shrink-0';
+          statusBox.classList.add('hidden');
+          showToast('Đã dừng chế độ Nghe rảnh tay.', 'info');
+          return;
+        }
+
+        const playlist = getDueWords().length > 0 ? getDueWords() : getPracticePool(5);
+        if (playlist.length === 0) {
+          showToast('Chưa có từ vựng để phát.', 'error');
+          return;
+        }
+
+        passiveAudioActive = true;
+        const myToken = ++passiveAudioToken;
+        label.textContent = 'Dừng nghe';
+        btn.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#C83E2B] text-white text-xs font-semibold transition shrink-0 recording-pulse';
+        statusBox.classList.remove('hidden');
+
+        for (let i = 0; i < playlist.length; i++) {
+          if (!passiveAudioActive || myToken !== passiveAudioToken) break;
+          const w = playlist[i];
+          statusText.textContent = `(${i + 1}/${playlist.length}) ${w.hanzi} — ${w.pinyin || ''} — ${w.meaning}`;
+
+          // Nhịp 1: Đọc tiếng Trung lần 1
+          await speakAsync(w.hanzi, 'zh-CN', 0.88);
+          if (!passiveAudioActive || myToken !== passiveAudioToken) break;
+
+          // Nhịp 2: Nghỉ 2 giây để não tự phản xạ nghĩa
+          await waitMs(2000);
+          if (!passiveAudioActive || myToken !== passiveAudioToken) break;
+
+          // Nhịp 3: Đọc nghĩa tiếng Việt
+          await speakAsync(w.meaning, 'vi-VN', 1.0);
+          if (!passiveAudioActive || myToken !== passiveAudioToken) break;
+
+          await waitMs(600);
+          if (!passiveAudioActive || myToken !== passiveAudioToken) break;
+
+          // Nhịp 4: Đọc lại tiếng Trung lần 2 để chốt âm thanh
+          await speakAsync(w.hanzi, 'zh-CN', 0.88);
+          if (!passiveAudioActive || myToken !== passiveAudioToken) break;
+
+          await waitMs(1200);
+        }
+
+        // Tự động đưa nút về trạng thái ban đầu sau khi phát hết danh sách
+        if (myToken === passiveAudioToken && passiveAudioActive) {
+          passiveAudioActive = false;
+          label.textContent = 'Nghe rảnh tay';
+          btn.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FDF1EF] hover:bg-[#FCE3DF] border border-[#F5D6D1] text-[#C83E2B] text-xs font-semibold transition shrink-0';
+          statusBox.classList.add('hidden');
+          showToast('Đã phát hết danh sách ôn tập rảnh tay!', 'success');
+        }
+      }
+
+      // ------------------------------------------------------------
+      // GẮN SỰ KIỆN CHO BẢNG LUYỆN TẬP, NGHE THỤ ĐỘNG & VIẾT MÙ
+      // ------------------------------------------------------------
+      function bindPracticeEvents() {
+        // Bắt sự kiện bấm 8 nút chế độ luyện tập
+        document.querySelectorAll('[data-practice-mode]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            openPracticeMode(btn.getAttribute('data-practice-mode'));
+          });
+        });
+
+        // Đóng modal luyện tập an toàn (kèm dọn timer & micro)
+        const closeBtn = document.getElementById('btn-close-practice');
+        if (closeBtn) closeBtn.addEventListener('click', closePracticeModal);
+
+        const practiceBackdrop = document.getElementById('modal-practice');
+        if (practiceBackdrop) {
+          practiceBackdrop.addEventListener('click', (e) => {
+            if (e.target === practiceBackdrop) closePracticeModal();
+          });
+        }
+
+        // Bật/tắt chế độ Nghe thụ động rảnh tay
+        const passiveBtn = document.getElementById('btn-passive-audio');
+        if (passiveBtn) passiveBtn.addEventListener('click', togglePassiveAudio);
+
+        // Chế độ Viết mù (Blind Writing) trong modal HanziWriter hiện có
+        const blindBtn = document.getElementById('btn-writer-blind');
+        if (blindBtn) {
+          blindBtn.addEventListener('click', () => {
+            writerOutlineVisible = false;
+            if (writerInstance && !writerUsingFallback) {
+              // Ẩn khung nét mờ và tắt gợi ý khi viết sai để kiểm tra trí nhớ mặt chữ thực tế
+              writerInstance.hideOutline();
+              document.getElementById('writer-feedback').textContent = 'Chế độ VIẾT MÙ: Tự viết từ trí nhớ (đã tắt viền mờ gợi ý)!';
+              writerInstance.quiz({
+                showHintAfterMisses: false,
+                onMistake: () => {
+                  document.getElementById('writer-feedback').textContent = 'Sai nét rồi! Hãy nhớ lại hình dáng chữ và thử vẽ lại.';
+                },
+                onCorrectStroke: (data) => {
+                  document.getElementById('writer-feedback').textContent = `Quá đỉnh! Còn ${data.strokesRemaining} nét nữa.`;
+                },
+                onComplete: () => {
+                  document.getElementById('writer-feedback').textContent = 'Xuất sắc! Bạn đã nhớ mặt chữ này hoàn toàn mà không cần viền mờ.';
+                  showToast('Hoàn thành thử thách Viết mù!', 'success');
+                }
+              });
+            } else {
+              const canvas = document.getElementById('hanzi-fallback-canvas');
+              if (canvas && canvas._resetBase) canvas._resetBase();
+              document.getElementById('writer-feedback').textContent = 'Chế độ VIẾT MÙ: Đã ẩn chữ mẫu, mời bạn tự viết từ trí nhớ!';
+            }
+          });
+        }
+      }
+
+      // ============================================================
       // 17. INITIALIZATION
       // ============================================================
       function init() {
         injectManifest();
         bindEvents();
+        bindPracticeEvents(); // [MỚI] Kích hoạt sự kiện cho Luyện tập toàn diện, Nghe rảnh tay và Viết mù
         renderTodayTab();
         renderNotebookTab();
         renderLibraryTab();
