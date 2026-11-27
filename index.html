@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -165,7 +166,6 @@
       <nav class="hidden md:flex items-center gap-1" aria-label="Điều hướng chính">
         <button type="button" data-tab="today" class="desktop-nav-btn active px-3 py-1.5 rounded-lg text-sm transition">Hôm nay</button>
         <button type="button" data-tab="notebook" class="desktop-nav-btn px-3 py-1.5 rounded-lg text-sm transition">Sổ học</button>
-        <button type="button" data-tab="library" class="desktop-nav-btn px-3 py-1.5 rounded-lg text-sm transition">Kho từ</button>
         <button type="button" data-tab="speaking" class="desktop-nav-btn px-3 py-1.5 rounded-lg text-sm transition">Giao tiếp</button>
         <button type="button" data-tab="settings" class="desktop-nav-btn px-3 py-1.5 rounded-lg text-sm transition">Sao lưu</button>
       </nav>
@@ -304,35 +304,7 @@
       <div id="notebook-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
     </section>
 
-    <!-- ==================== TAB 3: KHO TỪ ==================== -->
-    <section id="tab-library" class="tab-panel space-y-4">
-      <div class="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <h2 class="text-lg font-bold text-[#1F2328]">Kho từ giao tiếp cốt lõi</h2>
-          <p class="text-xs text-[#646B73]">Tích chọn hàng loạt để đưa nhanh vào Sổ học cá nhân</p>
-        </div>
-        <div class="flex items-center gap-2">
-          <button type="button" id="btn-lib-select-all" class="px-3 py-1.5 rounded-xl border border-[#DDD6CB] bg-white hover:bg-[#FAF8F5] text-xs font-semibold text-[#1F2328] transition">
-            Chọn tất cả
-          </button>
-          <button type="button" id="btn-lib-import-selected" class="px-3.5 py-1.5 rounded-xl bg-[#C83E2B] hover:bg-[#A63120] disabled:opacity-45 text-white text-xs font-semibold transition shadow-sm" disabled>
-            Thêm đã chọn (0)
-          </button>
-        </div>
-      </div>
-
-      <!-- Library Search & Topic Chips -->
-      <div class="bg-white rounded-2xl border border-[#E8E2D9] p-3.5 space-y-3 shadow-sm">
-        <div class="relative">
-          <svg class="w-4 h-4 text-[#8C939C] absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
-          <input id="library-search" type="search" placeholder="Tìm từ trong kho (ví dụ: 咖啡, chào, mua)..." class="w-full pl-10 pr-3.5 py-2 rounded-xl border border-[#E5DFD6] bg-[#FAF8F5] text-sm focus:outline-none focus:ring-2 focus:ring-[#C83E2B]/30 focus:border-[#C83E2B]" />
-        </div>
-        <div id="library-topic-chips" class="flex flex-wrap gap-1.5"></div>
-      </div>
-
-      <!-- Library Items -->
-      <div id="library-list" class="grid grid-cols-1 md:grid-cols-2 gap-2.5"></div>
-    </section>
+    <!-- [ĐÃ GỠ] Tab Kho từ khỏi giao diện theo yêu cầu; dữ liệu CORE_LIBRARY vẫn giữ chạy ngầm cho nút Tự điền (0đ) -->
 
     <!-- ==================== TAB 4: GIAO TIẾP ==================== -->
     <section id="tab-speaking" class="tab-panel space-y-4">
@@ -509,6 +481,11 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3"/></svg>
             Xuất file .JSON
           </button>
+          <!-- [MỚI] Nút gọn xuất danh sách từ vựng sang file .CSV (chuẩn UTF-8 BOM mở trực tiếp trên Excel/Sheets) -->
+          <button type="button" id="btn-export-csv" class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-[#BEE8D4] bg-[#ECF8F2] hover:bg-[#D5F2E4] text-[#1B875B] text-sm font-semibold transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            Xuất .CSV
+          </button>
           <label class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#DDD6CB] bg-[#FAF8F5] hover:bg-[#F2ECE3] text-[#1F2328] text-sm font-semibold cursor-pointer transition">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M17 8l-5-5-5 5M12 3v12"/></svg>
             Nhập file .JSON
@@ -553,7 +530,8 @@
 
   <!-- Mobile Bottom Navigation Bar -->
   <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur border-t border-[#E8E2D9] px-1 pt-1.5 pb-[calc(6px+env(safe-area-inset-bottom,0px))]" aria-label="Điều hướng di động">
-    <div class="grid grid-cols-5 gap-0.5 max-w-lg mx-auto">
+    <!-- [CẬP NHẬT] Rút gọn thanh điều hướng di động xuống 4 cột sau khi gỡ Tab Kho từ -->
+    <div class="grid grid-cols-4 gap-0.5 max-w-lg mx-auto">
       <button type="button" data-tab="today" class="nav-btn active flex flex-col items-center justify-center py-1 rounded-xl">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
         <span class="text-[10px] mt-0.5">Hôm nay</span>
@@ -561,10 +539,6 @@
       <button type="button" data-tab="notebook" class="nav-btn flex flex-col items-center justify-center py-1 rounded-xl">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
         <span class="text-[10px] mt-0.5">Sổ học</span>
-      </button>
-      <button type="button" data-tab="library" class="nav-btn flex flex-col items-center justify-center py-1 rounded-xl">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
-        <span class="text-[10px] mt-0.5">Kho từ</span>
       </button>
       <button type="button" data-tab="speaking" class="nav-btn flex flex-col items-center justify-center py-1 rounded-xl">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
@@ -1117,6 +1091,38 @@
           .replace(/'/g, '&#39;');
       }
 
+      // [MỚI] Hàm chuẩn hóa văn bản tìm kiếm: bỏ dấu thanh điệu Pinyin (nǐ hǎo -> ni hao, nǚ -> nu) và dấu tiếng Việt (đ -> d)
+      // Cơ chế: Phân tách ký tự tổ hợp Unicode (NFD), xóa toàn bộ dấu phụ (combining diacritics) và quy về chữ thường
+      function normalizeSearchText(str) {
+        return String(str || '')
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/[đĐ]/g, 'd')
+          .replace(/[üÜ]/g, 'u')
+          .toLowerCase()
+          .trim();
+      }
+
+      // [MỚI] Hàm kiểm tra từ khóa tìm kiếm có khớp với 1 mục từ vựng hay không (hỗ trợ cả Pinyin không dấu gõ liền như "nihao" hoặc gõ cách "ni hao")
+      function matchesVocabSearch(item, rawQuery) {
+        const q = rawQuery.trim().toLowerCase();
+        if (!q) return true;
+        const qNorm = normalizeSearchText(q);
+        const qCompact = qNorm.replace(/\s+/g, '');
+
+        const hanzi = (item.hanzi || '').toLowerCase();
+        const pinyinNorm = normalizeSearchText(item.pinyin || '');
+        const pinyinCompact = pinyinNorm.replace(/\s+/g, '');
+        const meaningNorm = normalizeSearchText(item.meaning || '');
+
+        return (
+          hanzi.includes(q) ||
+          pinyinNorm.includes(qNorm) ||
+          (qCompact.length > 0 && pinyinCompact.includes(qCompact)) ||
+          meaningNorm.includes(qNorm)
+        );
+      }
+
       function showToast(message, type) {
         const container = document.getElementById('toast-container');
         if (!container) return;
@@ -1383,7 +1389,7 @@
         if (dueList.length === 0) {
           reviewEl.innerHTML = `
             <div class="rounded-xl bg-[#ECF8F2] border border-[#D5F2E4] p-3.5 text-center text-xs text-[#1B875B] font-medium">
-              Tuyệt vời! Bạn đã ôn hết từ đến hạn hôm nay. Hãy thêm từ mới từ Kho từ hoặc tập giao tiếp nhé.
+              Tuyệt vời! Bạn đã ôn hết từ đến hạn hôm nay. Hãy thêm từ mới vào Sổ học hoặc tập giao tiếp nhé.
             </div>
           `;
         } else {
@@ -1453,15 +1459,10 @@
             : 'nb-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#FAF8F5] text-[#646B73] border border-[#E8E2D9] hover:bg-[#EFEAE2] transition';
         });
 
-        const q = notebookSearch.trim().toLowerCase();
+        // [CẬP NHẬT] Lọc từ trong Sổ học hỗ trợ gõ Pinyin không dấu thanh điệu (gõ liền "nihao" hay gõ cách "ni hao" đều ra)
         const filtered = appData.words.filter(w => {
           if (notebookFilter !== 'all' && w.level !== notebookFilter) return false;
-          if (!q) return true;
-          return (
-            (w.hanzi || '').toLowerCase().includes(q) ||
-            (w.pinyin || '').toLowerCase().includes(q) ||
-            (w.meaning || '').toLowerCase().includes(q)
-          );
+          return matchesVocabSearch(w, notebookSearch);
         });
 
         const listEl = document.getElementById('notebook-list');
@@ -1469,7 +1470,7 @@
           listEl.innerHTML = `
             <div class="md:col-span-2 bg-white rounded-2xl border border-[#E8E2D9] p-8 text-center space-y-2">
               <p class="text-sm font-semibold text-[#1F2328]">Chưa tìm thấy từ vựng phù hợp</p>
-              <p class="text-xs text-[#646B73]">Nhấn "Thêm từ" hoặc sang tab "Kho từ" để thêm nhanh từ vựng cốt lõi.</p>
+              <p class="text-xs text-[#646B73]">Nhấn "Thêm từ" để bắt đầu lưu từ vựng mới vào Sổ học.</p>
             </div>
           `;
           return;
@@ -1845,19 +1846,16 @@ Trả về ĐÚNG 1 JSON object hợp lệ (không thêm markdown \`\`\`json) g�
       // 13. RENDER TAB 3: KHO TỪ (CORE DATABASE)
       // ============================================================
       function getFilteredLibrary() {
-        const q = librarySearch.trim().toLowerCase();
+        // [CẬP NHẬT] Lọc từ trong Kho từ hỗ trợ gõ Pinyin không dấu thanh điệu và tiếng Việt không dấu
         return CORE_LIBRARY.filter(item => {
           if (libraryTopic !== 'Tất cả' && item.topic !== libraryTopic) return false;
-          if (!q) return true;
-          return (
-            item.hanzi.toLowerCase().includes(q) ||
-            item.pinyin.toLowerCase().includes(q) ||
-            item.meaning.toLowerCase().includes(q)
-          );
+          return matchesVocabSearch(item, librarySearch);
         });
       }
 
       function renderLibraryTab() {
+        // [CẬP NHẬT] Bỏ qua render an toàn do giao diện Tab Kho từ đã được gỡ khỏi thanh menu
+        if (!document.getElementById('library-list')) return;
         const topics = ['Tất cả', ...Array.from(new Set(CORE_LIBRARY.map(i => i.topic)))];
         document.getElementById('library-topic-chips').innerHTML = topics.map(t => `
           <button type="button" data-lib-topic="${escapeHtml(t)}" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
@@ -2055,6 +2053,44 @@ Trả về ĐÚNG 1 JSON object hợp lệ (không thêm markdown \`\`\`json) g�
         a.remove();
         setTimeout(() => URL.revokeObjectURL(url), 1000);
         showToast('Đã xuất file sao lưu .JSON thành công!', 'success');
+      }
+
+      // [MỚI] Hàm xuất toàn bộ từ vựng trong Sổ học sang file .CSV chuẩn UTF-8 BOM (mở bằng Excel/Google Sheets không lỗi font)
+      // Cơ chế: Bọc và thoát dấu ngoặc kép cho từng ô theo chuẩn CSV, thêm ký tự BOM (\uFEFF) ở đầu file rồi tải về máy
+      function exportVocabCsv() {
+        const words = Array.isArray(appData.words) ? appData.words : [];
+        if (words.length === 0) {
+          showToast('Sổ học đang trống, chưa có từ vựng nào để xuất .CSV.', 'error');
+          return;
+        }
+        const levelLabel = (lvl) => (lvl === 'mastered' ? 'Đã thuộc' : lvl === 'learning' ? 'Đang nhớ' : 'Mới học');
+        const csvCell = (val) => `"${String(val || '').replace(/"/g, '""').replace(/\r?\n/g, ' ')}"`;
+
+        const headers = ['Chữ Hán', 'Pinyin', 'Nghĩa tiếng Việt', 'Chiết tự', 'Ví dụ', 'Mức độ nhớ'];
+        const rows = [
+          headers.map(csvCell).join(','),
+          ...words.map(w => [
+            w.hanzi,
+            w.pinyin,
+            w.meaning,
+            w.mnemonic,
+            w.example,
+            levelLabel(w.level)
+          ].map(csvCell).join(','))
+        ];
+
+        // Thêm \uFEFF (UTF-8 BOM) để Microsoft Excel nhận diện đúng tiếng Việt và chữ Hán ngay khi mở
+        const csvContent = '\uFEFF' + rows.join('\r\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `so-tay-han-ngu-tu-vung-${getTodayKey()}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        showToast(`Đã xuất ${words.length} từ vựng sang file .CSV!`, 'success');
       }
 
       function importBackupJson(file) {
@@ -2300,64 +2336,7 @@ Trả về ĐÚNG 1 JSON object hợp lệ (không thêm markdown \`\`\`json) g�
           rateSrsWord(btn.getAttribute('data-srs-rate'));
         });
 
-        // Tab 3: Library Controls
-        document.getElementById('library-search').addEventListener('input', (e) => {
-          librarySearch = e.target.value;
-          renderLibraryTab();
-        });
-        document.getElementById('library-topic-chips').addEventListener('click', (e) => {
-          const btn = e.target.closest('[data-lib-topic]');
-          if (!btn) return;
-          libraryTopic = btn.getAttribute('data-lib-topic');
-          renderLibraryTab();
-        });
-        document.getElementById('library-list').addEventListener('change', (e) => {
-          const chk = e.target.closest('[data-lib-check]');
-          if (!chk) return;
-          const id = chk.getAttribute('data-lib-check');
-          if (chk.checked) librarySelectedIds.add(id);
-          else librarySelectedIds.delete(id);
-          renderLibraryTab();
-        });
-        document.getElementById('btn-lib-select-all').addEventListener('click', () => {
-          const existing = new Set(appData.words.map(w => w.hanzi));
-          const visibleEligible = getFilteredLibrary().filter(i => !existing.has(i.hanzi));
-          const allSelected = visibleEligible.length > 0 && visibleEligible.every(i => librarySelectedIds.has(i.id));
-          if (allSelected) {
-            visibleEligible.forEach(i => librarySelectedIds.delete(i.id));
-          } else {
-            visibleEligible.forEach(i => librarySelectedIds.add(i.id));
-          }
-          renderLibraryTab();
-        });
-        document.getElementById('btn-lib-import-selected').addEventListener('click', () => {
-          if (librarySelectedIds.size === 0) return;
-          const existing = new Set(appData.words.map(w => w.hanzi));
-          let addedCount = 0;
-          CORE_LIBRARY.forEach(item => {
-            if (librarySelectedIds.has(item.id) && !existing.has(item.hanzi)) {
-              appData.words.unshift({
-                id: 'w_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
-                hanzi: item.hanzi,
-                pinyin: item.pinyin,
-                meaning: item.meaning,
-                mnemonic: item.mnemonic,
-                example: item.example,
-                level: 'new',
-                interval: 0,
-                nextReview: Date.now(),
-                createdAt: Date.now()
-              });
-              addedCount++;
-            }
-          });
-          librarySelectedIds.clear();
-          saveAppData();
-          renderLibraryTab();
-          renderNotebookTab();
-          renderTodayTab();
-          showToast(`Đã thêm ${addedCount} từ vào Sổ học cá nhân!`, 'success');
-        });
+        // [ĐÃ GỠ] Sự kiện giao diện Tab Kho từ đã được lược bỏ an toàn
 
         // Tab 4: Speaking Controls
         document.getElementById('toggle-blur-pinyin').addEventListener('click', () => {
@@ -2407,6 +2386,9 @@ Trả về ĐÚNG 1 JSON object hợp lệ (không thêm markdown \`\`\`json) g�
           showToast('Đã xóa API Key khỏi máy.', 'info');
         });
         document.getElementById('btn-export-json').addEventListener('click', exportBackupJson);
+        // [MỚI] Kích hoạt nút xuất danh sách từ vựng sang file .CSV trong Tab Sao lưu
+        const btnExportCsv = document.getElementById('btn-export-csv');
+        if (btnExportCsv) btnExportCsv.addEventListener('click', exportVocabCsv);
         document.getElementById('input-import-json').addEventListener('change', (e) => {
           const file = e.target.files && e.target.files[0];
           if (file) importBackupJson(file);
@@ -3834,11 +3816,12 @@ Sau đó tạo 2 câu hỏi đọc hiểu tiếng Việt kèm đáp án ngắn. 
                   </button>
                 </div>
 
-                <!-- 3 nút công cụ vẽ gọn trên 1 hàng -->
-                <div class="grid grid-cols-3 gap-1.5">
-                  <button type="button" id="btn-fw-undo" class="py-1.5 rounded-xl bg-white hover:bg-[#EFEAE2] border border-[#DDD6CB] text-xs font-semibold text-[#1F2328]">↩️ Hoàn tác</button>
-                  <button type="button" id="btn-fw-clear" class="py-1.5 rounded-xl bg-white hover:bg-[#EFEAE2] border border-[#DDD6CB] text-xs font-semibold text-[#1F2328]">🧹 Xóa bảng</button>
-                  <button type="button" id="btn-fw-hint" class="py-1.5 rounded-xl bg-[#FFF7E6] hover:bg-[#FDECC8] border border-[#F6DFB0] text-xs font-semibold text-[#B45309]">💡 Gợi ý mờ</button>
+                <!-- [CẬP NHẬT] 4 nút công cụ vẽ gọn trên 1 hàng (thêm nút Xem mẫu nét từ HanziWriter) -->
+                <div class="grid grid-cols-4 gap-1.5">
+                  <button type="button" id="btn-fw-undo" class="py-1.5 px-1 rounded-xl bg-white hover:bg-[#EFEAE2] border border-[#DDD6CB] text-[11px] sm:text-xs font-semibold text-[#1F2328] truncate">↩️ Hoàn tác</button>
+                  <button type="button" id="btn-fw-clear" class="py-1.5 px-1 rounded-xl bg-white hover:bg-[#EFEAE2] border border-[#DDD6CB] text-[11px] sm:text-xs font-semibold text-[#1F2328] truncate">🧹 Xóa</button>
+                  <button type="button" id="btn-fw-hint" class="py-1.5 px-1 rounded-xl bg-[#FFF7E6] hover:bg-[#FDECC8] border border-[#F6DFB0] text-[11px] sm:text-xs font-semibold text-[#B45309] truncate">💡 Gợi ý</button>
+                  <button type="button" id="btn-fw-animate" class="py-1.5 px-1 rounded-xl bg-[#FDF1EF] hover:bg-[#FCE3DF] border border-[#F5D6D1] text-[11px] sm:text-xs font-semibold text-[#C83E2B] truncate">▶️ Mẫu nét</button>
                 </div>
 
                 <!-- Dải trạng thái tự chấm cố định 1 dòng (không làm nhảy khung viết khi hiện Đúng/Sai) -->
@@ -3851,6 +3834,10 @@ Sau đó tạo 2 câu hỏi đọc hiểu tiếng Việt kèm đáp án ngắn. 
               <div id="fw-board-wrap" class="flex-1 min-h-0 w-full flex items-center justify-center pb-0.5">
                 <div id="fw-board-box" class="mizige-box flex items-center justify-center shadow-sm">
                   <canvas id="fw-canvas" width="320" height="320" class="w-full h-full cursor-crosshair"></canvas>
+                  <!-- [MỚI] Lớp phủ tạm chiếu thứ tự nét chuẩn bằng HanziWriter ngay trên khung viết (tự ẩn khi chiếu xong hoặc khi chạm vào) -->
+                  <div id="fw-demo-layer" class="hidden absolute inset-0 z-10 bg-[#FFFDF9]/95 flex items-center justify-center cursor-pointer" title="Chạm để đóng mẫu nét và viết tiếp">
+                    <div id="fw-demo-target"></div>
+                  </div>
                 </div>
               </div>
             `;
@@ -4031,6 +4018,86 @@ Sau đó tạo 2 câu hỏi đọc hiểu tiếng Việt kèm đáp án ngắn. 
             document.getElementById('btn-fw-hint').addEventListener('click', () => {
               showHintChar = !showHintChar;
               redrawCanvas(canvas, ctx);
+            });
+
+            // [MỚI] Xem mẫu thứ tự nét chuẩn bằng HanziWriter (bê từ phần Tập viết ở Sổ học)
+            // Cơ chế: Chiếu animation thứ tự từng nét ngay trên lớp phủ của khung viết, tự ẩn khi chiếu xong hoặc khi người dùng chạm vào
+            const demoLayer = document.getElementById('fw-demo-layer');
+            const demoTarget = document.getElementById('fw-demo-target');
+            let demoHideTimer = null;
+
+            const closeDemoLayer = () => {
+              if (demoHideTimer) { clearTimeout(demoHideTimer); demoHideTimer = null; }
+              if (demoLayer) demoLayer.classList.add('hidden');
+              if (demoTarget) demoTarget.innerHTML = '';
+            };
+
+            if (demoLayer) {
+              demoLayer.addEventListener('click', () => {
+                closeDemoLayer();
+                setResultBanner('neutral', 'Mời bạn viết lại chữ vừa xem — máy tự chấm sau 1,5 giây');
+              });
+            }
+
+            document.getElementById('btn-fw-animate').addEventListener('click', () => {
+              if (fwAutoCheckTimer) { clearTimeout(fwAutoCheckTimer); fwAutoCheckTimer = null; }
+
+              // Nếu lớp chiếu mẫu đang mở thì bấm lại nút sẽ đóng nhanh
+              if (demoLayer && !demoLayer.classList.contains('hidden')) {
+                closeDemoLayer();
+                setResultBanner('neutral', 'Viết chữ bên dưới — máy tự chấm sau 1,5 giây');
+                return;
+              }
+
+              // Phương án dự phòng nếu thư viện HanziWriter chưa tải được (mất mạng)
+              if (typeof window.HanziWriter === 'undefined') {
+                showHintChar = true;
+                redrawCanvas(canvas, ctx);
+                setResultBanner('neutral', 'Chưa tải được mẫu nét online — đã bật chữ mờ gợi ý.');
+                return;
+              }
+
+              const boardBox = document.getElementById('fw-board-box');
+              const side = Math.max(180, (boardBox && boardBox.clientWidth) ? boardBox.clientWidth : 260);
+              demoTarget.innerHTML = '';
+              demoLayer.classList.remove('hidden');
+              setResultBanner('neutral', 'Đang chiếu thứ tự nét chuẩn (chạm khung để đóng)...');
+
+              try {
+                const demoWriter = window.HanziWriter.create(demoTarget, targetChar, {
+                  width: side,
+                  height: side,
+                  padding: 18,
+                  showOutline: true,
+                  strokeAnimationSpeed: 1.0,
+                  delayBetweenStrokes: 260,
+                  strokeColor: '#1F2328',
+                  radicalColor: '#C83E2B',
+                  outlineColor: '#DDD6CB',
+                  onLoadCharDataSuccess: () => {
+                    demoWriter.animateCharacter({
+                      onComplete: () => {
+                        // Sau khi chiếu xong toàn bộ nét, giữ lại 0,7 giây cho người học nhìn tổng thể rồi tự đóng trả lại bảng viết
+                        demoHideTimer = setTimeout(() => {
+                          closeDemoLayer();
+                          setResultBanner('neutral', 'Đã chiếu xong mẫu nét! Mời bạn viết lại vào khung');
+                        }, 700);
+                      }
+                    });
+                  },
+                  onLoadCharDataError: () => {
+                    closeDemoLayer();
+                    showHintChar = true;
+                    redrawCanvas(canvas, ctx);
+                    setResultBanner('neutral', 'Không có dữ liệu nét online cho chữ này — đã bật chữ mờ gợi ý.');
+                  }
+                });
+              } catch (err) {
+                closeDemoLayer();
+                showHintChar = true;
+                redrawCanvas(canvas, ctx);
+                setResultBanner('neutral', 'Không thể chiếu mẫu nét — đã bật chữ mờ gợi ý.');
+              }
             });
 
             // Gắn sự kiện cho 4 nút đánh giá SRS viết riêng
