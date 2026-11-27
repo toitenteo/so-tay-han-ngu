@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -426,6 +427,15 @@
               <div class="text-[10px] text-[#646B73] truncate">Nghe &amp; gõ lại</div>
             </div>
           </button>
+
+          <!-- [MỚI] Nút mở chế độ Luyện viết tay tự do (tách biệt hoàn toàn với Flashcard/SRS) -->
+          <button type="button" data-practice-mode="freewrite" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-[#FAF8F5] hover:bg-[#FDF1EF] border border-[#E8E2D9] hover:border-[#F3CBC4] text-left transition">
+            <span class="w-7 h-7 rounded-lg bg-white border border-[#EFEAE2] flex items-center justify-center text-[#1B875B] text-sm shrink-0">✍️</span>
+            <div class="min-w-0">
+              <div class="text-xs font-bold text-[#1F2328] truncate">Luyện viết</div>
+              <div class="text-[10px] text-[#646B73] truncate">Viết tay tự do</div>
+            </div>
+          </button>
         </div>
       </div>
 
@@ -683,6 +693,28 @@
       </div>
       <!-- Khu vực nội dung động cho từng chế độ luyện tập -->
       <div id="practice-modal-body" class="p-5 overflow-y-auto space-y-4"></div>
+    </div>
+  </div>
+
+  <!-- [MỚI] ==================== TOÀN MÀN HÌNH: LUYỆN VIẾT TAY TỰ DO (SRS RIÊNG) ==================== -->
+  <div id="view-freewrite" class="hidden fixed inset-0 z-50 bg-[#FAF8F5] flex flex-col">
+    <!-- Thanh tiêu đề cố định trên cùng kèm nút Quay lại và bộ đếm SRS viết riêng -->
+    <header class="shrink-0 bg-white/95 backdrop-blur border-b border-[#E8E2D9] px-4 h-14 flex items-center justify-between gap-2">
+      <button type="button" id="btn-freewrite-back" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF8F5] hover:bg-[#EFEAE2] border border-[#DDD6CB] text-xs sm:text-sm font-semibold text-[#1F2328] transition shrink-0">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        Quay lại
+      </button>
+      <div class="text-center min-w-0">
+        <h2 class="text-sm sm:text-base font-bold text-[#1F2328] truncate">Luyện viết tay tự do</h2>
+        <p id="freewrite-srs-summary" class="text-[11px] text-[#646B73] truncate">SRS viết độc lập</p>
+      </div>
+      <div class="shrink-0 text-right">
+        <span id="freewrite-due-pill" class="inline-block px-2.5 py-1 rounded-full bg-[#FDF1EF] border border-[#F5D6D1] text-[#C83E2B] text-[10px] font-bold">0 cần ôn</span>
+      </div>
+    </header>
+    <!-- Vùng nội dung chính toàn màn hình cho bảng vẽ cỡ lớn và thanh đánh giá SRS viết -->
+    <div id="freewrite-screen-body" class="flex-1 overflow-y-auto px-4 py-4">
+      <div id="freewrite-container" class="max-w-md mx-auto space-y-3.5 pb-8"></div>
     </div>
   </div>
 
@@ -1038,6 +1070,8 @@
       }
       if (!Array.isArray(appData.checkins)) appData.checkins = [];
       if (!Array.isArray(appData.journals)) appData.journals = [];
+      // [MỚI] Dữ liệu SRS riêng biệt cho chế độ Luyện viết tay (lưu theo word.id), không đụng vào SRS Flashcard
+      if (!appData.writeSrs || typeof appData.writeSrs !== 'object') appData.writeSrs = {};
 
       let aiConfig = Storage.get(AI_KEY_STORAGE, { provider: 'gemini', apiKey: '' });
 
@@ -2038,7 +2072,9 @@ Trả về ĐÚNG 1 JSON object hợp lệ (không thêm markdown \`\`\`json) g�
             appData = {
               words: incoming.words || [],
               checkins: Array.isArray(incoming.checkins) ? incoming.checkins : [],
-              journals: Array.isArray(incoming.journals) ? incoming.journals : []
+              journals: Array.isArray(incoming.journals) ? incoming.journals : [],
+              // [MỚI] Khôi phục cả tiến độ SRS Luyện viết riêng từ file sao lưu .JSON (nếu có)
+              writeSrs: (incoming.writeSrs && typeof incoming.writeSrs === 'object') ? incoming.writeSrs : {}
             };
             saveAppData();
             renderTodayTab();
@@ -2650,6 +2686,12 @@ Trả về ĐÚNG 1 JSON object hợp lệ (không thêm markdown \`\`\`json) g�
         // Nếu chọn "Học (SRS)" thì mở thẳng modal SRS Flashcard sẵn có
         if (mode === 'srs') {
           openSrsModal();
+          return;
+        }
+        // [MỚI] Mở chế độ Luyện viết ở giao diện toàn màn hình riêng (không dùng pop-up modal)
+        if (mode === 'freewrite') {
+          cleanupPracticeSession();
+          startFreeWriteMode();
           return;
         }
         cleanupPracticeSession();
@@ -3422,6 +3464,561 @@ Sau đó tạo 2 câu hỏi đọc hiểu tiếng Việt kèm đáp án ngắn. 
           });
         }
         renderDictation();
+      }
+
+      // ------------------------------------------------------------
+      // CHẾ ĐỘ 8: LUYỆN VIẾT TAY TỰ DO (API NHẬN DIỆN CHỮ VIẾT TAY TRỰC TUYẾN)
+      // Cơ chế:
+      // - Chỉ lấy ngẫu nhiên các từ trong Sổ học cá nhân (appData.words - dữ liệu lưu ở LocalStorage / file .JSON).
+      // - Hoàn toàn tách biệt với Flashcard và không làm thay đổi điểm hay lịch ôn SRS.
+      // - Cho phép viết tự do bằng tay/chuột lên khung canvas không gò theo thứ tự nét, sau đó gửi tọa độ nét vẽ
+      //   lên Google Input Tools Handwriting API để nhận diện và chấm Đúng / Sai khi người dùng bấm "Kiểm tra".
+      // ------------------------------------------------------------
+
+      // Hàm gửi danh sách tọa độ các nét vẽ tay lên Google Input Tools API để nhận diện chữ Hán giản thể
+      // Cơ chế: Đóng gói mảng strokes theo định dạng [xs, ys, ts] kèm kích thước khung vẽ, trả về mảng các chữ Hán ứng viên
+      async function recognizeHandwritingOnline(strokes, width, height) {
+        const endpoint = 'https://inputtools.google.com/request?itc=zh-t-i0-handwrit&app=demopage';
+        const payload = {
+          options: 'enable_pre_space',
+          requests: [
+            {
+              writing_guide: {
+                writing_area_width: width,
+                writing_area_height: height
+              },
+              ink: strokes,
+              language: 'zh_CN'
+            }
+          ]
+        };
+
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          throw new Error(`API nhận diện phản hồi lỗi (${res.status})`);
+        }
+
+        const data = await res.json();
+        // Định dạng trả về chuẩn: ["SUCCESS", [["", ["我", "找", ...], [], {...}]]]
+        if (Array.isArray(data) && data[0] === 'SUCCESS' && data[1] && data[1][0] && Array.isArray(data[1][0][1])) {
+          return data[1][0][1];
+        }
+        return [];
+      }
+
+      // Hàm mở giao diện toàn màn hình Luyện viết và khóa cuộn nền phía sau
+      // Cơ chế: Hiện overlay #view-freewrite chiếm trọn khung nhìn và khóa scroll của body để vẽ tay trên điện thoại không bị trôi trang
+      function openFreeWriteScreen() {
+        const view = document.getElementById('view-freewrite');
+        if (!view) return;
+        view.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      }
+
+      // Hàm đóng giao diện toàn màn hình Luyện viết và khôi phục cuộn trang bình thường
+      function closeFreeWriteScreen() {
+        const view = document.getElementById('view-freewrite');
+        if (!view) return;
+        view.classList.add('hidden');
+        document.body.style.overflow = '';
+      }
+
+      // Hàm lấy bản ghi SRS Luyện viết riêng của một từ theo wordId (hoàn toàn độc lập với SRS Flashcard)
+      function getWriteSrsRecord(wordId) {
+        if (!appData.writeSrs || typeof appData.writeSrs !== 'object') appData.writeSrs = {};
+        if (!appData.writeSrs[wordId]) {
+          appData.writeSrs[wordId] = {
+            level: 'new',     // Trạng thái viết: 'new' (chưa nhớ), 'learning' (đang nhớ), 'mastered' (quen tay)
+            interval: 0,      // Số ngày cách quãng cho lần ôn viết tiếp theo
+            nextReview: 0,    // Mốc 00:00:00 ngày cần ôn viết lại
+            mistakes: 0       // Số lần đánh dấu chưa nhớ / viết sai để tăng độ ưu tiên lặp lại
+          };
+        }
+        return appData.writeSrs[wordId];
+      }
+
+      // Hàm kiểm tra một từ có đang đến hạn ôn viết theo SRS viết riêng hay không
+      function isWriteSrsDue(wordId) {
+        const rec = getWriteSrsRecord(wordId);
+        if (!rec.nextReview || rec.level === 'new') return true;
+        const todayStart = getStartOfDayTimestamp();
+        return getStartOfDayTimestamp(rec.nextReview) <= todayStart;
+      }
+
+      // Hàm xây dựng hàng đợi luyện viết thông minh theo SRS riêng
+      // Cơ chế: Ưu tiên các từ đến hạn ôn viết; trong đó các từ hay quên/sai (mistakes > 0) luôn được đẩy lên trước để tăng tỷ lệ lặp lại
+      function buildWriteSrsQueue(words) {
+        const dueHighPriority = []; // Từ đến hạn và từng quên/sai nhiều
+        const dueNormal = [];       // Từ đến hạn bình thường hoặc từ mới chưa viết
+        const notDue = [];          // Từ đã quen tay, chưa đến ngày ôn
+
+        words.forEach(w => {
+          const rec = getWriteSrsRecord(w.id);
+          if (isWriteSrsDue(w.id)) {
+            if ((rec.mistakes || 0) > 0) dueHighPriority.push(w);
+            else dueNormal.push(w);
+          } else {
+            notDue.push(w);
+          }
+        });
+
+        // Sắp xếp nhóm sai nhiều theo số lần sai giảm dần (kèm xáo trộn nhẹ các từ cùng mức)
+        const priorityOrdered = shuffleArray(dueHighPriority).sort((a, b) => {
+          return (getWriteSrsRecord(b.id).mistakes || 0) - (getWriteSrsRecord(a.id).mistakes || 0);
+        });
+        const dueQueue = [...priorityOrdered, ...shuffleArray(dueNormal)];
+
+        if (dueQueue.length > 0) {
+          return { queue: dueQueue, dueCount: dueQueue.length, isExtraPractice: false };
+        }
+        // Nếu đã ôn hết từ đến hạn hôm nay, vẫn cho luyện mở rộng toàn bộ sổ (ưu tiên từ có interval nhỏ)
+        const fallbackQueue = shuffleArray(notDue).sort((a, b) => {
+          return (getWriteSrsRecord(a.id).interval || 0) - (getWriteSrsRecord(b.id).interval || 0);
+        });
+        return { queue: fallbackQueue, dueCount: 0, isExtraPractice: true };
+      }
+
+      // Hàm cập nhật thanh thống kê SRS viết ở thanh tiêu đề toàn màn hình
+      function updateFreeWriteHeaderStats(personalWords) {
+        const dueCount = personalWords.filter(w => isWriteSrsDue(w.id)).length;
+        const masteredCount = personalWords.filter(w => getWriteSrsRecord(w.id).level === 'mastered').length;
+        const pill = document.getElementById('freewrite-due-pill');
+        const summary = document.getElementById('freewrite-srs-summary');
+        if (pill) {
+          pill.textContent = dueCount > 0 ? `${dueCount} cần ôn` : 'Đã xong hôm nay';
+          pill.className = dueCount > 0
+            ? 'inline-block px-2.5 py-1 rounded-full bg-[#FDF1EF] border border-[#F5D6D1] text-[#C83E2B] text-[10px] font-bold'
+            : 'inline-block px-2.5 py-1 rounded-full bg-[#ECF8F2] border border-[#BEE8D4] text-[#1B875B] text-[10px] font-bold';
+        }
+        if (summary) {
+          summary.textContent = `Quen tay: ${masteredCount}/${personalWords.length} từ · SRS viết riêng`;
+        }
+      }
+
+      // Hàm chính khởi chạy giao diện toàn màn hình và logic Luyện viết tay tự do + SRS viết độc lập
+      function startFreeWriteMode() {
+        openFreeWriteScreen();
+
+        // Gắn nút Quay lại (chỉ gắn 1 lần an toàn qua onclick để tránh trùng listener)
+        const backBtn = document.getElementById('btn-freewrite-back');
+        if (backBtn) {
+          backBtn.onclick = closeFreeWriteScreen;
+        }
+
+        const body = document.getElementById('freewrite-container');
+
+        // Chỉ lọc các từ có chứa ký tự chữ Hán trong Sổ học cá nhân (appData.words) của người dùng
+        const personalHanziWords = (appData.words || []).filter(w => /[一-鿿]/.test(w.hanzi || ''));
+        updateFreeWriteHeaderStats(personalHanziWords);
+
+        if (personalHanziWords.length === 0) {
+          body.innerHTML = `
+            <div class="rounded-2xl bg-white border border-[#E8E2D9] p-6 text-center space-y-2 shadow-sm mt-6">
+              <div class="text-sm font-bold text-[#C83E2B]">Sổ học cá nhân của bạn chưa có từ chữ Hán nào</div>
+              <p class="text-xs text-[#646B73]">Hãy thêm từ vào tab "Sổ học" hoặc nhập file sao lưu .JSON trước khi luyện viết nhé.</p>
+            </div>
+          `;
+          return;
+        }
+
+        // Khởi tạo hàng đợi ưu tiên theo SRS Luyện viết riêng
+        let session = buildWriteSrsQueue(personalHanziWords);
+        let wordQueue = session.queue;
+        let wordIdx = 0;
+
+        // Hàm lưu đánh giá SRS viết riêng cho từ hiện tại và tăng lượt lặp lại ngay nếu người dùng chọn "Chưa nhớ"
+        function rateWriteWord(word, rating) {
+          const rec = getWriteSrsRecord(word.id);
+          const todayStart = getStartOfDayTimestamp();
+
+          if (rating === 'again') {
+            // Đánh dấu chưa nhớ: tăng bộ đếm mistakes và chèn lặp lại sớm sau 1-2 từ trong chính phiên luyện này
+            rec.level = 'new';
+            rec.interval = 0;
+            rec.nextReview = todayStart;
+            rec.mistakes = (rec.mistakes || 0) + 1;
+            const reinsertPos = Math.min(wordQueue.length, wordIdx + 2);
+            wordQueue.splice(reinsertPos, 0, word);
+            showToast(`Sẽ lặp lại "${word.hanzi}" sớm để bạn nhớ chắc mặt chữ!`, 'info');
+          } else if (rating === 'hard') {
+            rec.level = 'learning';
+            rec.interval = 1;
+            rec.nextReview = getStartOfDayTimestamp(todayStart, 1);
+            showToast('Đã hẹn ôn viết lại vào ngày mai.', 'info');
+          } else if (rating === 'good') {
+            const nextDays = Math.max(3, Math.round((rec.interval || 1) * 2.2));
+            rec.level = nextDays >= 7 ? 'mastered' : 'learning';
+            rec.interval = nextDays;
+            rec.nextReview = getStartOfDayTimestamp(todayStart, nextDays);
+            rec.mistakes = Math.max(0, (rec.mistakes || 0) - 1);
+            showToast(`Tuyệt! Hẹn ôn viết lại sau ${nextDays} ngày.`, 'success');
+          } else if (rating === 'easy') {
+            const nextDays = Math.max(7, Math.round((rec.interval || 2) * 3));
+            rec.level = 'mastered';
+            rec.interval = nextDays;
+            rec.nextReview = getStartOfDayTimestamp(todayStart, nextDays);
+            rec.mistakes = 0;
+            showToast(`Quá quen tay! Hẹn ôn viết lại sau ${nextDays} ngày.`, 'success');
+          }
+
+          saveAppData();
+          updateFreeWriteHeaderStats(personalHanziWords);
+          wordIdx++;
+          renderWordPractice();
+        }
+
+        // Hàm dựng lại màn hình luyện viết cho từ hiện tại
+        function renderWordPractice() {
+          // Khi đã đi hết hàng đợi hiện tại, tự động tạo hàng đợi SRS vòng mới
+          if (wordIdx >= wordQueue.length) {
+            session = buildWriteSrsQueue(personalHanziWords);
+            wordQueue = session.queue;
+            wordIdx = 0;
+            showToast(
+              session.isExtraPractice
+                ? 'Chúc mừng! Bạn đã ôn hết các từ cần viết hôm nay — chuyển sang luyện mở rộng.'
+                : 'Bắt đầu lượt ôn viết tiếp theo cho các từ chưa nhớ!',
+              'success'
+            );
+          }
+
+          const word = wordQueue[wordIdx];
+          const rec = getWriteSrsRecord(word.id);
+          // Tách riêng từng chữ Hán trong từ (ví dụ: "休息" -> ["休", "息"]) để viết và chấm chính xác từng chữ
+          const chars = Array.from(word.hanzi || '').filter(ch => /[一-鿿]/.test(ch));
+          let charIdx = 0;
+          const solvedSet = new Set(); // Lưu vị trí các chữ đã viết đúng trong từ hiện tại
+          let showHintChar = false;    // Cờ bật/tắt gợi ý chữ mẫu khi người dùng quên mặt chữ
+
+          // Mảng lưu lịch sử các nét vẽ trên canvas để hỗ trợ Hoàn tác (Undo) và gửi lên API
+          let strokes = [];
+          let currentStroke = null;
+          let drawing = false;
+          let startTime = 0;
+
+          // Tạo nhãn trạng thái SRS viết riêng cho từ đang luyện
+          const writeStatusBadge = rec.mistakes > 0
+            ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#FDF1EF] text-[#C83E2B] border border-[#F5D6D1]">Ưu tiên lặp lại (${rec.mistakes} lần quên)</span>`
+            : rec.level === 'mastered'
+              ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#ECF8F2] text-[#1B875B] border border-[#BEE8D4]">Đã quen tay</span>'
+              : rec.level === 'learning'
+                ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#FFF7E6] text-[#B45309] border border-[#F6DFB0]">Đang nhớ nét</span>'
+                : '<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#FAF8F5] text-[#646B73] border border-[#E8E2D9]">Từ mới viết</span>';
+
+          // Hàm vẽ lại toàn bộ các nét đang có lên canvas cỡ lớn (320x320)
+          function redrawCanvas(canvas, ctx) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Nếu người dùng bật xem gợi ý, vẽ mờ chữ mục tiêu làm nền theo tỷ lệ khung lớn
+            if (showHintChar) {
+              ctx.save();
+              ctx.fillStyle = 'rgba(200, 62, 43, 0.16)';
+              ctx.font = '224px "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillText(chars[charIdx], canvas.width / 2, canvas.height / 2 + 8);
+              ctx.restore();
+            }
+            // Vẽ lại từng nét đã lưu bằng màu xanh dương rõ nét giống bảng viết Samsung
+            ctx.save();
+            ctx.strokeStyle = '#2563EB';
+            ctx.lineWidth = 8.5;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            for (const [xs, ys] of strokes) {
+              if (xs.length === 0) continue;
+              ctx.beginPath();
+              ctx.moveTo(xs[0], ys[0]);
+              if (xs.length === 1) {
+                ctx.lineTo(xs[0] + 0.5, ys[0] + 0.5);
+              } else {
+                for (let i = 1; i < xs.length; i++) {
+                  ctx.lineTo(xs[i], ys[i]);
+                }
+              }
+              ctx.stroke();
+            }
+            ctx.restore();
+          }
+
+          // Hàm vẽ giao diện cho chữ hiện tại trong từ trên màn hình toàn màn hình
+          function renderCharStage() {
+            const targetChar = chars[charIdx];
+            strokes = [];
+            currentStroke = null;
+            drawing = false;
+            showHintChar = false;
+
+            // Tạo các ô đại diện từng chữ trong từ (chữ đã đúng hiện chữ xanh, chữ đang viết hiện dấu ?)
+            const charSlotsHtml = chars.map((ch, i) => {
+              const isDone = solvedSet.has(i);
+              const isCurrent = i === charIdx;
+              return `
+                <button type="button" data-fw-slot="${i}" class="w-11 h-11 rounded-xl text-xl hanzi-font font-bold border transition flex items-center justify-center ${
+                  isDone
+                    ? 'bg-[#ECF8F2] border-[#BEE8D4] text-[#1B875B]'
+                    : isCurrent
+                      ? 'bg-[#FDF1EF] border-[#C83E2B] text-[#C83E2B] ring-2 ring-[#C83E2B]/20'
+                      : 'bg-white border-[#DDD6CB] text-[#8C939C]'
+                }">${isDone ? escapeHtml(ch) : '?'}</button>
+              `;
+            }).join('');
+
+            body.innerHTML = `
+              <!-- Khung đề bài: Nghĩa + Pinyin + trạng thái SRS viết riêng -->
+              <div class="rounded-2xl bg-white border border-[#E8E2D9] p-4 text-center space-y-2 shadow-sm">
+                <div class="flex items-center justify-between gap-2 text-[11px] text-[#646B73]">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <span>Thẻ ${wordIdx + 1}/${wordQueue.length}</span>
+                    ${writeStatusBadge}
+                  </div>
+                  <button type="button" id="btn-fw-speak" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#FAF8F5] border border-[#E5DFD6] text-[#C83E2B] font-semibold hover:bg-[#FDF1EF] shrink-0">
+                    🔊 Nghe
+                  </button>
+                </div>
+                <div class="text-lg sm:text-xl font-bold text-[#1F2328]">${escapeHtml(word.meaning || '')}</div>
+                <div class="text-sm font-semibold text-[#C83E2B]">${escapeHtml(word.pinyin || '')}</div>
+                <div class="flex items-center justify-center gap-2 pt-1">${charSlotsHtml}</div>
+                ${chars.length > 1 ? `<div class="text-[11px] text-[#646B73]">Đang viết chữ thứ <strong>${charIdx + 1}/${chars.length}</strong></div>` : ''}
+              </div>
+
+              <!-- Bảng viết tay tự do cỡ lớn (320x320px, tự co giãn vừa màn hình điện thoại) -->
+              <div class="space-y-2.5">
+                <div class="mizige-box flex items-center justify-center shadow-sm" style="width: min(320px, calc(100vw - 36px)); height: min(320px, calc(100vw - 36px));">
+                  <canvas id="fw-canvas" width="320" height="320" class="w-full h-full cursor-crosshair"></canvas>
+                </div>
+                <div class="flex items-center justify-center gap-2">
+                  <button type="button" id="btn-fw-undo" class="px-3.5 py-2 rounded-xl bg-white hover:bg-[#EFEAE2] border border-[#DDD6CB] text-xs font-semibold text-[#1F2328]">↩️ Hoàn tác</button>
+                  <button type="button" id="btn-fw-clear" class="px-3.5 py-2 rounded-xl bg-white hover:bg-[#EFEAE2] border border-[#DDD6CB] text-xs font-semibold text-[#1F2328]">🧹 Xóa bảng</button>
+                  <button type="button" id="btn-fw-hint" class="px-3.5 py-2 rounded-xl bg-[#FFF7E6] hover:bg-[#FDECC8] border border-[#F6DFB0] text-xs font-semibold text-[#B45309]">💡 Gợi ý mờ</button>
+                </div>
+              </div>
+
+              <!-- Khu vực hiển thị kết quả Đúng / Sai sau khi bấm Kiểm tra -->
+              <div id="fw-result" class="hidden rounded-xl p-3 text-xs text-center space-y-1"></div>
+
+              <!-- Nút hành động chính: Kiểm tra kết quả & Bỏ qua sang từ khác -->
+              <div class="grid grid-cols-2 gap-2">
+                <button type="button" id="btn-fw-check" class="py-3 rounded-xl bg-[#C83E2B] hover:bg-[#A63120] text-white text-sm font-semibold transition shadow-sm">
+                  ✅ Kiểm tra
+                </button>
+                <button type="button" id="btn-fw-next-word" class="py-3 rounded-xl border border-[#DDD6CB] bg-white hover:bg-[#FAF8F5] text-[#1F2328] text-sm font-semibold transition">
+                  Từ tiếp theo →
+                </button>
+              </div>
+
+              <!-- Thanh đánh giá SRS riêng cho Luyện viết (điều chỉnh tần suất lặp lại độc lập với Flashcards) -->
+              <div class="rounded-2xl bg-white border border-[#E8E2D9] p-3 space-y-2 shadow-sm">
+                <div class="text-[11px] font-semibold text-[#646B73] text-center">Đánh giá mức độ nhớ mặt chữ (SRS viết riêng):</div>
+                <div id="fw-srs-rate-wrap" class="grid grid-cols-4 gap-1.5">
+                  <button type="button" data-fw-rate="again" class="py-2 px-1 rounded-xl bg-[#FDF1EF] hover:bg-[#FCE3DF] border border-[#F5D6D1] text-[#C83E2B] text-xs font-bold transition">
+                    Chưa nhớ<span class="block text-[10px] font-normal opacity-80">Lặp lại ngay</span>
+                  </button>
+                  <button type="button" data-fw-rate="hard" class="py-2 px-1 rounded-xl bg-[#FFF7E6] hover:bg-[#FDECC8] border border-[#F6DFB0] text-[#B45309] text-xs font-bold transition">
+                    Hơi quên<span class="block text-[10px] font-normal opacity-80">1 ngày</span>
+                  </button>
+                  <button type="button" data-fw-rate="good" class="py-2 px-1 rounded-xl bg-[#ECF8F2] hover:bg-[#D5F2E4] border border-[#BEE8D4] text-[#1B875B] text-xs font-bold transition">
+                    Nhớ chữ<span class="block text-[10px] font-normal opacity-80">3+ ngày</span>
+                  </button>
+                  <button type="button" data-fw-rate="easy" class="py-2 px-1 rounded-xl bg-[#EEF4FF] hover:bg-[#DCE9FF] border border-[#C8DDFF] text-[#1D4ED8] text-xs font-bold transition">
+                    Quen tay<span class="block text-[10px] font-normal opacity-80">7+ ngày</span>
+                  </button>
+                </div>
+              </div>
+            `;
+
+            const canvas = document.getElementById('fw-canvas');
+            const ctx = canvas.getContext('2d');
+            const resultBox = document.getElementById('fw-result');
+            const checkBtn = document.getElementById('btn-fw-check');
+
+            // Hàm tính tọa độ chính xác trên canvas 320x320 theo cả cảm ứng lẫn chuột
+            const getCanvasPoint = (e) => {
+              const rect = canvas.getBoundingClientRect();
+              return {
+                x: Math.round((e.clientX - rect.left) * (canvas.width / rect.width)),
+                y: Math.round((e.clientY - rect.top) * (canvas.height / rect.height))
+              };
+            };
+
+            // Bắt đầu vẽ 1 nét mới
+            canvas.addEventListener('pointerdown', (e) => {
+              e.preventDefault();
+              try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
+              drawing = true;
+              if (strokes.length === 0) startTime = Date.now();
+              const pt = getCanvasPoint(e);
+              const t = Math.max(0, Date.now() - startTime);
+              currentStroke = [[pt.x], [pt.y], [t]];
+              strokes.push(currentStroke);
+
+              ctx.strokeStyle = '#2563EB';
+              ctx.lineWidth = 8.5;
+              ctx.lineCap = 'round';
+              ctx.lineJoin = 'round';
+              ctx.beginPath();
+              ctx.moveTo(pt.x, pt.y);
+              ctx.lineTo(pt.x + 0.5, pt.y + 0.5);
+              ctx.stroke();
+            });
+
+            // Di chuyển bút/ngón tay để kéo nét
+            canvas.addEventListener('pointermove', (e) => {
+              if (!drawing || !currentStroke) return;
+              e.preventDefault();
+              const pt = getCanvasPoint(e);
+              const lastX = currentStroke[0][currentStroke[0].length - 1];
+              const lastY = currentStroke[1][currentStroke[1].length - 1];
+              // Lọc bớt các điểm quá sát nhau (< 2px) để dữ liệu gửi lên API gọn và mượt hơn
+              if (Math.hypot(pt.x - lastX, pt.y - lastY) < 2) return;
+              const t = Math.max(0, Date.now() - startTime);
+              currentStroke[0].push(pt.x);
+              currentStroke[1].push(pt.y);
+              currentStroke[2].push(t);
+
+              ctx.lineTo(pt.x, pt.y);
+              ctx.stroke();
+            });
+
+            // Kết thúc 1 nét vẽ
+            const endStroke = () => {
+              drawing = false;
+              currentStroke = null;
+            };
+            canvas.addEventListener('pointerup', endStroke);
+            canvas.addEventListener('pointercancel', endStroke);
+            canvas.addEventListener('pointerleave', endStroke);
+
+            // Chuyển nhanh sang ô chữ khác trong cùng từ nếu từ có nhiều chữ Hán
+            body.querySelectorAll('[data-fw-slot]').forEach(slotBtn => {
+              slotBtn.addEventListener('click', () => {
+                charIdx = Number(slotBtn.getAttribute('data-fw-slot'));
+                renderCharStage();
+              });
+            });
+
+            // Nghe phát âm từ hiện tại
+            document.getElementById('btn-fw-speak').addEventListener('click', () => {
+              speakChinese(word.hanzi, 0.9);
+            });
+
+            // Hoàn tác nét vừa vẽ gần nhất
+            document.getElementById('btn-fw-undo').addEventListener('click', () => {
+              if (strokes.length === 0) return;
+              strokes.pop();
+              redrawCanvas(canvas, ctx);
+              resultBox.classList.add('hidden');
+            });
+
+            // Xóa sạch bảng vẽ để viết lại từ đầu
+            document.getElementById('btn-fw-clear').addEventListener('click', () => {
+              strokes = [];
+              redrawCanvas(canvas, ctx);
+              resultBox.classList.add('hidden');
+            });
+
+            // Bật/tắt chữ mẫu mờ làm nền nếu người dùng quên mặt chữ
+            document.getElementById('btn-fw-hint').addEventListener('click', () => {
+              showHintChar = !showHintChar;
+              redrawCanvas(canvas, ctx);
+            });
+
+            // Chuyển sang từ tiếp theo trong hàng đợi (không thay đổi lịch SRS viết)
+            document.getElementById('btn-fw-next-word').addEventListener('click', () => {
+              wordIdx++;
+              renderWordPractice();
+            });
+
+            // Gắn sự kiện cho 4 nút đánh giá SRS viết riêng
+            document.getElementById('fw-srs-rate-wrap').addEventListener('click', (e) => {
+              const rateBtn = e.target.closest('[data-fw-rate]');
+              if (!rateBtn) return;
+              rateWriteWord(word, rateBtn.getAttribute('data-fw-rate'));
+            });
+
+            // Bấm "Kiểm tra": Gửi nét vẽ lên API nhận diện trực tuyến và chấm Đúng / Sai
+            checkBtn.addEventListener('click', async () => {
+              if (strokes.length === 0) {
+                showToast('Bạn hãy viết chữ lên bảng trước khi bấm Kiểm tra nhé!', 'info');
+                return;
+              }
+
+              checkBtn.disabled = true;
+              checkBtn.textContent = 'Đang chấm...';
+              resultBox.classList.remove('hidden');
+              resultBox.className = 'rounded-xl p-3 text-xs text-center bg-white border border-[#E8E2D9] text-[#646B73]';
+              resultBox.textContent = 'Đang gửi nét vẽ lên máy chủ nhận diện chữ viết tay...';
+
+              try {
+                const candidates = await recognizeHandwritingOnline(strokes, canvas.width, canvas.height);
+                // Lấy top 5 ứng viên giống nhất để chấm thoáng cho chữ viết tay tự do (giống bàn phím Samsung)
+                const topCandidates = candidates.slice(0, 5);
+                const matchedRank = topCandidates.indexOf(targetChar);
+
+                if (matchedRank !== -1) {
+                  // Trường hợp ĐÚNG: chữ mục tiêu nằm trong top 5 nhận diện
+                  solvedSet.add(charIdx);
+                  const allSolved = solvedSet.size === chars.length;
+
+                  resultBox.className = 'rounded-xl p-3 text-xs text-center bg-[#ECF8F2] border border-[#BEE8D4] text-[#1B875B] space-y-1.5';
+                  resultBox.innerHTML = `
+                    <div class="text-sm font-bold">✅ Chính xác! Bạn viết đúng chữ <span class="hanzi-font text-lg">${escapeHtml(targetChar)}</span></div>
+                    <div class="text-[11px] text-[#3F464E]">
+                      ${matchedRank === 0 ? 'Máy nhận diện chuẩn ngay vị trí #1.' : `Máy nhận diện khớp ở vị trí #${matchedRank + 1} (gợi ý: ${escapeHtml(topCandidates.join(' · '))}).`}
+                    </div>
+                    ${allSolved
+                      ? `<div class="text-xs font-semibold text-[#1B875B] pt-0.5">🎉 Hoàn thành trọn từ: <span class="hanzi-font text-base">${escapeHtml(word.hanzi)}</span> — Chọn mức SRS bên dưới để lưu lịch ôn!</div>`
+                      : `<button type="button" id="btn-fw-next-char" class="mt-1 px-3.5 py-1.5 rounded-lg bg-[#1B875B] hover:bg-[#156E49] text-white text-xs font-semibold">Viết chữ tiếp theo →</button>`
+                    }
+                  `;
+
+                  // Cập nhật ngay ô chữ phía trên thành chữ Hán màu xanh đã hoàn thành
+                  const slotEl = body.querySelector(`[data-fw-slot="${charIdx}"]`);
+                  if (slotEl) {
+                    slotEl.textContent = targetChar;
+                    slotEl.className = 'w-11 h-11 rounded-xl text-xl hanzi-font font-bold border transition flex items-center justify-center bg-[#ECF8F2] border-[#BEE8D4] text-[#1B875B]';
+                  }
+
+                  if (allSolved) {
+                    speakChinese(word.hanzi, 0.9);
+                  } else {
+                    const nextCharBtn = document.getElementById('btn-fw-next-char');
+                    if (nextCharBtn) {
+                      nextCharBtn.addEventListener('click', () => {
+                        const nextIdx = chars.findIndex((_, i) => !solvedSet.has(i));
+                        charIdx = nextIdx !== -1 ? nextIdx : (charIdx + 1) % chars.length;
+                        renderCharStage();
+                      });
+                    }
+                  }
+                } else {
+                  // Trường hợp SAI: chữ mục tiêu không khớp với nét vẽ -> gợi ý bấm "Chưa nhớ" để SRS lặp lại nhiều hơn
+                  const recognizedPreview = topCandidates.length > 0 ? topCandidates.join(' · ') : 'Không nhận diện được';
+                  resultBox.className = 'rounded-xl p-3 text-xs text-center bg-[#FDF1EF] border border-[#F5D6D1] text-[#C83E2B] space-y-1';
+                  resultBox.innerHTML = `
+                    <div class="text-sm font-bold">❌ Chưa đúng rồi!</div>
+                    <div class="text-[#3F464E]">Máy nhận diện nét viết giống: <strong class="hanzi-font text-sm">${escapeHtml(recognizedPreview)}</strong></div>
+                    <div class="text-[#646B73]">Đáp án cần viết là: <strong class="hanzi-font text-base text-[#1F2328]">${escapeHtml(targetChar)}</strong> — Hãy viết lại hoặc bấm <strong>"Chưa nhớ"</strong> bên dưới để lặp lại sớm.</div>
+                  `;
+                }
+              } catch (err) {
+                resultBox.className = 'rounded-xl p-3 text-xs text-center bg-[#FDF1EF] border border-[#F5D6D1] text-[#C83E2B]';
+                resultBox.textContent = `Không thể kết nối API nhận diện chữ viết tay (${err.message}). Hãy kiểm tra kết nối mạng và thử lại.`;
+              } finally {
+                checkBtn.disabled = false;
+                checkBtn.textContent = '✅ Kiểm tra';
+              }
+            });
+          }
+
+          renderCharStage();
+        }
+
+        renderWordPractice();
       }
 
       // ------------------------------------------------------------
