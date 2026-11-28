@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -2887,6 +2888,12 @@ Trả về ĐÚNG 1 JSON object hợp lệ (không thêm markdown \`\`\`json) g�
               <div class="text-4xl font-bold hanzi-font text-[#1F2328]">${escapeHtml(word.hanzi)}</div>
               <div class="text-sm font-semibold text-[#C83E2B]">${escapeHtml(word.pinyin || '')}</div>
               <div class="text-xs text-[#646B73]">${escapeHtml(word.meaning || '')}</div>
+              ${(word.hanzi || '').replace(/[，。！？、,.!?\s]/g, '').length === 1 ? `
+                <!-- [MỚI] Mẹo đọc kèm ngữ cảnh cho từ đơn 1 âm tiết giúp trình duyệt bắt tiếng nhạy hơn -->
+                <div class="rounded-xl bg-[#FFF7E6] border border-[#F6DFB0] px-3 py-2 text-[11px] text-[#B45309] leading-relaxed">
+                  <strong>Mẹo từ 1 chữ:</strong> Nếu máy khó bắt 1 tiếng ngắn, hãy đọc liền 2 lần (<span class="hanzi-font font-bold">${escapeHtml(word.hanzi)}，${escapeHtml(word.hanzi)}</span>)${word.example ? ` hoặc đọc câu: <span class="hanzi-font font-bold">${escapeHtml(word.example)}</span>` : ''}.
+                </div>
+              ` : ''}
               <div class="pt-2">
                 <button type="button" id="btn-sp-sample" class="px-3 py-1.5 rounded-full bg-white border border-[#E5DFD6] text-xs font-semibold text-[#C83E2B] hover:bg-[#FDF1EF]">🔊 Nghe giọng mẫu</button>
               </div>
@@ -2971,7 +2978,30 @@ Trả về ĐÚNG 1 JSON object hợp lệ (không thêm markdown \`\`\`json) g�
             return `Trình duyệt báo lỗi nhận diện (${code}). Hãy thử bấm thu âm lại.`;
           }
 
-          // Hàm chấm điểm sau khi phiên nhận diện kết thúc hoàn toàn (chọn phương án đồng âm khớp cao nhất)
+          // [MỚI] Bảng bổ sung cục bộ các chữ đồng âm tiếng Trung hay gặp khi SpeechRecognition phiên từ đơn 1 âm tiết
+          const EXTRA_HOMOPHONE_PINYIN = {
+            '它':'tā','塌':'tā','踏':'tà','塔':'tǎ','窝':'wō','握':'wò','卧':'wò','号':'hào','毫':'háo',
+            '拟':'nǐ','泥':'ní','腻':'nì','事':'shì','市':'shì','世':'shì','室':'shì','试':'shì','十':'shí',
+            '步':'bù','部':'bù','布':'bù','在':'zài','再':'zài','载':'zài','有':'yǒu','友':'yǒu','又':'yòu',
+            '右':'yòu','做':'zuò','作':'zuò','坐':'zuò','座':'zuò','看':'kàn','刊':'kān','到':'dào','道':'dào',
+            '倒':'dào','要':'yào','药':'yào','想':'xiǎng','响':'xiǎng','向':'xiàng','像':'xiàng','象':'xiàng',
+            '回':'huí','会':'huì','惠':'huì','来':'lái','去':'qù','趣':'qù','区':'qū','曲':'qǔ','吃':'chī',
+            '池':'chí','迟':'chí','喝':'hē','河':'hé','和':'hé','合':'hé','盒':'hé','买':'mǎi','卖':'mài',
+            '迈':'mài','麦':'mài','钱':'qián','前':'qián','潜':'qián','签':'qiān','千':'qiān','多':'duō',
+            '朵':'duǒ','躲':'duǒ','少':'shǎo','烧':'shāo','勺':'sháo','大':'dà','打':'dǎ','答':'dá','达':'dá'
+          };
+
+          // [MỚI] Hàm chuyển chuỗi chữ Hán sang mảng âm tiết Pinyin (kết hợp từ điển có sẵn + bảng đồng âm cục bộ)
+          function hanziToPinyinSyllables(str) {
+            const out = [];
+            for (const ch of Array.from(str || '')) {
+              if (CHAR_PINYIN[ch]) out.push(CHAR_PINYIN[ch].toLowerCase());
+              else if (EXTRA_HOMOPHONE_PINYIN[ch]) out.push(EXTRA_HOMOPHONE_PINYIN[ch].toLowerCase());
+            }
+            return out;
+          }
+
+          // [CẬP NHẬT] Hàm chấm điểm kết hợp 2 tầng: khớp mặt chữ Hán + khớp Pinyin đồng âm (có thanh điệu & không thanh điệu)
           function gradeSpokenText() {
             if (hasGraded) return;
             hasGraded = true;
@@ -2980,7 +3010,7 @@ Trả về ĐÚNG 1 JSON object hợp lệ (không thêm markdown \`\`\`json) g�
             const target = (word.hanzi || '').replace(/[，。！？、,.!?\s]/g, '');
             const clean = (s) => String(s || '').replace(/[，。！？、,.!?\s]/g, '');
 
-            // Gom tất cả ứng viên thu được (từ finalTranscript, interimTranscript và các phương án đồng âm)
+            // Gom tất cả ứng viên thu được (từ finalTranscript, interimTranscript và 5 phương án đồng âm)
             const allRaw = [
               `${finalTranscript}${interimTranscript}`.trim(),
               ...candidateList
@@ -2990,13 +3020,13 @@ Trả về ĐÚNG 1 JSON object hợp lệ (không thêm markdown \`\`\`json) g�
               resultBox.innerHTML = `
                 <div class="text-center text-[#C83E2B] space-y-1">
                   <div class="font-bold">Chưa ghi nhận được tiếng Trung nào</div>
-                  <div class="text-[11px] text-[#646B73]">${escapeHtml(lastErrorCode ? explainSpeechError(lastErrorCode) : 'Hãy đợi micro bật xong rồi đọc chậm và rõ thanh điệu hơn nhé.')}</div>
+                  <div class="text-[11px] text-[#646B73]">${escapeHtml(lastErrorCode ? explainSpeechError(lastErrorCode) : 'Hãy đợi micro bật xong rồi đọc rõ (với từ 1 chữ hãy đọc lặp 2 lần nhé).')}</div>
                 </div>
               `;
               return;
             }
 
-            // Chọn phương án khớp nhiều ký tự Hán với đáp án nhất (giúp tránh chấm oan do từ đồng âm)
+            // Tầng 1: Chọn phương án khớp nhiều ký tự chữ Hán với đáp án nhất
             let bestSpoken = allRaw[0];
             let bestHit = -1;
             for (const cand of allRaw) {
@@ -3010,21 +3040,58 @@ Trả về ĐÚNG 1 JSON object hợp lệ (không thêm markdown \`\`\`json) g�
               }
             }
 
-            let hit = 0;
+            let score = target.length > 0 ? Math.round((bestHit / target.length) * 100) : 0;
+            let pinyinNote = '';
+
+            // Tầng 2: Nếu mặt chữ Hán chưa đạt 100% (ví dụ đọc "他 tā" nhưng máy phiên thành chữ đồng âm "她/它"),
+            // đối chiếu thêm Pinyin giữa câu máy nghe được và từ mục tiêu
+            if (score < 100) {
+              const targetPinyinRaw = (word.pinyin || generatePinyinLocal(target) || '').toLowerCase().trim();
+              const targetToneSyl = targetPinyinRaw.split(/\s+/).filter(Boolean);
+              const targetBaseSyl = targetToneSyl.map(s => normalizeSearchText(s));
+
+              for (const cand of allRaw) {
+                const candToneSyl = hanziToPinyinSyllables(cand);
+                if (candToneSyl.length === 0) continue;
+                const candBaseSyl = candToneSyl.map(s => normalizeSearchText(s));
+
+                // Kiểm tra khớp toàn bộ âm tiết Pinyin đúng cả thanh điệu (đồng âm chuẩn)
+                const exactToneHit = targetToneSyl.filter(syl => candToneSyl.includes(syl)).length;
+                const exactToneScore = targetToneSyl.length > 0 ? Math.round((exactToneHit / targetToneSyl.length) * 100) : 0;
+                if (exactToneScore > score) {
+                  score = exactToneScore;
+                  bestSpoken = cand;
+                  pinyinNote = exactToneScore === 100
+                    ? 'Khớp chuẩn phát âm Pinyin (máy phiên sang chữ đồng âm)!'
+                    : 'Khớp một phần phát âm Pinyin (từ đồng âm).';
+                }
+
+                // Kiểm tra khớp âm tiết Pinyin không dấu thanh điệu (đúng âm, hơi lệch thanh điệu)
+                if (score < 75 && targetBaseSyl.length > 0) {
+                  const baseHit = targetBaseSyl.filter(syl => candBaseSyl.includes(syl)).length;
+                  if (baseHit === targetBaseSyl.length) {
+                    score = 75;
+                    bestSpoken = cand;
+                    pinyinNote = 'Đúng âm đọc Pinyin — chú ý nhấn chuẩn thanh điệu hơn nhé!';
+                  }
+                }
+              }
+            }
+
+            // Tô màu đối chiếu từng chữ Hán (nếu đã đạt 100% nhờ đồng âm Pinyin thì tô xanh toàn bộ)
             const colored = Array.from(target).map(ch => {
-              if (bestSpoken.includes(ch)) {
-                hit++;
+              if (score === 100 || bestSpoken.includes(ch)) {
                 return `<span class="text-[#1B875B] font-bold">${escapeHtml(ch)}</span>`;
               }
               return `<span class="text-[#C83E2B] font-bold underline">${escapeHtml(ch)}</span>`;
             }).join('');
-            const score = target.length > 0 ? Math.round((hit / target.length) * 100) : 0;
 
             resultBox.innerHTML = `
               <div class="space-y-1 text-center">
-                <div class="text-sm font-bold ${score >= 80 ? 'text-[#1B875B]' : 'text-[#C83E2B]'}">Độ khớp: ${score}%</div>
+                <div class="text-sm font-bold ${score >= 80 ? 'text-[#1B875B]' : score >= 70 ? 'text-[#B45309]' : 'text-[#C83E2B]'}">Độ khớp: ${score}%</div>
                 <div class="text-xs text-[#3F464E]">Máy nghe được: <strong class="hanzi-font text-sm">${escapeHtml(bestSpoken)}</strong></div>
                 <div class="text-xs">Đối chiếu: <span class="hanzi-font text-base">${colored}</span></div>
+                ${pinyinNote ? `<div class="text-[11px] font-medium text-[#1B875B]">${escapeHtml(pinyinNote)}</div>` : ''}
               </div>
             `;
           }
@@ -3079,7 +3146,8 @@ Trả về ĐÚNG 1 JSON object hợp lệ (không thêm markdown \`\`\`json) g�
             // Dùng continuous = false vì trên Chrome Android continuous = true hay bị treo không trả kết quả
             rec.continuous = false;
             rec.interimResults = true;
-            rec.maxAlternatives = 3;
+            // [CẬP NHẬT] Nâng lên 5 phương án đồng âm để tăng độ chính xác cho từ đơn 1 âm tiết tiếng Trung
+            rec.maxAlternatives = 5;
 
             rec.onresult = (event) => {
               let currentInterim = '';
