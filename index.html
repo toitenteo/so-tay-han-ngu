@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -2850,15 +2851,15 @@ Trả về ĐÚNG 1 JSON object hợp lệ (không thêm markdown \`\`\`json) g�
       }
 
       // ------------------------------------------------------------
-      // CHẾ ĐỘ 2: SPEAKING (CHẤM ĐIỂM PHÁT ÂM THỦ CÔNG + SÓNG ÂM TRỰC QUAN)
-      // Cơ chế:
-      // - Tắt giọng đọc mẫu đang phát để tránh xung đột phần cứng micro trên điện thoại.
-      // - Bật continuous=true & interimResults=true, tự nối phiên nếu trình duyệt nghỉ giữa chừng; chỉ chấm điểm khi người dùng chủ động nhấn "Dừng & Chấm điểm".
-      // - Dùng Web Audio API (AnalyserNode) vẽ 12 cột sóng âm theo độ lớn giọng nói thật để biết mic đang nhận tiếng tốt hay không.
+      // CHẾ ĐỘ 2: SPEAKING (CHẤM ĐIỂM PHÁT ÂM ỔN ĐỊNH CHO DI ĐỘNG — KHÔNG XUNG ĐỘT MICRO)
+      // Cơ chế đã sửa lỗi:
+      // - Không mở getUserMedia vẽ sóng âm song song với SpeechRecognition để tránh tranh chấp phần cứng micro trên điện thoại.
+      // - Dùng continuous=false & maxAlternatives=3 (ổn định nhất trên Chrome Android/Desktop và hỗ trợ từ đồng âm tiếng Trung).
+      // - Chờ đúng sự kiện onend (khi máy chủ trả xong chữ cuối cùng) rồi mới chấm điểm, kèm thông báo lỗi rõ ràng nếu mạng/mic có sự cố.
       // ------------------------------------------------------------
       function startSpeakingCheck() {
         document.getElementById('practice-modal-title').textContent = 'Speaking — Chấm điểm phát âm';
-        document.getElementById('practice-modal-subtitle').textContent = 'Bấm thu âm, đọc xong thì bấm Dừng để chấm điểm chính xác';
+        document.getElementById('practice-modal-subtitle').textContent = 'Bấm thu âm và đọc rõ tiếng Trung — máy tự nhận diện & chấm điểm';
 
         const pool = shuffleArray(getPracticePool(5));
         let idx = 0;
@@ -2868,15 +2869,18 @@ Trả về ĐÚNG 1 JSON object hợp lệ (không thêm markdown \`\`\`json) g�
           const body = document.getElementById('practice-modal-body');
           const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-          // Biến cục bộ lưu toàn bộ câu máy nghe được trong suốt phiên thu âm thủ công
+          // Lưu toàn bộ câu nhận diện được và danh sách các phương án đồng âm (maxAlternatives=3)
           let finalTranscript = '';
           let interimTranscript = '';
-          let fatalError = false;
-          let retriedWithoutWave = false;
+          let candidateList = [];
+          let hasGraded = false;
+          let lastErrorCode = '';
+          let waveAnimTimer = null;
+          let stopFallbackTimer = null;
 
-          // Tạo 12 cột sóng âm trực quan để hiển thị cường độ giọng nói từ micro
+          // Tạo 12 cột sóng hiển thị trạng thái đang lắng nghe (chạy bằng animation nhẹ, không chiếm phần cứng micro)
           const waveBarsHtml = Array.from({ length: 12 }, () =>
-            '<span data-sp-wave-bar class="w-1.5 rounded-full bg-[#C83E2B] transition-[height] duration-75" style="height: 6px;"></span>'
+            '<span data-sp-wave-bar class="w-1.5 rounded-full bg-[#C83E2B] transition-[height] duration-150" style="height: 6px;"></span>'
           ).join('');
 
           body.innerHTML = `
@@ -2889,13 +2893,13 @@ Trả về ĐÚNG 1 JSON object hợp lệ (không thêm markdown \`\`\`json) g�
               </div>
             </div>
 
-            <!-- [MỚI] Khung sóng âm lượng trực quan báo hiệu micro có đang bắt giọng hay không -->
+            <!-- Khung sóng trạng thái đang lắng nghe (không mở getUserMedia để nhường 100% micro cho SpeechRecognition) -->
             <div id="sp-wave-panel" class="hidden rounded-xl bg-[#FDF1EF] border border-[#F5D6D1] px-4 py-3 space-y-1.5">
-              <div class="flex items-center justify-center gap-1.5 h-10" aria-label="Sóng âm lượng micro">
+              <div class="flex items-center justify-center gap-1.5 h-10" aria-label="Trạng thái đang lắng nghe">
                 ${waveBarsHtml}
               </div>
               <div id="sp-wave-caption" class="text-[11px] font-semibold text-[#C83E2B] text-center">
-                Đang thu âm... hãy đọc rõ rồi nhấn "Dừng &amp; Chấm điểm"
+                Đang lắng nghe tiếng Trung... hãy đọc rõ rồi nghỉ 1 nhịp hoặc bấm Dừng
               </div>
             </div>
 
@@ -2908,8 +2912,8 @@ Trả về ĐÚNG 1 JSON object hợp lệ (không thêm markdown \`\`\`json) g�
                   ⏹️ Dừng &amp; Chấm điểm
                 </button>
               </div>
-              <div id="sp-result-box" class="rounded-xl bg-[#FAF8F5] border border-[#EFEAE2] p-3 text-xs text-[#646B73] min-h-[64px] flex items-center justify-center">
-                ${SpeechRec ? 'Nhấn "Bắt đầu thu âm", đọc tiếng Trung rồi bấm "Dừng & Chấm điểm".' : 'Trình duyệt của bạn chưa hỗ trợ Web Speech API (khuyên dùng Chrome/Edge trên Android hoặc máy tính).'}
+              <div id="sp-result-box" class="rounded-xl bg-[#FAF8F5] border border-[#EFEAE2] p-3 text-xs text-[#646B73] min-h-[68px] flex items-center justify-center">
+                ${SpeechRec ? 'Nhấn "Bắt đầu thu âm" rồi đọc to tiếng Trung. Máy sẽ tự chấm khi bạn đọc xong.' : 'Trình duyệt của bạn chưa hỗ trợ Web Speech API (khuyên dùng Chrome/Edge trên Android hoặc máy tính).'}
               </div>
             </div>
 
@@ -2921,8 +2925,110 @@ Trả về ĐÚNG 1 JSON object hợp lệ (không thêm markdown \`\`\`json) g�
           const micBtn = document.getElementById('btn-sp-mic');
           const stopBtn = document.getElementById('btn-sp-stop');
           const wavePanel = document.getElementById('sp-wave-panel');
-          const waveCaption = document.getElementById('sp-wave-caption');
           const resultBox = document.getElementById('sp-result-box');
+
+          // Hàm bật/tắt hiệu ứng cột sóng nhẹ bằng JS/CSS (không mở micro thứ 2 nên tuyệt đối không xung đột trên Android)
+          function startSafeWaveAnim() {
+            stopSafeWaveAnim();
+            const bars = Array.from(body.querySelectorAll('[data-sp-wave-bar]'));
+            waveAnimTimer = setInterval(() => {
+              bars.forEach(bar => {
+                const h = 8 + Math.floor(Math.random() * 26);
+                bar.style.height = h + 'px';
+              });
+            }, 150);
+          }
+
+          function stopSafeWaveAnim() {
+            if (waveAnimTimer) {
+              clearInterval(waveAnimTimer);
+              waveAnimTimer = null;
+            }
+            if (stopFallbackTimer) {
+              clearTimeout(stopFallbackTimer);
+              stopFallbackTimer = null;
+            }
+            body.querySelectorAll('[data-sp-wave-bar]').forEach(bar => {
+              bar.style.height = '6px';
+            });
+          }
+
+          // Hàm đưa giao diện nút thu âm về trạng thái nghỉ
+          function resetMicUI() {
+            speakingManualActive = false;
+            stopSafeWaveAnim();
+            if (micBtn) micBtn.classList.remove('hidden');
+            if (stopBtn) stopBtn.classList.add('hidden');
+            if (wavePanel) wavePanel.classList.add('hidden');
+          }
+
+          // Hàm dịch mã lỗi của Web Speech API sang tiếng Việt dễ hiểu để người dùng biết rõ nguyên nhân
+          function explainSpeechError(code) {
+            if (code === 'not-allowed' || code === 'service-not-allowed') return 'Trình duyệt chưa được cấp quyền Micro. Hãy bật quyền Micro trong cài đặt trình duyệt rồi thử lại.';
+            if (code === 'network') return 'Lỗi kết nối mạng đến dịch vụ nhận diện giọng nói. Hãy kiểm tra Wi-Fi/4G và thử lại.';
+            if (code === 'audio-capture') return 'Không tìm thấy micro hoặc có ứng dụng khác đang chiếm micro.';
+            if (code === 'language-not-supported') return 'Trình duyệt/máy hiện tại chưa hỗ trợ gói nhận diện tiếng Trung (zh-CN).';
+            if (code === 'no-speech') return 'Không phát hiện thấy giọng nói nào. Hãy đưa mic gần hơn và đọc rõ tiếng Trung nhé.';
+            return `Trình duyệt báo lỗi nhận diện (${code}). Hãy thử bấm thu âm lại.`;
+          }
+
+          // Hàm chấm điểm sau khi phiên nhận diện kết thúc hoàn toàn (chọn phương án đồng âm khớp cao nhất)
+          function gradeSpokenText() {
+            if (hasGraded) return;
+            hasGraded = true;
+            resetMicUI();
+
+            const target = (word.hanzi || '').replace(/[，。！？、,.!?\s]/g, '');
+            const clean = (s) => String(s || '').replace(/[，。！？、,.!?\s]/g, '');
+
+            // Gom tất cả ứng viên thu được (từ finalTranscript, interimTranscript và các phương án đồng âm)
+            const allRaw = [
+              `${finalTranscript}${interimTranscript}`.trim(),
+              ...candidateList
+            ].map(clean).filter(Boolean);
+
+            if (allRaw.length === 0) {
+              resultBox.innerHTML = `
+                <div class="text-center text-[#C83E2B] space-y-1">
+                  <div class="font-bold">Chưa ghi nhận được tiếng Trung nào</div>
+                  <div class="text-[11px] text-[#646B73]">${escapeHtml(lastErrorCode ? explainSpeechError(lastErrorCode) : 'Hãy đợi micro bật xong rồi đọc chậm và rõ thanh điệu hơn nhé.')}</div>
+                </div>
+              `;
+              return;
+            }
+
+            // Chọn phương án khớp nhiều ký tự Hán với đáp án nhất (giúp tránh chấm oan do từ đồng âm)
+            let bestSpoken = allRaw[0];
+            let bestHit = -1;
+            for (const cand of allRaw) {
+              let h = 0;
+              for (const ch of Array.from(target)) {
+                if (cand.includes(ch)) h++;
+              }
+              if (h > bestHit) {
+                bestHit = h;
+                bestSpoken = cand;
+              }
+            }
+
+            let hit = 0;
+            const colored = Array.from(target).map(ch => {
+              if (bestSpoken.includes(ch)) {
+                hit++;
+                return `<span class="text-[#1B875B] font-bold">${escapeHtml(ch)}</span>`;
+              }
+              return `<span class="text-[#C83E2B] font-bold underline">${escapeHtml(ch)}</span>`;
+            }).join('');
+            const score = target.length > 0 ? Math.round((hit / target.length) * 100) : 0;
+
+            resultBox.innerHTML = `
+              <div class="space-y-1 text-center">
+                <div class="text-sm font-bold ${score >= 80 ? 'text-[#1B875B]' : 'text-[#C83E2B]'}">Độ khớp: ${score}%</div>
+                <div class="text-xs text-[#3F464E]">Máy nghe được: <strong class="hanzi-font text-sm">${escapeHtml(bestSpoken)}</strong></div>
+                <div class="text-xs">Đối chiếu: <span class="hanzi-font text-base">${colored}</span></div>
+              </div>
+            `;
+          }
 
           document.getElementById('btn-sp-sample').addEventListener('click', () => {
             if (speakingManualActive) {
@@ -2933,6 +3039,7 @@ Trả về ĐÚNG 1 JSON object hợp lệ (không thêm markdown \`\`\`json) g�
           });
 
           document.getElementById('btn-sp-next').addEventListener('click', () => {
+            stopSafeWaveAnim();
             cleanupPracticeSession();
             idx++;
             renderSpeakingItem();
@@ -2944,164 +3051,11 @@ Trả về ĐÚNG 1 JSON object hợp lệ (không thêm markdown \`\`\`json) g�
             return;
           }
 
-          // Hàm khởi chạy thanh sóng âm đo cường độ micro thật bằng Web Audio API
-          async function startWaveformVisualizer() {
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
-            try {
-              const stream = await navigator.mediaDevices.getUserMedia({
-                audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
-              });
-              if (!speakingManualActive) {
-                stream.getTracks().forEach(t => t.stop());
-                return;
-              }
-              speakingMicStream = stream;
-              const AudioCtx = window.AudioContext || window.webkitAudioContext;
-              if (!AudioCtx) return;
-              speakingAudioCtx = new AudioCtx();
-              const source = speakingAudioCtx.createMediaStreamSource(stream);
-              const analyser = speakingAudioCtx.createAnalyser();
-              analyser.fftSize = 64;
-              analyser.smoothingTimeConstant = 0.75;
-              source.connect(analyser);
-
-              const dataArray = new Uint8Array(analyser.frequencyBinCount);
-              const bars = Array.from(document.querySelectorAll('[data-sp-wave-bar]'));
-
-              const drawLoop = () => {
-                if (!speakingManualActive) return;
-                analyser.getByteFrequencyData(dataArray);
-                // Tính độ lớn âm lượng trung bình để báo người dùng biết mic đang bắt tiếng hay còn nhỏ
-                let sum = 0;
-                bars.forEach((bar, i) => {
-                  const val = dataArray[i + 1] || 0;
-                  sum += val;
-                  const h = Math.max(6, Math.min(38, Math.round((val / 255) * 44) + 6));
-                  bar.style.height = h + 'px';
-                });
-                const avg = sum / Math.max(1, bars.length);
-                if (waveCaption) {
-                  waveCaption.textContent = avg > 14
-                    ? 'Mic đang nhận giọng tốt! Đọc xong hãy nhấn "Dừng & Chấm điểm"'
-                    : 'Đang chờ tiếng nói... hãy đưa mic gần hơn và đọc to rõ nhé';
-                }
-                speakingWaveRaf = requestAnimationFrame(drawLoop);
-              };
-              drawLoop();
-            } catch (e) {
-              // Nếu thiết bị không cho mở đồng thời sóng âm + nhận diện giọng nói thì vẫn giữ nhận diện hoạt động bình thường
-              if (waveCaption) {
-                waveCaption.textContent = 'Đang thu âm (chế độ tiết kiệm mic)... đọc xong hãy nhấn "Dừng & Chấm điểm"';
-              }
-            }
-          }
-
-          // Hàm chấm điểm và hiển thị đối chiếu xanh/đỏ sau khi người dùng chủ động nhấn Dừng
-          function gradeSpokenText() {
-            const rawSpoken = `${finalTranscript}${interimTranscript}`.trim();
-            const spoken = rawSpoken.replace(/[，。！？、,.!?\s]/g, '');
-            const target = (word.hanzi || '').replace(/[，。！？、,.!?\s]/g, '');
-
-            if (!spoken) {
-              resultBox.innerHTML = `
-                <div class="text-center text-[#C83E2B] space-y-1">
-                  <div class="font-bold">Chưa ghi nhận được tiếng Trung nào</div>
-                  <div class="text-[11px] text-[#646B73]">Hãy kiểm tra cột sóng âm có nhảy khi nói không, sau đó thử đọc chậm và rõ thanh điệu hơn nhé.</div>
-                </div>
-              `;
-              return;
-            }
-
-            let hit = 0;
-            const colored = Array.from(target).map(ch => {
-              if (spoken.includes(ch)) {
-                hit++;
-                return `<span class="text-[#1B875B] font-bold">${escapeHtml(ch)}</span>`;
-              }
-              return `<span class="text-[#C83E2B] font-bold underline">${escapeHtml(ch)}</span>`;
-            }).join('');
-            const score = target.length > 0 ? Math.round((hit / target.length) * 100) : 0;
-
-            resultBox.innerHTML = `
-              <div class="space-y-1 text-center">
-                <div class="text-sm font-bold ${score >= 80 ? 'text-[#1B875B]' : 'text-[#C83E2B]'}">Độ khớp: ${score}%</div>
-                <div class="text-xs text-[#3F464E]">Máy nghe được: <strong class="hanzi-font text-sm">${escapeHtml(spoken)}</strong></div>
-                <div class="text-xs">Đối chiếu: <span class="hanzi-font text-base">${colored}</span></div>
-              </div>
-            `;
-          }
-
-          // Hàm khởi động phiên SpeechRecognition với chế độ liên tục và tự nối phiên
-          function launchRecognition() {
-            if (!speakingManualActive) return;
-            const rec = new SpeechRec();
-            practiceRecognition = rec;
-            rec.lang = 'zh-CN';
-            rec.continuous = true;
-            rec.interimResults = true;
-            rec.maxAlternatives = 1;
-
-            rec.onresult = (event) => {
-              let currentInterim = '';
-              for (let i = event.resultIndex; i < event.results.length; i++) {
-                const text = event.results[i][0]?.transcript || '';
-                if (event.results[i].isFinal) {
-                  finalTranscript += text;
-                } else {
-                  currentInterim += text;
-                }
-              }
-              interimTranscript = currentInterim;
-              const liveText = `${finalTranscript}${interimTranscript}`.trim();
-              resultBox.innerHTML = `
-                <div class="space-y-1 text-center">
-                  <div class="text-[11px] font-semibold text-[#1B875B]">Đang nghe trực tiếp...</div>
-                  <div class="hanzi-font text-base font-bold text-[#1F2328]">${escapeHtml(liveText || '...')}</div>
-                </div>
-              `;
-            };
-
-            rec.onerror = (event) => {
-              const errCode = event && event.error ? event.error : '';
-              // Nếu thiết bị bị xung đột phần cứng micro khi mở kèm sóng âm -> nhả sóng âm và thử khởi động lại SpeechRecognition 1 lần
-              if (errCode === 'audio-capture' && !retriedWithoutWave && speakingManualActive) {
-                retriedWithoutWave = true;
-                stopSpeakingWaveform();
-                if (waveCaption) waveCaption.textContent = 'Đã chuyển sang chế độ ưu tiên nhận diện giọng nói... hãy đọc lại nhé!';
-                setTimeout(() => { if (speakingManualActive) launchRecognition(); }, 250);
-                return;
-              }
-              if (errCode === 'not-allowed' || errCode === 'service-not-allowed') {
-                fatalError = true;
-                cleanupPracticeSession();
-                micBtn.classList.remove('hidden');
-                stopBtn.classList.add('hidden');
-                wavePanel.classList.add('hidden');
-                resultBox.textContent = 'Trình duyệt chưa được cấp quyền Micro. Hãy bật quyền Micro trong cài đặt trình duyệt rồi thử lại.';
-              }
-              // Với lỗi 'no-speech' hoặc 'aborted' khi đang bật thu thủ công, để onend tự nối phiên lại mà không cắt ngang người nói
-            };
-
-            rec.onend = () => {
-              practiceRecognition = null;
-              // Nếu người dùng CHƯA bấm nút Dừng (trình duyệt di động tự nghỉ sau vài giây), tự nối phiên thu ngay lập tức
-              if (speakingManualActive && !fatalError) {
-                setTimeout(() => {
-                  if (speakingManualActive && !fatalError) launchRecognition();
-                }, 150);
-              }
-            };
-
-            try {
-              rec.start();
-            } catch (e) {
-              // Bỏ qua nếu trình duyệt báo đang ở trạng thái khởi chạy
-            }
-          }
-
-          // Sự kiện nhấn "Bắt đầu thu âm"
+          // Sự kiện nhấn "Bắt đầu thu âm": chỉ khởi chạy duy nhất SpeechRecognition để nhường trọn micro phần cứng
           micBtn.addEventListener('click', () => {
+            stopSafeWaveAnim();
             cleanupPracticeSession();
+
             // Ngắt giọng đọc mẫu TTS (nếu đang phát) để giải phóng hoàn toàn kênh âm thanh cho micro
             if (typeof window.speechSynthesis !== 'undefined' && (window.speechSynthesis.speaking || window.speechSynthesis.pending)) {
               window.speechSynthesis.cancel();
@@ -3109,35 +3063,79 @@ Trả về ĐÚNG 1 JSON object hợp lệ (không thêm markdown \`\`\`json) g�
 
             finalTranscript = '';
             interimTranscript = '';
-            fatalError = false;
-            retriedWithoutWave = false;
+            candidateList = [];
+            hasGraded = false;
+            lastErrorCode = '';
             speakingManualActive = true;
 
             micBtn.classList.add('hidden');
             stopBtn.classList.remove('hidden');
             wavePanel.classList.remove('hidden');
-            resultBox.innerHTML = '<span class="text-[#C83E2B] font-medium">🎙️ Mic đã bật! Hãy đọc to tiếng Trung, xong thì bấm "Dừng &amp; Chấm điểm".</span>';
+            startSafeWaveAnim();
+            resultBox.innerHTML = '<span class="text-[#C83E2B] font-medium">🎙️ Đang lắng nghe... hãy đọc rõ tiếng Trung nhé!</span>';
 
-            // Khởi chạy đồng thời nhận diện giọng nói và sóng âm trực quan
-            launchRecognition();
-            startWaveformVisualizer();
+            const rec = new SpeechRec();
+            practiceRecognition = rec;
+            rec.lang = 'zh-CN';
+            // Dùng continuous = false vì trên Chrome Android continuous = true hay bị treo không trả kết quả
+            rec.continuous = false;
+            rec.interimResults = true;
+            rec.maxAlternatives = 3;
+
+            rec.onresult = (event) => {
+              let currentInterim = '';
+              for (let i = event.resultIndex; i < event.results.length; i++) {
+                const resItem = event.results[i];
+                const topText = resItem[0]?.transcript || '';
+                // Lưu thêm các phương án đồng âm do máy chủ trả về
+                for (let k = 0; k < resItem.length; k++) {
+                  if (resItem[k]?.transcript) candidateList.push(resItem[k].transcript);
+                }
+                if (resItem.isFinal) {
+                  finalTranscript += topText;
+                } else {
+                  currentInterim += topText;
+                }
+              }
+              interimTranscript = currentInterim;
+              const liveText = `${finalTranscript}${interimTranscript}`.trim();
+              resultBox.innerHTML = `
+                <div class="space-y-1 text-center">
+                  <div class="text-[11px] font-semibold text-[#1B875B]">Máy đang nghe thấy...</div>
+                  <div class="hanzi-font text-base font-bold text-[#1F2328]">${escapeHtml(liveText || '...')}</div>
+                </div>
+              `;
+            };
+
+            rec.onerror = (event) => {
+              lastErrorCode = event && event.error ? event.error : 'unknown';
+            };
+
+            // Chờ đúng lúc trình duyệt hoàn tất nhận diện (onend) mới chốt điểm để không bị chấm sớm khi server chưa trả chữ về
+            rec.onend = () => {
+              if (practiceRecognition === rec) practiceRecognition = null;
+              gradeSpokenText();
+            };
+
+            try {
+              rec.start();
+            } catch (e) {
+              lastErrorCode = 'start-failed';
+              gradeSpokenText();
+            }
           });
 
-          // Sự kiện nhấn "Dừng & Chấm điểm" thủ công
+          // Sự kiện nhấn "Dừng & Chấm điểm": ra lệnh rec.stop() và đợi onend trả chữ cuối (có giới hạn tối đa 2 giây để không treo)
           stopBtn.addEventListener('click', () => {
-            speakingManualActive = false;
+            stopSafeWaveAnim();
+            resultBox.innerHTML = '<span class="text-[#646B73] font-medium">⏳ Đang xử lý giọng nói và chấm điểm...</span>';
             if (practiceRecognition) {
               try { practiceRecognition.stop(); } catch (e) {}
-              practiceRecognition = null;
+              // Dự phòng an toàn: nếu sau 2 giây trình duyệt không bắn sự kiện onend thì tự chốt điểm luôn
+              stopFallbackTimer = setTimeout(gradeSpokenText, 2000);
+            } else {
+              gradeSpokenText();
             }
-            stopSpeakingWaveform();
-
-            micBtn.classList.remove('hidden');
-            stopBtn.classList.add('hidden');
-            wavePanel.classList.add('hidden');
-
-            // Chờ ngắn 150ms để trình duyệt trả nốt chữ cuối cùng (nếu có) rồi mới chốt điểm
-            setTimeout(gradeSpokenText, 150);
           });
         }
         renderSpeakingItem();
