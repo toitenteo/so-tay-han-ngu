@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -2888,9 +2889,19 @@ Trả về ĐÚNG 1 JSON object hợp lệ (không thêm markdown \`\`\`json) g�
               <div class="text-sm font-semibold text-[#C83E2B]">${escapeHtml(word.pinyin || '')}</div>
               <div class="text-xs text-[#646B73]">${escapeHtml(word.meaning || '')}</div>
               ${(word.hanzi || '').replace(/[，。！？、,.!?\s]/g, '').length === 1 ? `
-                <!-- [MỚI] Mẹo đọc kèm ngữ cảnh cho từ đơn 1 âm tiết giúp trình duyệt bắt tiếng nhạy hơn -->
-                <div class="rounded-xl bg-[#FFF7E6] border border-[#F6DFB0] px-3 py-2 text-[11px] text-[#B45309] leading-relaxed">
-                  <strong>Mẹo từ 1 chữ:</strong> Nếu máy khó bắt 1 tiếng ngắn, hãy đọc liền 2 lần (<span class="hanzi-font font-bold">${escapeHtml(word.hanzi)}，${escapeHtml(word.hanzi)}</span>)${word.example ? ` hoặc đọc câu: <span class="hanzi-font font-bold">${escapeHtml(word.example)}</span>` : ''}.
+                <!-- [CẬP NHẬT] Mẹo đọc kèm ngữ cảnh cho từ đơn 1 chữ hiển thị đủ cả Chữ Hán lẫn Pinyin để người mới học dễ đọc theo -->
+                <div class="rounded-xl bg-[#FFF7E6] border border-[#F6DFB0] px-3 py-2 text-[11px] text-[#B45309] leading-relaxed space-y-1">
+                  <div>
+                    <strong>Mẹo từ 1 chữ:</strong> Đọc liền 2 lần:
+                    <span class="hanzi-font font-bold text-[#1F2328]">${escapeHtml(word.hanzi)}，${escapeHtml(word.hanzi)}</span>
+                    ${word.pinyin ? `<span class="text-[#C83E2B] font-semibold">(${escapeHtml(word.pinyin)}, ${escapeHtml(word.pinyin)})</span>` : ''}
+                  </div>
+                  ${word.example ? `
+                    <div class="pt-0.5 border-t border-[#F6DFB0]/70">
+                      Hoặc đọc câu mẫu: <span class="hanzi-font font-bold text-[#1F2328]">${escapeHtml(word.example)}</span>
+                      <div class="text-[#C83E2B] font-medium">${escapeHtml(generatePinyinLocal(word.example))}</div>
+                    </div>
+                  ` : ''}
                 </div>
               ` : ''}
               <div class="pt-2">
